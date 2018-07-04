@@ -90,6 +90,25 @@ vector<float> muSvMass_;
 vector<float> muSvDxySig_;
 vector<float> muSvCosAngle_;
 
+vector<pair<int,int>>    uuHadCharge_;
+vector<pair<float,float>>  uuHadD0_;
+vector<pair<float,float>>  uuHadDz_;
+vector<pair<float,float>>  uuHadD0Error_;
+vector<pair<float,float>>  uuHadDzError_;
+vector<pair<float,float>>  uuHadPt_;
+vector<pair<float,float>>  uuHadEta_;
+vector<pair<float,float>>  uuHadPhi_;
+vector<pair<float,float>>  uuHadVx_;
+vector<pair<float,float>>  uuHadVy_;
+vector<pair<float,float>>  uuHadVz_;
+vector<pair<float,float>>  uuHadEn_;
+vector<pair<float,float>>  uuHadTrkChi2_;
+vector<pair<float,float>>  uuHadTrkNDOF_;
+vector<pair<float,float>>  uuHadTrkNormChi2_;
+vector<float>  uuHadJPsiMass_;
+vector<float>  uuHadPhiMass_;
+
+
 void ggNtuplizer::branchesMuons(TTree* tree) {
 
   tree->Branch("nMu",           &nMu_);
@@ -146,6 +165,28 @@ void ggNtuplizer::branchesMuons(TTree* tree) {
   tree->Branch("muSvMass",                  &muSvMass_);
   tree->Branch("muSvDxySig",                  &muSvDxySig_);
   tree->Branch("muSvCosAngle",                  &muSvCosAngle_);
+  if (!separateVtxFit_) {
+    tree->Branch("uuHadCharge",               &uuHadCharge_);
+    tree->Branch("uuHadD0",                   &uuHadD0_);
+    tree->Branch("uuHadDz",                   &uuHadDz_);
+    tree->Branch("uuHadD0Error",              &uuHadD0Error_);
+    tree->Branch("uuHadDzError",              &uuHadDzError_);
+    tree->Branch("uuHadPt",                   &uuHadPt_);
+    tree->Branch("uuHadEta",                  &uuHadEta_);
+    tree->Branch("uuHadPhi",                  &uuHadPhi_);
+    tree->Branch("uuHadVx",                   &uuHadVx_);
+    tree->Branch("uuHadVy",                   &uuHadVy_);
+    tree->Branch("uuHadVz",                   &uuHadVz_);
+    tree->Branch("uuHadEn",                   &uuHadEn_);
+    tree->Branch("uuHadTrkChi2",              &uuHadTrkChi2_);
+    tree->Branch("uuHadTrkNDOF",              &uuHadTrkNDOF_);
+    tree->Branch("uuHadTrkNormChi2",          &uuHadTrkNormChi2_);
+    tree->Branch("uuHadJPsiMass",                  &uuHadJPsiMass_);
+    tree->Branch("uuHadPhiMass",                  &uuHadPhiMass_);
+  
+
+  }
+
 
 
 }
@@ -207,6 +248,25 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   muSvDxySig_.clear();
   muSvCosAngle_.clear();
 
+  uuHadCharge_                  .clear();
+  uuHadD0_                      .clear();
+  uuHadDz_                      .clear();
+  uuHadD0Error_                 .clear();
+  uuHadDzError_                 .clear();
+  uuHadPt_                      .clear();
+  uuHadEta_                     .clear();
+  uuHadPhi_                     .clear();
+  uuHadVx_                      .clear();
+  uuHadVy_                      .clear();
+  uuHadVz_                      .clear();
+  uuHadEn_	              .clear();
+  uuHadTrkChi2_                 .clear();
+  uuHadTrkNDOF_                 .clear();
+  uuHadTrkNormChi2_             .clear();
+  uuHadJPsiMass_		      .clear();
+  uuHadPhiMass_		      .clear();
+
+
 
 
   nMu_ = 0;
@@ -222,146 +282,353 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
     return;
   }
 
-  for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
-    //if (iMu->pt() < 2) continue;
-    if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
-    if (fabs(iMu->eta()) > 2.5) continue;
+  if (!(separateVtxFit_)) {
+    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      //if (iMu->pt() < 2) continue;
+      if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
+      if (fabs(iMu->eta()) > 2.5) continue;
+      for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
+        //if (jMu->pt() < 2) continue;
+        if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
+        if (fabs(jMu->eta()) > 2.5) continue;
+        if (iMu->charge() * jMu->charge() > 0.) continue;
+        float pmass  = 0.1056583745;
+        TLorentzVector iMu_lv, jMu_lv;
+        iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), pmass);
+        jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), pmass);      
+        if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
 
-    for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
-      //if (jMu->pt() < 2) continue;
-      if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
-      if (fabs(jMu->eta()) > 2.5) continue;
-      if (iMu->charge() * jMu->charge() > 0.) continue;
-      TLorentzVector iMu_lv, jMu_lv;
-      iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), 0.1056583745);
-      jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), 0.1056583745);      
-      if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
+        KinematicParticleFactoryFromTransientTrack pFactory;  
+        std::vector<RefCountedKinematicParticle> XParticles;
+        float pmasse = 1.e-6 * pmass;
+        const reco::TransientTrack imuttk = getTransientTrack( *(iMu->bestTrack()) );
+        const reco::TransientTrack jmuttk = getTransientTrack( *(jMu->bestTrack()) );
 
 
-      KinematicParticleFactoryFromTransientTrack pFactory;  
-      std::vector<RefCountedKinematicParticle> XParticles;
-      float pmass  = 0.1056583745;
-      float pmasse = 1.e-6 * pmass;
+        //XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        //XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
 
-      XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
-      XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-      KinematicConstrainedVertexFitter kvFitter;
-      RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+        if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+        //KinVtx->movePointerToTheTop();
+        //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
-      if (KinVtx->isValid()) {
-        RefCountedKinematicVertex DecayVtx = KinVtx->currentDecayVertex();
-        if (DecayVtx->chiSquared() < 0.0) continue;
-        if (DecayVtx->chiSquared() > 10.0) continue;
-        TVector3 vtxDisplace(DecayVtx->position().x()-pv.x(), DecayVtx->position().y()-pv.y(), DecayVtx->position().z()-pv.z());
-        float cosAngle = vtxDisplace.Dot((iMu_lv+jMu_lv).Vect())/(vtxDisplace.Mag()*(iMu_lv+jMu_lv).Vect().Mag());
-        if (cosAngle < 0.7) continue;
+        for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
+          if (abs(iHad->pdgId()) != 211) continue;
+          if (iHad->bestTrack() == nullptr) continue;
+          if (fabs(iHad->eta()) > 2.5) continue;
 
-        float dxy = TMath::Sqrt((DecayVtx->position().x()-pv.x())*(DecayVtx->position().x()-pv.x()) + (DecayVtx->position().y()-pv.y())*(DecayVtx->position().y()-pv.y()));
-        float sigmadxy = TMath::Sqrt(DecayVtx->error().cxx()*DecayVtx->error().cxx() + DecayVtx->error().cyy()*DecayVtx->error().cyy());
-        //if (dxy/sigmadxy < 2.0) continue;
+          for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
+            if (abs(jHad->pdgId()) != 211) continue;
+            if (iHad->charge()*jHad->charge() > 0.0) continue;
+            // Phi mass window
+            float kpmass = 0.493677;
+            TLorentzVector iHad_lv, jHad_lv;
+            iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
+            jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
+            //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
 
-        muSvChi2_.push_back(DecayVtx->chiSquared());
-        muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
-        muSvX_.push_back(DecayVtx->position().x());
-        muSvY_.push_back(DecayVtx->position().y());
-        muSvZ_.push_back(DecayVtx->position().z());
-        muSvXError_.push_back(DecayVtx->error().cxx());
-        muSvYError_.push_back(DecayVtx->error().cyy());
-        muSvZError_.push_back(DecayVtx->error().czz());
-        muSvMass_.push_back((iMu_lv+jMu_lv).M());
-        muSvDxySig_.push_back(dxy/sigmadxy);
-        muSvCosAngle_.push_back(cosAngle);
+            if (jHad->bestTrack() == nullptr) continue;
+            if (fabs(jHad->eta()) > 2.5) continue;
 
-        muPt_    .push_back(make_pair(iMu->pt(),jMu->pt()));
-        muEn_    .push_back(make_pair(iMu->energy(),jMu->energy()));
-        muEta_   .push_back(make_pair(iMu->eta(),jMu->eta()));
-        muPhi_   .push_back(make_pair(iMu->phi(),jMu->phi()));
-        muCharge_.push_back(make_pair(iMu->charge(),jMu->charge()));
-        muType_  .push_back(make_pair(iMu->type(),jMu->type()));
-        muD0_    .push_back(make_pair(iMu->muonBestTrack()->dxy(pv),jMu->muonBestTrack()->dxy(pv)));
-        muDz_    .push_back(make_pair(iMu->muonBestTrack()->dz(pv),jMu->muonBestTrack()->dz(pv)));
-        muSIP_   .push_back(make_pair(fabs(iMu->dB(pat::Muon::PV3D))/iMu->edB(pat::Muon::PV3D),fabs(jMu->dB(pat::Muon::PV3D))/jMu->edB(pat::Muon::PV3D)));
+            std::vector<RefCountedKinematicParticle> BsParticles;
+            float kpmasse = 1.e-6 * pmass;
 
-        UShort_t tmpmuIDbitfirst = 0;
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
+            BsParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
 
-        if (iMu->isLooseMuon())     setbit(tmpmuIDbitfirst, 0);
-        if (iMu->isMediumMuon())    setbit(tmpmuIDbitfirst, 1);
-        if (iMu->isTightMuon(vtx))  setbit(tmpmuIDbitfirst, 2);
-        if (iMu->isSoftMuon(vtx))   setbit(tmpmuIDbitfirst, 3);
-        if (iMu->isHighPtMuon(vtx)) setbit(tmpmuIDbitfirst, 4);
+            KinematicConstrainedVertexFitter BsKvFitter;
+            RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
+            if (!(BsKinVtx->isValid())) continue;
 
-        UShort_t tmpmuIDbitsecond = 0;
+            RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
 
-        if (jMu->isLooseMuon())     setbit(tmpmuIDbitsecond, 0);
-        if (jMu->isMediumMuon())    setbit(tmpmuIDbitsecond, 1);
-        if (jMu->isTightMuon(vtx))  setbit(tmpmuIDbitsecond, 2);
-        if (jMu->isSoftMuon(vtx))   setbit(tmpmuIDbitsecond, 3);
-        if (jMu->isHighPtMuon(vtx)) setbit(tmpmuIDbitsecond, 4);
+            if (DecayVtx->chiSquared() < 0.0) continue;
+            if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 30.0) continue;
+            TVector3 vtxDisplace(DecayVtx->position().x()-pv.x(), DecayVtx->position().y()-pv.y(), DecayVtx->position().z()-pv.z());
+            float cosAngle = vtxDisplace.Dot((iMu_lv + jMu_lv + iHad_lv + jHad_lv).Vect())/(vtxDisplace.Mag()*(iMu_lv + jMu_lv + iHad_lv + jHad_lv).Vect().Mag());
+            //if (cosAngle < 0.0) continue;
 
-        muIDbitfirst_.push_back(tmpmuIDbitfirst);
-        muIDbitsecond_.push_back(tmpmuIDbitsecond);
+            float dxy = TMath::Sqrt((DecayVtx->position().x()-pv.x())*(DecayVtx->position().x()-pv.x()) + (DecayVtx->position().y()-pv.y())*(DecayVtx->position().y()-pv.y()));
+            float sigmadxy = TMath::Sqrt(DecayVtx->error().cxx()*DecayVtx->error().cxx() + DecayVtx->error().cyy()*DecayVtx->error().cyy());
+            //if (dxy/sigmadxy < 2.0) continue;
 
-        muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
-        muFiredL1Trgsfirst_.push_back(matchL1TriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
-        muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
-        muFiredL1Trgssecond_.push_back(matchL1TriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+            muSvChi2_.push_back(DecayVtx->chiSquared());
+            muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+            muSvX_.push_back(DecayVtx->position().x());
+            muSvY_.push_back(DecayVtx->position().y());
+            muSvZ_.push_back(DecayVtx->position().z());
+            muSvXError_.push_back(DecayVtx->error().cxx());
+            muSvYError_.push_back(DecayVtx->error().cyy());
+            muSvZError_.push_back(DecayVtx->error().czz());
+            muSvMass_.push_back((iMu_lv+jMu_lv).M());
+            muSvDxySig_.push_back(dxy/sigmadxy);
+            muSvCosAngle_.push_back(cosAngle);
 
-        muBestTrkPtError_        .push_back(make_pair(iMu->muonBestTrack()->ptError(),jMu->muonBestTrack()->ptError()));
-        muBestTrkPt_             .push_back(make_pair(iMu->muonBestTrack()->pt(),jMu->muonBestTrack()->pt()));
-        muBestTrkType_           .push_back(make_pair(iMu->muonBestTrackType(),jMu->muonBestTrackType()));
-        musegmentCompatibility_  .push_back(make_pair(iMu->segmentCompatibility(),jMu->segmentCompatibility()));
-        muchi2LocalPosition_     .push_back(make_pair(iMu->combinedQuality().chi2LocalPosition,jMu->combinedQuality().chi2LocalPosition));
-        mutrkKink_               .push_back(make_pair(iMu->combinedQuality().trkKink,jMu->combinedQuality().trkKink));
+            uuHadCharge_          .push_back(make_pair(iHad->charge(),jHad->charge()));
+            uuHadD0_              .push_back(make_pair(iHad->bestTrack()->dxy(pv),jHad->bestTrack()->dxy(pv)));
+            uuHadDz_              .push_back(make_pair(iHad->bestTrack()->dz(pv),jHad->bestTrack()->dz(pv)));
+            uuHadD0Error_		.push_back(make_pair(iHad->dxyError(),jHad->dxyError()));
+            uuHadDzError_		.push_back(make_pair(iHad->dzError(),jHad->dzError()));
 
-        const reco::TrackRef glbmufirst = iMu->globalTrack();
-        const reco::TrackRef innmufirst = iMu->innerTrack();
-        const reco::TrackRef glbmusecond = jMu->globalTrack();
-        const reco::TrackRef innmusecond = jMu->innerTrack();
+            uuHadPt_              .push_back(make_pair(iHad->pt(),jHad->pt()));
+            uuHadEta_             .push_back(make_pair(iHad->eta(),jHad->eta()));
+            uuHadPhi_             .push_back(make_pair(iHad->phi(),jHad->phi()));
+            uuHadVx_		.push_back(make_pair(iHad->vx(),jHad->vx()));
+            uuHadVy_		.push_back(make_pair(iHad->vy(),jHad->vy()));
+            uuHadVz_		.push_back(make_pair(iHad->vz(),jHad->vz()));
 
-        if (glbmufirst.isNull() || glbmusecond.isNull()) {
-          muChi2NDF_ .push_back(make_pair(-99.,-99.));
-          muMuonHits_.push_back(make_pair(-99,-99.));
-        } else {
-          muChi2NDF_.push_back(make_pair(glbmufirst->normalizedChi2(),glbmusecond->normalizedChi2()));
-          muMuonHits_.push_back(make_pair(glbmufirst->hitPattern().numberOfValidMuonHits(),glbmusecond->hitPattern().numberOfValidMuonHits()));
+            uuHadEn_ 	        .push_back(make_pair(iHad->energy(),jHad->energy()));
+            uuHadTrkChi2_		.push_back(make_pair(iHad->bestTrack()->chi2(),jHad->bestTrack()->chi2()));
+            uuHadTrkNDOF_		.push_back(make_pair(iHad->bestTrack()->ndof(),jHad->bestTrack()->ndof()));
+            uuHadTrkNormChi2_	.push_back(make_pair(iHad->bestTrack()->normalizedChi2(),jHad->bestTrack()->normalizedChi2()));
+            uuHadJPsiMass_        .push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
+            uuHadPhiMass_         .push_back((iHad_lv+jHad_lv).M());
+
+            muPt_    .push_back(make_pair(iMu->pt(),jMu->pt()));
+            muEn_    .push_back(make_pair(iMu->energy(),jMu->energy()));
+            muEta_   .push_back(make_pair(iMu->eta(),jMu->eta()));
+            muPhi_   .push_back(make_pair(iMu->phi(),jMu->phi()));
+            muCharge_.push_back(make_pair(iMu->charge(),jMu->charge()));
+            muType_  .push_back(make_pair(iMu->type(),jMu->type()));
+            muD0_    .push_back(make_pair(iMu->muonBestTrack()->dxy(pv),jMu->muonBestTrack()->dxy(pv)));
+            muDz_    .push_back(make_pair(iMu->muonBestTrack()->dz(pv),jMu->muonBestTrack()->dz(pv)));
+            muSIP_   .push_back(make_pair(fabs(iMu->dB(pat::Muon::PV3D))/iMu->edB(pat::Muon::PV3D),fabs(jMu->dB(pat::Muon::PV3D))/jMu->edB(pat::Muon::PV3D)));
+
+            UShort_t tmpmuIDbitfirst = 0;
+
+            if (iMu->isLooseMuon())     setbit(tmpmuIDbitfirst, 0);
+            if (iMu->isMediumMuon())    setbit(tmpmuIDbitfirst, 1);
+            if (iMu->isTightMuon(vtx))  setbit(tmpmuIDbitfirst, 2);
+            if (iMu->isSoftMuon(vtx))   setbit(tmpmuIDbitfirst, 3);
+            if (iMu->isHighPtMuon(vtx)) setbit(tmpmuIDbitfirst, 4);
+
+            UShort_t tmpmuIDbitsecond = 0;
+
+            if (jMu->isLooseMuon())     setbit(tmpmuIDbitsecond, 0);
+            if (jMu->isMediumMuon())    setbit(tmpmuIDbitsecond, 1);
+            if (jMu->isTightMuon(vtx))  setbit(tmpmuIDbitsecond, 2);
+            if (jMu->isSoftMuon(vtx))   setbit(tmpmuIDbitsecond, 3);
+            if (jMu->isHighPtMuon(vtx)) setbit(tmpmuIDbitsecond, 4);
+
+            muIDbitfirst_.push_back(tmpmuIDbitfirst);
+            muIDbitsecond_.push_back(tmpmuIDbitsecond);
+
+            muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+            muFiredL1Trgsfirst_.push_back(matchL1TriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+            muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+            muFiredL1Trgssecond_.push_back(matchL1TriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+
+            muBestTrkPtError_        .push_back(make_pair(iMu->muonBestTrack()->ptError(),jMu->muonBestTrack()->ptError()));
+            muBestTrkPt_             .push_back(make_pair(iMu->muonBestTrack()->pt(),jMu->muonBestTrack()->pt()));
+            muBestTrkType_           .push_back(make_pair(iMu->muonBestTrackType(),jMu->muonBestTrackType()));
+            musegmentCompatibility_  .push_back(make_pair(iMu->segmentCompatibility(),jMu->segmentCompatibility()));
+            muchi2LocalPosition_     .push_back(make_pair(iMu->combinedQuality().chi2LocalPosition,jMu->combinedQuality().chi2LocalPosition));
+            mutrkKink_               .push_back(make_pair(iMu->combinedQuality().trkKink,jMu->combinedQuality().trkKink));
+
+            const reco::TrackRef glbmufirst = iMu->globalTrack();
+            const reco::TrackRef innmufirst = iMu->innerTrack();
+            const reco::TrackRef glbmusecond = jMu->globalTrack();
+            const reco::TrackRef innmusecond = jMu->innerTrack();
+
+            if (glbmufirst.isNull() || glbmusecond.isNull()) {
+              muChi2NDF_ .push_back(make_pair(-99.,-99.));
+              muMuonHits_.push_back(make_pair(-99,-99.));
+            } else {
+              muChi2NDF_.push_back(make_pair(glbmufirst->normalizedChi2(),glbmusecond->normalizedChi2()));
+              muMuonHits_.push_back(make_pair(glbmufirst->hitPattern().numberOfValidMuonHits(),glbmusecond->hitPattern().numberOfValidMuonHits()));
+            }
+
+            if (innmufirst.isNull() || innmusecond.isNull()) {
+              muInnerD0_     .push_back(make_pair(-99.,-99.));
+              muInnerDz_     .push_back(make_pair(-99.,-99.));
+              muTrkLayers_   .push_back(make_pair(-99,-99.));
+              muPixelLayers_ .push_back(make_pair(-99,-99.));
+              muPixelHits_   .push_back(make_pair(-99,-99.));
+              muTrkQuality_  .push_back(make_pair(-99,-99.));
+
+              muInnervalidFraction_ .push_back(make_pair(-99,-99));
+            } else {
+              muInnerD0_     .push_back(make_pair(innmufirst->dxy(pv),innmusecond->dxy(pv)));
+              muInnerDz_     .push_back(make_pair(innmufirst->dz(pv),innmusecond->dz(pv)));
+              muTrkLayers_   .push_back(make_pair(innmufirst->hitPattern().trackerLayersWithMeasurement(),innmusecond->hitPattern().trackerLayersWithMeasurement()));
+              muPixelLayers_ .push_back(make_pair(innmufirst->hitPattern().pixelLayersWithMeasurement(),innmusecond->hitPattern().pixelLayersWithMeasurement()));
+              muPixelHits_   .push_back(make_pair(innmufirst->hitPattern().numberOfValidPixelHits(),innmusecond->hitPattern().numberOfValidPixelHits()));
+              muTrkQuality_  .push_back(make_pair(innmufirst->quality(reco::TrackBase::highPurity),innmusecond->quality(reco::TrackBase::highPurity)));
+
+              muInnervalidFraction_ .push_back(make_pair(innmufirst->validFraction(),innmusecond->validFraction()));
+            }
+
+            muStations_   .push_back(make_pair(iMu->numberOfMatchedStations(),jMu->numberOfMatchedStations()));
+            muMatches_    .push_back(make_pair(iMu->numberOfMatches(),jMu->numberOfMatches()));
+            muIsoTrk_     .push_back(make_pair(iMu->trackIso(),jMu->trackIso()));
+            muPFChIso_    .push_back(make_pair(iMu->pfIsolationR04().sumChargedHadronPt,jMu->pfIsolationR04().sumChargedHadronPt));
+            muPFPhoIso_   .push_back(make_pair(iMu->pfIsolationR04().sumPhotonEt,jMu->pfIsolationR04().sumPhotonEt));
+            muPFNeuIso_   .push_back(make_pair(iMu->pfIsolationR04().sumNeutralHadronEt,jMu->pfIsolationR04().sumNeutralHadronEt));
+            muPFPUIso_    .push_back(make_pair(iMu->pfIsolationR04().sumPUPt,jMu->pfIsolationR04().sumPUPt));
+            muPFChIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumChargedHadronPt,jMu->pfIsolationR03().sumChargedHadronPt));
+            muPFPhoIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumPhotonEt,jMu->pfIsolationR03().sumPhotonEt));
+            muPFNeuIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumNeutralHadronEt,jMu->pfIsolationR03().sumNeutralHadronEt));
+            muPFPUIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumPUPt,jMu->pfIsolationR03().sumPUPt));
+            muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
+
+            nMu_++;
+          }
         }
+      }
+    }
+  }
 
-        if (innmufirst.isNull() || innmusecond.isNull()) {
-          muInnerD0_     .push_back(make_pair(-99.,-99.));
-          muInnerDz_     .push_back(make_pair(-99.,-99.));
-          muTrkLayers_   .push_back(make_pair(-99,-99.));
-          muPixelLayers_ .push_back(make_pair(-99,-99.));
-          muPixelHits_   .push_back(make_pair(-99,-99.));
-          muTrkQuality_  .push_back(make_pair(-99,-99.));
 
-          muInnervalidFraction_ .push_back(make_pair(-99,-99));
-        } else {
-          muInnerD0_     .push_back(make_pair(innmufirst->dxy(pv),innmusecond->dxy(pv)));
-          muInnerDz_     .push_back(make_pair(innmufirst->dz(pv),innmusecond->dz(pv)));
-          muTrkLayers_   .push_back(make_pair(innmufirst->hitPattern().trackerLayersWithMeasurement(),innmusecond->hitPattern().trackerLayersWithMeasurement()));
-          muPixelLayers_ .push_back(make_pair(innmufirst->hitPattern().pixelLayersWithMeasurement(),innmusecond->hitPattern().pixelLayersWithMeasurement()));
-          muPixelHits_   .push_back(make_pair(innmufirst->hitPattern().numberOfValidPixelHits(),innmusecond->hitPattern().numberOfValidPixelHits()));
-          muTrkQuality_  .push_back(make_pair(innmufirst->quality(reco::TrackBase::highPurity),innmusecond->quality(reco::TrackBase::highPurity)));
+  if (separateVtxFit_) {
+    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      //if (iMu->pt() < 2) continue;
+      if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
+      if (fabs(iMu->eta()) > 2.5) continue;
 
-          muInnervalidFraction_ .push_back(make_pair(innmufirst->validFraction(),innmusecond->validFraction()));
+      for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
+        //if (jMu->pt() < 2) continue;
+        if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
+        if (fabs(jMu->eta()) > 2.5) continue;
+        if (iMu->charge() * jMu->charge() > 0.) continue;
+        TLorentzVector iMu_lv, jMu_lv;
+        iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), 0.1056583745);
+        jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), 0.1056583745);      
+        if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
+
+
+        KinematicParticleFactoryFromTransientTrack pFactory;  
+        std::vector<RefCountedKinematicParticle> XParticles;
+        float pmass  = 0.1056583745;
+        float pmasse = 1.e-6 * pmass;
+
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+
+        if (KinVtx->isValid()) {
+          RefCountedKinematicVertex DecayVtx = KinVtx->currentDecayVertex();
+          if (DecayVtx->chiSquared() < 0.0) continue;
+          if (DecayVtx->chiSquared() > 10.0) continue;
+          TVector3 vtxDisplace(DecayVtx->position().x()-pv.x(), DecayVtx->position().y()-pv.y(), DecayVtx->position().z()-pv.z());
+          float cosAngle = vtxDisplace.Dot((iMu_lv+jMu_lv).Vect())/(vtxDisplace.Mag()*(iMu_lv+jMu_lv).Vect().Mag());
+          if (cosAngle < 0.7) continue;
+
+          float dxy = TMath::Sqrt((DecayVtx->position().x()-pv.x())*(DecayVtx->position().x()-pv.x()) + (DecayVtx->position().y()-pv.y())*(DecayVtx->position().y()-pv.y()));
+          float sigmadxy = TMath::Sqrt(DecayVtx->error().cxx()*DecayVtx->error().cxx() + DecayVtx->error().cyy()*DecayVtx->error().cyy());
+          //if (dxy/sigmadxy < 2.0) continue;
+
+          muSvChi2_.push_back(DecayVtx->chiSquared());
+          muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+          muSvX_.push_back(DecayVtx->position().x());
+          muSvY_.push_back(DecayVtx->position().y());
+          muSvZ_.push_back(DecayVtx->position().z());
+          muSvXError_.push_back(DecayVtx->error().cxx());
+          muSvYError_.push_back(DecayVtx->error().cyy());
+          muSvZError_.push_back(DecayVtx->error().czz());
+          muSvMass_.push_back((iMu_lv+jMu_lv).M());
+          muSvDxySig_.push_back(dxy/sigmadxy);
+          muSvCosAngle_.push_back(cosAngle);
+
+          muPt_    .push_back(make_pair(iMu->pt(),jMu->pt()));
+          muEn_    .push_back(make_pair(iMu->energy(),jMu->energy()));
+          muEta_   .push_back(make_pair(iMu->eta(),jMu->eta()));
+          muPhi_   .push_back(make_pair(iMu->phi(),jMu->phi()));
+          muCharge_.push_back(make_pair(iMu->charge(),jMu->charge()));
+          muType_  .push_back(make_pair(iMu->type(),jMu->type()));
+          muD0_    .push_back(make_pair(iMu->muonBestTrack()->dxy(pv),jMu->muonBestTrack()->dxy(pv)));
+          muDz_    .push_back(make_pair(iMu->muonBestTrack()->dz(pv),jMu->muonBestTrack()->dz(pv)));
+          muSIP_   .push_back(make_pair(fabs(iMu->dB(pat::Muon::PV3D))/iMu->edB(pat::Muon::PV3D),fabs(jMu->dB(pat::Muon::PV3D))/jMu->edB(pat::Muon::PV3D)));
+
+          UShort_t tmpmuIDbitfirst = 0;
+
+          if (iMu->isLooseMuon())     setbit(tmpmuIDbitfirst, 0);
+          if (iMu->isMediumMuon())    setbit(tmpmuIDbitfirst, 1);
+          if (iMu->isTightMuon(vtx))  setbit(tmpmuIDbitfirst, 2);
+          if (iMu->isSoftMuon(vtx))   setbit(tmpmuIDbitfirst, 3);
+          if (iMu->isHighPtMuon(vtx)) setbit(tmpmuIDbitfirst, 4);
+
+          UShort_t tmpmuIDbitsecond = 0;
+
+          if (jMu->isLooseMuon())     setbit(tmpmuIDbitsecond, 0);
+          if (jMu->isMediumMuon())    setbit(tmpmuIDbitsecond, 1);
+          if (jMu->isTightMuon(vtx))  setbit(tmpmuIDbitsecond, 2);
+          if (jMu->isSoftMuon(vtx))   setbit(tmpmuIDbitsecond, 3);
+          if (jMu->isHighPtMuon(vtx)) setbit(tmpmuIDbitsecond, 4);
+
+          muIDbitfirst_.push_back(tmpmuIDbitfirst);
+          muIDbitsecond_.push_back(tmpmuIDbitsecond);
+
+          muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+          muFiredL1Trgsfirst_.push_back(matchL1TriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+          muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+          muFiredL1Trgssecond_.push_back(matchL1TriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+
+          muBestTrkPtError_        .push_back(make_pair(iMu->muonBestTrack()->ptError(),jMu->muonBestTrack()->ptError()));
+          muBestTrkPt_             .push_back(make_pair(iMu->muonBestTrack()->pt(),jMu->muonBestTrack()->pt()));
+          muBestTrkType_           .push_back(make_pair(iMu->muonBestTrackType(),jMu->muonBestTrackType()));
+          musegmentCompatibility_  .push_back(make_pair(iMu->segmentCompatibility(),jMu->segmentCompatibility()));
+          muchi2LocalPosition_     .push_back(make_pair(iMu->combinedQuality().chi2LocalPosition,jMu->combinedQuality().chi2LocalPosition));
+          mutrkKink_               .push_back(make_pair(iMu->combinedQuality().trkKink,jMu->combinedQuality().trkKink));
+
+          const reco::TrackRef glbmufirst = iMu->globalTrack();
+          const reco::TrackRef innmufirst = iMu->innerTrack();
+          const reco::TrackRef glbmusecond = jMu->globalTrack();
+          const reco::TrackRef innmusecond = jMu->innerTrack();
+
+          if (glbmufirst.isNull() || glbmusecond.isNull()) {
+            muChi2NDF_ .push_back(make_pair(-99.,-99.));
+            muMuonHits_.push_back(make_pair(-99,-99.));
+          } else {
+            muChi2NDF_.push_back(make_pair(glbmufirst->normalizedChi2(),glbmusecond->normalizedChi2()));
+            muMuonHits_.push_back(make_pair(glbmufirst->hitPattern().numberOfValidMuonHits(),glbmusecond->hitPattern().numberOfValidMuonHits()));
+          }
+
+          if (innmufirst.isNull() || innmusecond.isNull()) {
+            muInnerD0_     .push_back(make_pair(-99.,-99.));
+            muInnerDz_     .push_back(make_pair(-99.,-99.));
+            muTrkLayers_   .push_back(make_pair(-99,-99.));
+            muPixelLayers_ .push_back(make_pair(-99,-99.));
+            muPixelHits_   .push_back(make_pair(-99,-99.));
+            muTrkQuality_  .push_back(make_pair(-99,-99.));
+
+            muInnervalidFraction_ .push_back(make_pair(-99,-99));
+          } else {
+            muInnerD0_     .push_back(make_pair(innmufirst->dxy(pv),innmusecond->dxy(pv)));
+            muInnerDz_     .push_back(make_pair(innmufirst->dz(pv),innmusecond->dz(pv)));
+            muTrkLayers_   .push_back(make_pair(innmufirst->hitPattern().trackerLayersWithMeasurement(),innmusecond->hitPattern().trackerLayersWithMeasurement()));
+            muPixelLayers_ .push_back(make_pair(innmufirst->hitPattern().pixelLayersWithMeasurement(),innmusecond->hitPattern().pixelLayersWithMeasurement()));
+            muPixelHits_   .push_back(make_pair(innmufirst->hitPattern().numberOfValidPixelHits(),innmusecond->hitPattern().numberOfValidPixelHits()));
+            muTrkQuality_  .push_back(make_pair(innmufirst->quality(reco::TrackBase::highPurity),innmusecond->quality(reco::TrackBase::highPurity)));
+
+            muInnervalidFraction_ .push_back(make_pair(innmufirst->validFraction(),innmusecond->validFraction()));
+          }
+
+          muStations_   .push_back(make_pair(iMu->numberOfMatchedStations(),jMu->numberOfMatchedStations()));
+          muMatches_    .push_back(make_pair(iMu->numberOfMatches(),jMu->numberOfMatches()));
+          muIsoTrk_     .push_back(make_pair(iMu->trackIso(),jMu->trackIso()));
+          muPFChIso_    .push_back(make_pair(iMu->pfIsolationR04().sumChargedHadronPt,jMu->pfIsolationR04().sumChargedHadronPt));
+          muPFPhoIso_   .push_back(make_pair(iMu->pfIsolationR04().sumPhotonEt,jMu->pfIsolationR04().sumPhotonEt));
+          muPFNeuIso_   .push_back(make_pair(iMu->pfIsolationR04().sumNeutralHadronEt,jMu->pfIsolationR04().sumNeutralHadronEt));
+          muPFPUIso_    .push_back(make_pair(iMu->pfIsolationR04().sumPUPt,jMu->pfIsolationR04().sumPUPt));
+          muPFChIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumChargedHadronPt,jMu->pfIsolationR03().sumChargedHadronPt));
+          muPFPhoIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumPhotonEt,jMu->pfIsolationR03().sumPhotonEt));
+          muPFNeuIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumNeutralHadronEt,jMu->pfIsolationR03().sumNeutralHadronEt));
+          muPFPUIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumPUPt,jMu->pfIsolationR03().sumPUPt));
+          muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
+
+          nMu_++;
+
         }
-
-        muStations_   .push_back(make_pair(iMu->numberOfMatchedStations(),jMu->numberOfMatchedStations()));
-        muMatches_    .push_back(make_pair(iMu->numberOfMatches(),jMu->numberOfMatches()));
-        muIsoTrk_     .push_back(make_pair(iMu->trackIso(),jMu->trackIso()));
-        muPFChIso_    .push_back(make_pair(iMu->pfIsolationR04().sumChargedHadronPt,jMu->pfIsolationR04().sumChargedHadronPt));
-        muPFPhoIso_   .push_back(make_pair(iMu->pfIsolationR04().sumPhotonEt,jMu->pfIsolationR04().sumPhotonEt));
-        muPFNeuIso_   .push_back(make_pair(iMu->pfIsolationR04().sumNeutralHadronEt,jMu->pfIsolationR04().sumNeutralHadronEt));
-        muPFPUIso_    .push_back(make_pair(iMu->pfIsolationR04().sumPUPt,jMu->pfIsolationR04().sumPUPt));
-        muPFChIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumChargedHadronPt,jMu->pfIsolationR03().sumChargedHadronPt));
-        muPFPhoIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumPhotonEt,jMu->pfIsolationR03().sumPhotonEt));
-        muPFNeuIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumNeutralHadronEt,jMu->pfIsolationR03().sumNeutralHadronEt));
-        muPFPUIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumPUPt,jMu->pfIsolationR03().sumPUPt));
-        muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
-
-        nMu_++;
-
       }
     }
   }

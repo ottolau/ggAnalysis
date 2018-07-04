@@ -13,6 +13,8 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
 {
 
   development_               = ps.getParameter<bool>("development");
+  separateVtxFit_            = ps.getParameter<bool>("separateVtxFit");
+
   addFilterInfoAOD_          = ps.getParameter<bool>("addFilterInfoAOD");
   addFilterInfoMINIAOD_      = ps.getParameter<bool>("addFilterInfoMINIAOD");
   doNoHFMET_                 = ps.getParameter<bool>("doNoHFMET");
@@ -121,7 +123,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   branchesPhotons(tree_);
   if (dumpPhotons_) branchesPFPhotons(tree_);
   branchesElectrons(tree_);
-  branchesHadrons(tree_);
+  if (separateVtxFit_) branchesHadrons(tree_);
   if (runHFElectrons_) branchesHFElectrons(tree_);
   branchesMuons(tree_);
   if (dumpTaus_) branchesTaus(tree_);
@@ -176,7 +178,7 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
   fillPFPhotons(e, es);
   fillElectrons(e, es, pv);
-  fillHadrons(e, es, pv);
+  if (separateVtxFit_) fillHadrons(e, es, pv);
 
   if (runHFElectrons_ ) fillHFElectrons(e);
   fillMuons(e, pv, vtx);
@@ -186,6 +188,12 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   hEvents_->Fill(1.5);
   tree_->Fill();
 
+}
+
+const reco::TransientTrack ggNtuplizer::getTransientTrack(const reco::Track& track) {   
+    //OAEParametrizedMagneticField *paramField = new OAEParametrizedMagneticField("3_8T"); 
+    const reco::TransientTrack transientTrack(track, paramField);
+    return transientTrack;
 }
 
 
