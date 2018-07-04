@@ -21,6 +21,8 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              runphoMVAID      = cms.bool(False),
                              runeleMVAID      = cms.bool(False),
                              development      = cms.bool(False),
+                             separateVtxFit   = cms.bool(False),
+
                              addFilterInfoAOD     = cms.bool(True),
                              addFilterInfoMINIAOD = cms.bool(False),
                              doNoHFMET            = cms.bool(False),

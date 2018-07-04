@@ -5,7 +5,7 @@ from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
 
 ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              hggPhotonIDConfiguration = hggPhotonIDCuts,
-                             doGenParticles       = cms.bool(True),
+                             doGenParticles       = cms.bool(False),
                              runOnParticleGun     = cms.bool(False),
                              runOnSherpa          = cms.bool(False),
                              dumpPhotons          = cms.bool(True), 
@@ -14,8 +14,10 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              dumpTaus             = cms.bool(False),
                              dumpPDFSystWeight    = cms.bool(False),
                              isAOD                = cms.bool(False), #### actually configured through run_data_74x.py
-                             runHFElectrons       = cms.bool(True),
+                             runHFElectrons       = cms.bool(False),
                              development          = cms.bool(False),
+                             separateVtxFit       = cms.bool(False),
+
                              addFilterInfoAOD     = cms.bool(False),
                              addFilterInfoMINIAOD = cms.bool(False),
                              doNoHFMET            = cms.bool(False),
