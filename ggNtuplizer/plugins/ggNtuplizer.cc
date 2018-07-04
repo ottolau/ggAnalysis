@@ -90,6 +90,8 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   elePFClusEcalIsoToken_     = mayConsume<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("elePFClusEcalIsoProducer"));
   elePFClusHcalIsoToken_     = mayConsume<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("elePFClusHcalIsoProducer"));
 
+  tok_eleTtk_ = consumes< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> >(edm::InputTag("ttk","eleTtkMap"));
+
   // Photon ID in VID framwork 
   phoLooseIdMapToken_             = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoLooseIdMap"));
   phoMediumIdMapToken_            = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoMediumIdMap"));
@@ -119,6 +121,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   branchesPhotons(tree_);
   if (dumpPhotons_) branchesPFPhotons(tree_);
   branchesElectrons(tree_);
+  branchesHadrons(tree_);
   if (runHFElectrons_) branchesHFElectrons(tree_);
   branchesMuons(tree_);
   if (dumpTaus_) branchesTaus(tree_);
@@ -173,6 +176,7 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
   fillPFPhotons(e, es);
   fillElectrons(e, es, pv);
+  fillHadrons(e, es, pv);
 
   if (runHFElectrons_ ) fillHFElectrons(e);
   fillMuons(e, pv, vtx);

@@ -34,6 +34,15 @@
 //#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h"
+
+
 using namespace std;
 
 void setbit(UShort_t& x, UShort_t bit);
@@ -73,6 +82,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void branchesPhotons    (TTree*);
   void branchesPFPhotons  (TTree*);
   void branchesElectrons  (TTree*);
+  void branchesHadrons  (TTree*);
   void branchesHFElectrons(TTree*);
   void branchesMuons      (TTree*);
   void branchesTaus       (TTree*);
@@ -85,10 +95,13 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillPhotons    (const edm::Event&, const edm::EventSetup&);
   void fillPFPhotons  (const edm::Event&, const edm::EventSetup&);
   void fillElectrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&);
+  void fillHadrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&);
   void fillHFElectrons(const edm::Event&);
   void fillMuons      (const edm::Event&, math::XYZPoint&, const reco::Vertex);
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
+  const reco::TransientTrack getTransientTrack(const reco::Track& track);
+  OAEParametrizedMagneticField *paramField = new OAEParametrizedMagneticField("3_8T"); 
 
   void cleanupPhotons();
 
@@ -181,6 +194,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
 
   //check
   edm::EDGetToken gsfEle_;
+  edm::EDGetTokenT< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> > tok_eleTtk_;
 
   TTree   *tree_;
   TH1F    *hEvents_;
