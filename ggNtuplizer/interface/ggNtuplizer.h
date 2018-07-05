@@ -106,6 +106,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void cleanupPhotons();
 
   bool development_;
+  bool separateVtxFit_;
   bool addFilterInfoAOD_;  
   bool addFilterInfoMINIAOD_;  
   bool doNoHFMET_;
