@@ -93,7 +93,7 @@ vector<pair<float,float>>  elePFNeuIso_;
 vector<pair<float,float>>  elePFPUIso_;
 vector<pair<float,float>>  elePFClusEcalIso_;
 vector<pair<float,float>>  elePFClusHcalIso_;
-vector<pair<float,float>>  elePFMiniIso_;
+//vector<pair<float,float>>  elePFMiniIso_;
 vector<pair<float,float>>  eleIDMVAIso_;
 vector<pair<float,float>>  eleIDMVANoIso_;
 vector<pair<float,float>>  eledEtaseedAtVtx_;
@@ -145,7 +145,7 @@ vector<pair<float,float>>  eeHadPhi_;
 vector<pair<float,float>>  eeHadVx_;
 vector<pair<float,float>>  eeHadVy_;
 vector<pair<float,float>>  eeHadVz_;
-vector<pair<float,float>>  eeHadEn_;
+//vector<pair<float,float>>  eeHadEn_;
 vector<pair<float,float>>  eeHadTrkChi2_;
 vector<pair<float,float>>  eeHadTrkNDOF_;
 vector<pair<float,float>>  eeHadTrkNormChi2_;
@@ -200,7 +200,7 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   tree->Branch("elePFPUIso",              &elePFPUIso_);
   tree->Branch("elePFClusEcalIso",        &elePFClusEcalIso_);
   tree->Branch("elePFClusHcalIso",        &elePFClusHcalIso_);
-  tree->Branch("elePFMiniIso",            &elePFMiniIso_);
+//  tree->Branch("elePFMiniIso",            &elePFMiniIso_);
   tree->Branch("eleIDMVAIso",             &eleIDMVAIso_);
   tree->Branch("eleIDMVANoIso",           &eleIDMVANoIso_);
   tree->Branch("eledEtaseedAtVtx",        &eledEtaseedAtVtx_);
@@ -251,7 +251,7 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
     tree->Branch("eeHadVx",                   &eeHadVx_);
     tree->Branch("eeHadVy",                   &eeHadVy_);
     tree->Branch("eeHadVz",                   &eeHadVz_);
-    tree->Branch("eeHadEn",                   &eeHadEn_);
+//    tree->Branch("eeHadEn",                   &eeHadEn_);
     tree->Branch("eeHadTrkChi2",              &eeHadTrkChi2_);
     tree->Branch("eeHadTrkNDOF",              &eeHadTrkNDOF_);
     tree->Branch("eeHadTrkNormChi2",          &eeHadTrkNormChi2_);
@@ -312,7 +312,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   elePFPUIso_                 .clear();
   elePFClusEcalIso_           .clear();
   elePFClusHcalIso_           .clear();
-  elePFMiniIso_               .clear();
+//  elePFMiniIso_               .clear();
   eleIDMVAIso_                .clear();
   eleIDMVANoIso_              .clear();
   eledEtaseedAtVtx_           .clear();
@@ -363,7 +363,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   eeHadVx_                      .clear();
   eeHadVy_                      .clear();
   eeHadVz_                      .clear();
-  eeHadEn_	              .clear();
+//  eeHadEn_	              .clear();
   eeHadTrkChi2_                 .clear();
   eeHadTrkNDOF_                 .clear();
   eeHadTrkNormChi2_             .clear();
@@ -379,8 +379,11 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   edm::Handle<edm::View<pat::Electron> > calibelectronHandle;
   e.getByToken(calibelectronCollection_, calibelectronHandle);
 
-  edm::Handle<pat::PackedCandidateCollection> pfcands;
-  e.getByToken(pckPFCandidateCollection_, pfcands);
+//  edm::Handle<pat::PackedCandidateCollection> pfcands;
+//  e.getByToken(pckPFCandidateCollection_, pfcands);
+
+  edm::Handle<reco::TrackCollection> tracksHandle;
+  e.getByToken(tracklabel_, tracksHandle);
 
   edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
   e.getByToken( tok_eleTtk_, eleTrackMap);
@@ -403,8 +406,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   edm::Handle<edm::ValueMap<bool> >  heep_id_decisions;
   edm::Handle<edm::ValueMap<float> > eleMVAIsoValues;
   edm::Handle<edm::ValueMap<float> > eleMVANoIsoValues;
-  edm::Handle<edm::ValueMap<float> > elePFClusEcalIsoValues;
-  edm::Handle<edm::ValueMap<float> > elePFClusHcalIsoValues;
+  //edm::Handle<edm::ValueMap<float> > elePFClusEcalIsoValues;
+  //edm::Handle<edm::ValueMap<float> > elePFClusHcalIsoValues;
 
   e.getByToken(eleVetoIdMapToken_ ,         veto_id_decisions);
   e.getByToken(eleLooseIdMapToken_ ,        loose_id_decisions);
@@ -413,8 +416,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   e.getByToken(eleHEEPIdMapToken_ ,         heep_id_decisions);
   e.getByToken(eleMVAIsoValuesMapToken_,    eleMVAIsoValues);
   e.getByToken(eleMVANoIsoValuesMapToken_,  eleMVANoIsoValues);
-  e.getByToken(elePFClusEcalIsoToken_,      elePFClusEcalIsoValues);
-  e.getByToken(elePFClusHcalIsoToken_,      elePFClusHcalIsoValues);
+  //e.getByToken(elePFClusEcalIsoToken_,      elePFClusEcalIsoValues);
+  //e.getByToken(elePFClusHcalIsoToken_,      elePFClusHcalIsoValues);
 
   edm::Handle<reco::VertexCollection> recVtxs;
   e.getByToken(vtxLabel_, recVtxs);
@@ -454,14 +457,20 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	//KinVtx->movePointerToTheTop();
 	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
-	for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
-          if (abs(iHad->pdgId()) != 211) continue;
-	  if (iHad->bestTrack() == nullptr) continue;
+	//for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
+        for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
 	  if (fabs(iHad->eta()) > 2.5) continue;
+	  if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+	  if (iHad->normalizedChi2() < 0.0) continue;
+	  if (iHad->normalizedChi2() > 20.0) continue;
 
-          for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
-	    if (abs(jHad->pdgId()) != 211) continue;
+          //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
+          for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
 	    if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    if (jHad->normalizedChi2() < 0.0) continue;
+	    if (jHad->normalizedChi2() > 20) continue;
+
             // Phi mass window
 	    float kpmass = 0.493677;
 	    TLorentzVector iHad_lv, jHad_lv;
@@ -469,15 +478,13 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
 	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
 	    if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-
-	    if (jHad->bestTrack() == nullptr) continue;
 	    if (fabs(jHad->eta()) > 2.5) continue;
 
 	    std::vector<RefCountedKinematicParticle> BsParticles;
 	    float kpmasse = 1.e-6 * pmass;
 
-	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
-	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
 	    BsParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
 	    BsParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
 
@@ -510,8 +517,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    svCosAngle_.push_back(cosAngle);
 
 	    eeHadCharge_          .push_back(make_pair(iHad->charge(),jHad->charge()));
-	    eeHadD0_              .push_back(make_pair(iHad->bestTrack()->dxy(pv),jHad->bestTrack()->dxy(pv)));
-	    eeHadDz_              .push_back(make_pair(iHad->bestTrack()->dz(pv),jHad->bestTrack()->dz(pv)));
+	    eeHadD0_              .push_back(make_pair(iHad->dxy(pv),jHad->dxy(pv)));
+	    eeHadDz_              .push_back(make_pair(iHad->dz(pv),jHad->dz(pv)));
 	    eeHadD0Error_		.push_back(make_pair(iHad->dxyError(),jHad->dxyError()));
 	    eeHadDzError_		.push_back(make_pair(iHad->dzError(),jHad->dzError()));
 
@@ -522,10 +529,9 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eeHadVy_		.push_back(make_pair(iHad->vy(),jHad->vy()));
 	    eeHadVz_		.push_back(make_pair(iHad->vz(),jHad->vz()));
 
-	    eeHadEn_ 	        .push_back(make_pair(iHad->energy(),jHad->energy()));
-	    eeHadTrkChi2_		.push_back(make_pair(iHad->bestTrack()->chi2(),jHad->bestTrack()->chi2()));
-	    eeHadTrkNDOF_		.push_back(make_pair(iHad->bestTrack()->ndof(),jHad->bestTrack()->ndof()));
-	    eeHadTrkNormChi2_	.push_back(make_pair(iHad->bestTrack()->normalizedChi2(),jHad->bestTrack()->normalizedChi2()));
+	    eeHadTrkChi2_		.push_back(make_pair(iHad->chi2(),jHad->chi2()));
+	    eeHadTrkNDOF_		.push_back(make_pair(iHad->ndof(),jHad->ndof()));
+	    eeHadTrkNormChi2_	.push_back(make_pair(iHad->normalizedChi2(),jHad->normalizedChi2()));
 	    eeHadJPsiMass_        .push_back((iele_lv+jele_lv).M());
 	    eeHadPhiMass_         .push_back((iHad_lv+jHad_lv).M());
 
@@ -621,7 +627,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    elePFNeuIso_        .push_back(make_pair(ipfIso.sumNeutralHadronEt,jpfIso.sumNeutralHadronEt));
 	    elePFPUIso_         .push_back(make_pair(ipfIso.sumPUPt,jpfIso.sumPUPt));
 	    elecaloEnergy_      .push_back(make_pair(iEle->caloEnergy(),jEle->caloEnergy()));
-	    elePFMiniIso_       .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iEle)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jEle)), 0.05, 0.2, 10., false)));
+	    //elePFMiniIso_       .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iEle)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jEle)), 0.05, 0.2, 10., false)));
 
 	    /////quantities which were used for Run1 - these do not
 	    ///calculated through PF (meaning no energy is subtracted
@@ -679,38 +685,43 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	   
 	    ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
 
-	    bool isPassVeto  = (*veto_id_decisions)[iel];
+	    cout<<"Veto Value Map"<<endl;
+	    bool isPassVeto  = (*veto_id_decisions)[iel->originalObjectRef()];
 	    if (isPassVeto) setbit(itmpeleIDbit, 0);
-	    
-	    bool isPassLoose  = (*loose_id_decisions)[iel];
+	
+	    cout<<"Loose Value Map"<<endl;
+	    bool isPassLoose  = (*loose_id_decisions)[iel->originalObjectRef()];
 	    if (isPassLoose) setbit(itmpeleIDbit, 1);
-	    
-	    bool isPassMedium = (*medium_id_decisions)[iel];
+
+    	    cout<<"Medium Value Map"<<endl;
+	    bool isPassMedium = (*medium_id_decisions)[iel->originalObjectRef()];
 	    if (isPassMedium) setbit(itmpeleIDbit, 2);
-	    
-	    bool isPassTight  = (*tight_id_decisions)[iel];
+
+      	    cout<<"Tight Value Map"<<endl;
+	    bool isPassTight  = (*tight_id_decisions)[iel->originalObjectRef()];
 	    if (isPassTight) setbit(itmpeleIDbit, 3);
-	    
-	    bool isPassHEEP = (*heep_id_decisions)[iel];
+
+      	    cout<<"HEEP Value Map"<<endl;
+	    bool isPassHEEP = (*heep_id_decisions)[iel->originalObjectRef()];
 	    if (isPassHEEP) setbit(itmpeleIDbit, 4);
 
-	    isPassVeto  = (*veto_id_decisions)[jel];
+	    isPassVeto  = (*veto_id_decisions)[jel->originalObjectRef()];
 	    if (isPassVeto) setbit(jtmpeleIDbit, 0);
 	    
-	    isPassLoose  = (*loose_id_decisions)[jel];
+	    isPassLoose  = (*loose_id_decisions)[jel->originalObjectRef()];
 	    if (isPassLoose) setbit(jtmpeleIDbit, 1);
 	    
-	    isPassMedium = (*medium_id_decisions)[jel];
+	    isPassMedium = (*medium_id_decisions)[jel->originalObjectRef()];
 	    if (isPassMedium) setbit(jtmpeleIDbit, 2);
 	    
-	    isPassTight  = (*tight_id_decisions)[jel];
+	    isPassTight  = (*tight_id_decisions)[jel->originalObjectRef()];
 	    if (isPassTight) setbit(jtmpeleIDbit, 3);
 	    
-	    isPassHEEP = (*heep_id_decisions)[jel];
+	    isPassHEEP = (*heep_id_decisions)[jel->originalObjectRef()];
 	    if (isPassHEEP) setbit(jtmpeleIDbit, 4);
 
-	    eleIDMVAIso_  .push_back(make_pair((*eleMVAIsoValues)[iel],(*eleMVAIsoValues)[jel]));
-	    eleIDMVANoIso_.push_back(make_pair((*eleMVANoIsoValues)[iel],(*eleMVANoIsoValues)[jel]));
+	    eleIDMVAIso_  .push_back(make_pair((*eleMVAIsoValues)[iel->originalObjectRef()],(*eleMVAIsoValues)[jel->originalObjectRef()]));
+	    eleIDMVANoIso_.push_back(make_pair((*eleMVANoIsoValues)[iel->originalObjectRef()],(*eleMVANoIsoValues)[jel->originalObjectRef()]));
 
 	    elePFClusEcalIso_.push_back(make_pair(iEle->ecalPFClusterIso(),jEle->ecalPFClusterIso()));
 	    elePFClusHcalIso_.push_back(make_pair(iEle->hcalPFClusterIso(),jEle->hcalPFClusterIso()));
@@ -864,7 +875,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	  elePFNeuIso_        .push_back(make_pair(ipfIso.sumNeutralHadronEt,jpfIso.sumNeutralHadronEt));
 	  elePFPUIso_         .push_back(make_pair(ipfIso.sumPUPt,jpfIso.sumPUPt));
 	  elecaloEnergy_      .push_back(make_pair(iEle->caloEnergy(),jEle->caloEnergy()));
-	  elePFMiniIso_       .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iEle)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jEle)), 0.05, 0.2, 10., false)));
+	  //elePFMiniIso_       .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iEle)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jEle)), 0.05, 0.2, 10., false)));
 
 	  /////quantities which were used for Run1 - these do not
 	  ///calculated through PF (meaning no energy is subtracted

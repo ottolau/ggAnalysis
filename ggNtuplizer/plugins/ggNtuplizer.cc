@@ -119,8 +119,8 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
     branchesGenPart(tree_);
   }
 
-  branchesMET(tree_);
-  branchesPhotons(tree_);
+  //branchesMET(tree_);
+  //branchesPhotons(tree_);
   if (dumpPhotons_) branchesPFPhotons(tree_);
   branchesElectrons(tree_);
   if (separateVtxFit_) branchesHadrons(tree_);
@@ -174,9 +174,9 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
       fillGenPart(e);
   }
 
-  fillMET(e, es);
-  fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
-  fillPFPhotons(e, es);
+  //fillMET(e, es);
+  //fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
+  //fillPFPhotons(e, es);
   fillElectrons(e, es, pv);
   if (separateVtxFit_) fillHadrons(e, es, pv);
 

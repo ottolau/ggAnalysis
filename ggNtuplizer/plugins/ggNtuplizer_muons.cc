@@ -65,7 +65,7 @@ vector<pair<float,float>>    muPFChIso03_;
 vector<pair<float,float>>    muPFPhoIso03_;
 vector<pair<float,float>>    muPFNeuIso03_;
 vector<pair<float,float>>    muPFPUIso03_;
-vector<pair<float,float>>    muPFMiniIso_;
+//vector<pair<float,float>>    muPFMiniIso_;
 vector<ULong64_t> muFiredTrgsfirst_;
 vector<ULong64_t> muFiredTrgssecond_;
 vector<ULong64_t> muFiredL1Trgsfirst_;
@@ -142,7 +142,7 @@ void ggNtuplizer::branchesMuons(TTree* tree) {
   tree->Branch("muPFPhoIso03",  &muPFPhoIso03_);
   tree->Branch("muPFNeuIso03",  &muPFNeuIso03_);
   tree->Branch("muPFPUIso03",   &muPFPUIso03_);
-  tree->Branch("muPFMiniIso",   &muPFMiniIso_);
+//  tree->Branch("muPFMiniIso",   &muPFMiniIso_);
   tree->Branch("muFiredTrgsfirst",   &muFiredTrgsfirst_);
   tree->Branch("muFiredTrgssecond",   &muFiredTrgssecond_);
   tree->Branch("muFiredL1Trgsfirst", &muFiredL1Trgsfirst_);
@@ -224,7 +224,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   muPFPhoIso03_          .clear();
   muPFNeuIso03_          .clear();
   muPFPUIso03_           .clear();
-  muPFMiniIso_           .clear();
+//  muPFMiniIso_           .clear();
   muFiredTrgsfirst_           .clear();
   muFiredTrgssecond_           .clear();
   muFiredL1Trgsfirst_         .clear();
@@ -274,8 +274,11 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   edm::Handle<edm::View<pat::Muon> > muonHandle;
   e.getByToken(muonCollection_, muonHandle);
 
-  edm::Handle<pat::PackedCandidateCollection> pfcands;
-  e.getByToken(pckPFCandidateCollection_, pfcands);
+//  edm::Handle<pat::PackedCandidateCollection> pfcands;
+//  e.getByToken(pckPFCandidateCollection_, pfcands);
+
+  edm::Handle<reco::TrackCollection> tracksHandle;
+  e.getByToken(tracklabel_, tracksHandle);
 
   if (!muonHandle.isValid()) {
     edm::LogWarning("ggNtuplizer") << "no pat::Muons in event";
@@ -317,14 +320,20 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
         //KinVtx->movePointerToTheTop();
         //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
-        for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
-          if (abs(iHad->pdgId()) != 211) continue;
-          if (iHad->bestTrack() == nullptr) continue;
+        //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
+        for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
           if (fabs(iHad->eta()) > 2.5) continue;
+          if (fabs(iMu->bestTrack()->vz() - iHad->vz()) > 1) continue;
+          if (iHad->normalizedChi2() < 0.0) continue;
+          if (iHad->normalizedChi2() > 20.0) continue;
 
-          for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
-            if (abs(jHad->pdgId()) != 211) continue;
+          //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
+          for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
             if (iHad->charge()*jHad->charge() > 0.0) continue;
+            if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
+            if (iHad->normalizedChi2() < 0.0) continue;
+            if (iHad->normalizedChi2() > 20.0) continue;
+
             // Phi mass window
             float kpmass = 0.493677;
             TLorentzVector iHad_lv, jHad_lv;
@@ -332,15 +341,13 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
             //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
             if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-
-            if (jHad->bestTrack() == nullptr) continue;
             if (fabs(jHad->eta()) > 2.5) continue;
 
             std::vector<RefCountedKinematicParticle> BsParticles;
             float kpmasse = 1.e-6 * pmass;
 
-            BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
-            BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
             BsParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
             BsParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
 
@@ -368,13 +375,13 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muSvXError_.push_back(DecayVtx->error().cxx());
             muSvYError_.push_back(DecayVtx->error().cyy());
             muSvZError_.push_back(DecayVtx->error().czz());
-            muSvMass_.push_back((iMu_lv+jMu_lv).M());
+            muSvMass_.push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
             muSvDxySig_.push_back(dxy/sigmadxy);
             muSvCosAngle_.push_back(cosAngle);
 
             uuHadCharge_          .push_back(make_pair(iHad->charge(),jHad->charge()));
-            uuHadD0_              .push_back(make_pair(iHad->bestTrack()->dxy(pv),jHad->bestTrack()->dxy(pv)));
-            uuHadDz_              .push_back(make_pair(iHad->bestTrack()->dz(pv),jHad->bestTrack()->dz(pv)));
+            uuHadD0_              .push_back(make_pair(iHad->dxy(pv),jHad->dxy(pv)));
+            uuHadDz_              .push_back(make_pair(iHad->dz(pv),jHad->dz(pv)));
             uuHadD0Error_		.push_back(make_pair(iHad->dxyError(),jHad->dxyError()));
             uuHadDzError_		.push_back(make_pair(iHad->dzError(),jHad->dzError()));
 
@@ -385,11 +392,11 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             uuHadVy_		.push_back(make_pair(iHad->vy(),jHad->vy()));
             uuHadVz_		.push_back(make_pair(iHad->vz(),jHad->vz()));
 
-            uuHadEn_ 	        .push_back(make_pair(iHad->energy(),jHad->energy()));
-            uuHadTrkChi2_		.push_back(make_pair(iHad->bestTrack()->chi2(),jHad->bestTrack()->chi2()));
-            uuHadTrkNDOF_		.push_back(make_pair(iHad->bestTrack()->ndof(),jHad->bestTrack()->ndof()));
-            uuHadTrkNormChi2_	.push_back(make_pair(iHad->bestTrack()->normalizedChi2(),jHad->bestTrack()->normalizedChi2()));
-            uuHadJPsiMass_        .push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
+//            uuHadEn_ 	        .push_back(make_pair(iHad->energy(),jHad->energy()));
+            uuHadTrkChi2_		.push_back(make_pair(iHad->chi2(),jHad->chi2()));
+            uuHadTrkNDOF_		.push_back(make_pair(iHad->ndof(),jHad->ndof()));
+            uuHadTrkNormChi2_	.push_back(make_pair(iHad->normalizedChi2(),jHad->normalizedChi2()));
+            uuHadJPsiMass_        .push_back((iMu_lv+jMu_lv).M());
             uuHadPhiMass_         .push_back((iHad_lv+jHad_lv).M());
 
             muPt_    .push_back(make_pair(iMu->pt(),jMu->pt()));
@@ -477,7 +484,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muPFPhoIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumPhotonEt,jMu->pfIsolationR03().sumPhotonEt));
             muPFNeuIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumNeutralHadronEt,jMu->pfIsolationR03().sumNeutralHadronEt));
             muPFPUIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumPUPt,jMu->pfIsolationR03().sumPUPt));
-            muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
+            //muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
 
             nMu_++;
           }
@@ -624,7 +631,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
           muPFPhoIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumPhotonEt,jMu->pfIsolationR03().sumPhotonEt));
           muPFNeuIso03_ .push_back(make_pair(iMu->pfIsolationR03().sumNeutralHadronEt,jMu->pfIsolationR03().sumNeutralHadronEt));
           muPFPUIso03_  .push_back(make_pair(iMu->pfIsolationR03().sumPUPt,jMu->pfIsolationR03().sumPUPt));
-          muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
+          //muPFMiniIso_  .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iMu)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jMu)), 0.05, 0.2, 10., false)));
 
           nMu_++;
 

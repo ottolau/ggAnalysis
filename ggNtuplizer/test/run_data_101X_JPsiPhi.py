@@ -107,19 +107,19 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 for idmod in my_phoid_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
     
-    process.p = cms.Path(
-        ###process.reapplyJEC*
-        ###process.pfImpactParameterTagInfosAK8 *
-        ###process.pfInclusiveSecondaryVertexFinderTagInfosAK8 *
-        ###process.pfBoostedDoubleSecondaryVertexAK8BJetTags *        
-        #process.fullPatMetSequence* 
-        #process.egcorrMET*
-        #process.calibratedPatElectrons*
-        #process.calibratedPatPhotons*
-        process.egmGsfElectronIDSequence*
-        process.egmPhotonIDSequence*
-        process.ttk*
-        process.ggNtuplizer
-    )
+process.p = cms.Path(
+    ###process.reapplyJEC*
+    ###process.pfImpactParameterTagInfosAK8 *
+    ###process.pfInclusiveSecondaryVertexFinderTagInfosAK8 *
+    ###process.pfBoostedDoubleSecondaryVertexAK8BJetTags *        
+    #process.fullPatMetSequence* 
+    #process.egcorrMET*
+    #process.calibratedPatElectrons*
+    #process.calibratedPatPhotons*
+    process.egmGsfElectronIDSequence*
+    process.egmPhotonIDSequence*
+    process.ttk*
+    process.ggNtuplizer
+)
 
 #print process.dumpPython()

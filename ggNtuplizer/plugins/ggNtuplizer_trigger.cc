@@ -309,6 +309,32 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     
   }
  
+  if (isAOD_) {
+    edm::Handle<trigger::TriggerEvent> triggerHandle;
+    e.getByToken(trgEventLabel_, triggerHandle);
+
+    const trigger::TriggerObjectCollection& trgObjects = triggerHandle->getObjects();
+
+    // loop over particular filters (and not over full HLTs)
+    for (trigger::size_type iF = 0; iF != triggerHandle->sizeFilters(); ++iF) {
+      // full filter name and its keys each corresponding to a matched (pt, eta, phi, ...) object
+      //string const&        label = triggerHandle->filterTag(iF).label();
+      const trigger::Keys& keys  = triggerHandle->filterKeys(iF);
+
+      size_t idx = 0;
+
+      for (size_t iK = 0; iK < keys.size(); ++iK) {
+        const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
+        trgMuPt [idx].push_back(trgV.pt());
+        trgMuEta[idx].push_back(trgV.eta());
+        trgMuPhi[idx].push_back(trgV.phi());
+      }
+    } // HLT filter loop
+
+    return;
+  } // if AOD
+
+
   edm::Handle<pat::TriggerObjectStandAloneCollection> triggerHandleMiniAOD;
   e.getByToken(triggerObjectsLabel_, triggerHandleMiniAOD);
 
