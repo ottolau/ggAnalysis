@@ -42,6 +42,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/ParametrizedEngine/src/OAEParametrizedMagneticField.h"
 
+#include "DataFormats/TrackReco/interface/DeDxData.h"
 
 using namespace std;
 
@@ -196,6 +197,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   //check
   edm::EDGetToken gsfEle_;
   edm::EDGetTokenT< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> > tok_eleTtk_;
+  edm::EDGetTokenT< reco::DeDxDataValueMap > deDxProducer_;  
 
   TTree   *tree_;
   TH1F    *hEvents_;

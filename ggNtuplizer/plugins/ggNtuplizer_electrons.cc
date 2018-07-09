@@ -151,7 +151,7 @@ vector<pair<float,float>>  eeHadTrkNDOF_;
 vector<pair<float,float>>  eeHadTrkNormChi2_;
 vector<float>  eeHadJPsiMass_;
 vector<float>  eeHadPhiMass_;
-
+vector<pair<float,float>> eeTrkdEdx_;
 
 
 void ggNtuplizer::branchesElectrons(TTree* tree) {
@@ -257,7 +257,8 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
     tree->Branch("eeHadTrkNormChi2",          &eeHadTrkNormChi2_);
     tree->Branch("eeHadJPsiMass",                  &eeHadJPsiMass_);
     tree->Branch("eeHadPhiMass",                  &eeHadPhiMass_);
-  
+    tree->Branch("eeTrkdEdx",                  &eeTrkdEdx_);
+ 
 
   }
 
@@ -369,7 +370,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   eeHadTrkNormChi2_             .clear();
   eeHadJPsiMass_		      .clear();
   eeHadPhiMass_		      .clear();
-
+  eeTrkdEdx_			.clear();
 
   nEle_ = 0;
 
@@ -384,6 +385,11 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
   edm::Handle<reco::TrackCollection> tracksHandle;
   e.getByToken(tracklabel_, tracksHandle);
+
+  edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
+  e.getByToken(deDxProducer_, dEdxObjectHandle );
+  const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
+
 
   edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
   e.getByToken( tok_eleTtk_, eleTrackMap);
@@ -534,7 +540,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eeHadTrkNormChi2_	.push_back(make_pair(iHad->normalizedChi2(),jHad->normalizedChi2()));
 	    eeHadJPsiMass_        .push_back((iele_lv+jele_lv).M());
 	    eeHadPhiMass_         .push_back((iHad_lv+jHad_lv).M());
-
+	    eeTrkdEdx_		.push_back(make_pair(dEdxColl[reco::TrackRef(tracksHandle, iHad-tracksHandle->begin())].dEdx(),dEdxColl[reco::TrackRef(tracksHandle, jHad-tracksHandle->begin())].dEdx()));
 
 	    Float_t corrPtfirst = -1;
 	    Float_t corrEnfirst = -1;

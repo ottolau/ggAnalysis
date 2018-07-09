@@ -93,6 +93,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   elePFClusHcalIsoToken_     = mayConsume<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("elePFClusHcalIsoProducer"));
 
   tok_eleTtk_ = consumes< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> >(edm::InputTag("ttk","eleTtkMap"));
+  deDxProducer_ = consumes<reco::DeDxDataValueMap>(edm::InputTag("dedxHarmonic2"));
 
   // Photon ID in VID framwork 
   phoLooseIdMapToken_             = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoLooseIdMap"));
