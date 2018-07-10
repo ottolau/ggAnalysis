@@ -323,6 +323,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
         //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
         for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
           if (fabs(iHad->eta()) > 2.5) continue;
+          if (fabs(iMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
+          if (fabs(jMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
           if (fabs(iMu->bestTrack()->vz() - iHad->vz()) > 1) continue;
           if (iHad->normalizedChi2() < 0.0) continue;
           if (iHad->normalizedChi2() > 20.0) continue;
@@ -330,6 +332,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
           //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
           for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
             if (iHad->charge()*jHad->charge() > 0.0) continue;
+            if (fabs(iMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
+            if (fabs(jMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
             if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
             if (iHad->normalizedChi2() < 0.0) continue;
             if (iHad->normalizedChi2() > 20.0) continue;

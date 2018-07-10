@@ -691,23 +691,18 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	   
 	    ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
 
-	    cout<<"Veto Value Map"<<endl;
 	    bool isPassVeto  = (*veto_id_decisions)[iel->originalObjectRef()];
 	    if (isPassVeto) setbit(itmpeleIDbit, 0);
 	
-	    cout<<"Loose Value Map"<<endl;
 	    bool isPassLoose  = (*loose_id_decisions)[iel->originalObjectRef()];
 	    if (isPassLoose) setbit(itmpeleIDbit, 1);
 
-    	    cout<<"Medium Value Map"<<endl;
 	    bool isPassMedium = (*medium_id_decisions)[iel->originalObjectRef()];
 	    if (isPassMedium) setbit(itmpeleIDbit, 2);
 
-      	    cout<<"Tight Value Map"<<endl;
 	    bool isPassTight  = (*tight_id_decisions)[iel->originalObjectRef()];
 	    if (isPassTight) setbit(itmpeleIDbit, 3);
 
-      	    cout<<"HEEP Value Map"<<endl;
 	    bool isPassHEEP = (*heep_id_decisions)[iel->originalObjectRef()];
 	    if (isPassHEEP) setbit(itmpeleIDbit, 4);
 
