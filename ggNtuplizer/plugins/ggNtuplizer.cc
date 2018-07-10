@@ -197,6 +197,10 @@ const reco::TransientTrack ggNtuplizer::getTransientTrack(const reco::Track& tra
     return transientTrack;
 }
 
+const reco::TransientTrack ggNtuplizer::getTransientTrack(const reco::GsfTrack& gsfTrack) {   
+    return reco::TransientTrack(new reco::GsfTransientTrack(gsfTrack, paramField));
+}
+
 
 // void ggNtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 // {

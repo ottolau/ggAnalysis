@@ -383,6 +383,9 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 //  edm::Handle<pat::PackedCandidateCollection> pfcands;
 //  e.getByToken(pckPFCandidateCollection_, pfcands);
 
+  edm::Handle<edm::View<reco::GsfTrack> > GsfTrackHandle;
+  e.getByToken(gsfTracks_, GsfTrackHandle);
+
   edm::Handle<reco::TrackCollection> tracksHandle;
   e.getByToken(tracklabel_, tracksHandle);
 
@@ -434,8 +437,12 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   if (!separateVtxFit_) {
 
     for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
-      for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
+      //for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
+      for (edm::View<reco::GsfTrack>::const_iterator jEle = GsfTrackHandle->begin(); jEle != GsfTrackHandle->end(); ++jEle) {
+
 	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	if (fabs(iEle->gsfTrack()->vz() - jEle->vz()) > 1) continue;
+
 	float pmass  = 0.0005109989461;
 	TLorentzVector iele_lv, jele_lv;
 	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
@@ -446,12 +453,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	std::vector<RefCountedKinematicParticle> XParticles;
 	float pmasse = 1.e-6 * pmass;
 	reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
-	reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
 	const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
-	const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
-
-	//XParticles.push_back(pFactory.particle(getTransientTrack( ieletrk ), pmass, 0.0, 0, pmasse));
-	//XParticles.push_back(pFactory.particle(getTransientTrack( jeletrk ), pmass, 0.0, 0, pmasse));
+	const reco::TransientTrack jelettk = getTransientTrack( *(jEle) );
 
 	XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
 	XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
@@ -459,11 +462,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	KinematicConstrainedVertexFitter kvFitter;
 	RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
-	//KinVtx->movePointerToTheTop();
-	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
 
-	//for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
         for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
 	  if (fabs(iHad->eta()) > 2.5) continue;
 	  if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
@@ -553,35 +553,31 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 		corrPtfirst = iCEle->pt();
 		corrEnfirst = iCEle->energy();
 	      }
-	      if (fabs(jEle->eta() - iCEle->eta()) < 0.001 && fabs(jEle->phi() - iCEle->phi()) < 0.001) {
-		corrPtsecond = iCEle->pt();
-		corrEnsecond = iCEle->energy();
-	      }
 
 	    }
 	    eleCalibPt_        .push_back(make_pair(corrPtfirst,corrPtsecond));
 	    eleCalibEn_        .push_back(make_pair(corrEnfirst,corrEnsecond));
 
 	    eleCharge_          .push_back(make_pair(iEle->charge(),jEle->charge()));
-	    eleChargeConsistent_.push_back(make_pair((Int_t)iEle->isGsfCtfScPixChargeConsistent(),(Int_t)jEle->isGsfCtfScPixChargeConsistent()));
-	    eleEn_              .push_back(make_pair(iEle->energy(),jEle->energy()));
-	    eleD0_              .push_back(make_pair(iEle->gsfTrack()->dxy(pv),jEle->gsfTrack()->dxy(pv)));
-	    eleDz_              .push_back(make_pair(iEle->gsfTrack()->dz(pv),jEle->gsfTrack()->dz(pv)));
-	    eleSIP_             .push_back(make_pair(fabs(iEle->dB(pat::Electron::PV3D))/iEle->edB(pat::Electron::PV3D),fabs(jEle->dB(pat::Electron::PV3D))/jEle->edB(pat::Electron::PV3D)));
+	    eleChargeConsistent_.push_back(make_pair((Int_t)iEle->isGsfCtfScPixChargeConsistent(),-99));
+	    eleEn_              .push_back(make_pair(iEle->energy(),-99));
+	    eleD0_              .push_back(make_pair(iEle->gsfTrack()->dxy(pv),jEle->dxy(pv)));
+	    eleDz_              .push_back(make_pair(iEle->gsfTrack()->dz(pv),jEle->dz(pv)));
+	    eleSIP_             .push_back(make_pair(fabs(iEle->dB(pat::Electron::PV3D))/iEle->edB(pat::Electron::PV3D),-99));
 	    elePt_              .push_back(make_pair(iEle->pt(),jEle->pt()));
 	    eleEta_             .push_back(make_pair(iEle->eta(),jEle->eta()));
 	    elePhi_             .push_back(make_pair(iEle->phi(),jEle->phi()));
-	    eleR9_              .push_back(make_pair(iEle->r9(),jEle->r9()));
-	    eleSCEn_            .push_back(make_pair(iEle->superCluster()->energy(),jEle->superCluster()->energy()));
-	    eleEcalEn_          .push_back(make_pair(iEle->ecalEnergy(),jEle->ecalEnergy()));
-	    eleESEnP1_          .push_back(make_pair(iEle->superCluster()->preshowerEnergyPlane1(),jEle->superCluster()->preshowerEnergyPlane1()));
-	    eleESEnP2_          .push_back(make_pair(iEle->superCluster()->preshowerEnergyPlane2(),jEle->superCluster()->preshowerEnergyPlane2()));
-	    eleSCEta_           .push_back(make_pair(iEle->superCluster()->eta(),jEle->superCluster()->eta()));
-	    eleSCPhi_           .push_back(make_pair(iEle->superCluster()->phi(),jEle->superCluster()->phi()));
-	    eleSCRawEn_         .push_back(make_pair(iEle->superCluster()->rawEnergy(),jEle->superCluster()->rawEnergy()));
-	    eleSCEtaWidth_      .push_back(make_pair(iEle->superCluster()->etaWidth(),jEle->superCluster()->etaWidth()));
-	    eleSCPhiWidth_      .push_back(make_pair(iEle->superCluster()->phiWidth(),jEle->superCluster()->phiWidth()));
-	    eleHoverE_          .push_back(make_pair(iEle->hcalOverEcal(),jEle->hcalOverEcal()));
+	    eleR9_              .push_back(make_pair(iEle->r9(),-99));
+	    eleSCEn_            .push_back(make_pair(iEle->superCluster()->energy(),-99));
+	    eleEcalEn_          .push_back(make_pair(iEle->ecalEnergy(),-99));
+	    eleESEnP1_          .push_back(make_pair(iEle->superCluster()->preshowerEnergyPlane1(),-99));
+	    eleESEnP2_          .push_back(make_pair(iEle->superCluster()->preshowerEnergyPlane2(),-99));
+	    eleSCEta_           .push_back(make_pair(iEle->superCluster()->eta(),-99));
+	    eleSCPhi_           .push_back(make_pair(iEle->superCluster()->phi(),-99));
+	    eleSCRawEn_         .push_back(make_pair(iEle->superCluster()->rawEnergy(),-99));
+	    eleSCEtaWidth_      .push_back(make_pair(iEle->superCluster()->etaWidth(),-99));
+	    eleSCPhiWidth_      .push_back(make_pair(iEle->superCluster()->phiWidth(),-99));
+	    eleHoverE_          .push_back(make_pair(iEle->hcalOverEcal(),-99));
 
 	    //eleFiredSingleTrgs_ .push_back(make_pair(matchSingleElectronTriggerFilters(iEle->pt(), iEle->eta(), iEle->phi()),matchSingleElectronTriggerFilters(jEle->pt(), jEle->eta(), jEle->phi())));
 
@@ -589,24 +585,23 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    //eleFiredL1Trgs_     .push_back(make_pair(matchL1TriggerFilters(iEle->pt(), iEle->eta(), iEle->phi()),matchL1TriggerFilters(jEle->pt(), jEle->eta(), jEle->phi())));
 
 	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
-	    eleEoverP_          .push_back(make_pair(iEle->eSuperClusterOverP(),jEle->eSuperClusterOverP()));
-	    eleEoverPout_       .push_back(make_pair(iEle->eEleClusterOverPout(),jEle->eEleClusterOverPout()));
-	    eleBrem_            .push_back(make_pair(iEle->fbrem(),jEle->fbrem()));
-	    eledEtaAtVtx_       .push_back(make_pair(iEle->deltaEtaSuperClusterTrackAtVtx(),jEle->deltaEtaSuperClusterTrackAtVtx()));
-	    eledPhiAtVtx_       .push_back(make_pair(iEle->deltaPhiSuperClusterTrackAtVtx(),jEle->deltaPhiSuperClusterTrackAtVtx()));
-	    eledEtaAtCalo_      .push_back(make_pair(iEle->deltaEtaSeedClusterTrackAtCalo(),jEle->deltaEtaSeedClusterTrackAtCalo()));
+	    eleEoverP_          .push_back(make_pair(iEle->eSuperClusterOverP(),-99));
+	    eleEoverPout_       .push_back(make_pair(iEle->eEleClusterOverPout(),-99));
+	    eleBrem_            .push_back(make_pair(iEle->fbrem(),-99));
+	    eledEtaAtVtx_       .push_back(make_pair(iEle->deltaEtaSuperClusterTrackAtVtx(),-99));
+	    eledPhiAtVtx_       .push_back(make_pair(iEle->deltaPhiSuperClusterTrackAtVtx(),-99));
+	    eledEtaAtCalo_      .push_back(make_pair(iEle->deltaEtaSeedClusterTrackAtCalo(),-99));
 	    //eleSigmaIEtaIEta_   .push_back(iEle->sigmaIetaIeta()); ///new sigmaietaieta
 	    //eleSigmaIEtaIPhi_   .push_back(iEle->sigmaIetaIphi());
 	    //eleSigmaIPhiIPhi_   .push_back(iEle->sigmaIphiIphi());
-	    eleConvVeto_        .push_back(make_pair((Int_t)iEle->passConversionVeto(),(Int_t)jEle->passConversionVeto())); // ConvVtxFit || missHit == 0
-	    eleMissHits_        .push_back(make_pair(iEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS),jEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)));
-	    eleESEffSigmaRR_    .push_back(make_pair(lazyTool.eseffsirir(*((*iEle).superCluster())),lazyTool.eseffsirir(*((*jEle).superCluster()))));
+	    eleConvVeto_        .push_back(make_pair((Int_t)iEle->passConversionVeto(),-99)); // ConvVtxFit || missHit == 0
+	    eleMissHits_        .push_back(make_pair(iEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS),jEle->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS)));
+	    eleESEffSigmaRR_    .push_back(make_pair(lazyTool.eseffsirir(*((*iEle).superCluster())),-99));
 
 	    // VID calculation of (1/E - 1/p)
 	    double ieleEoverPInv = 1e30;
 	    double jeleEoverPInv = 1e30;
 	    if (iEle->ecalEnergy() != 0 && std::isfinite(iEle->ecalEnergy()))	ieleEoverPInv = (1.0 - iEle->eSuperClusterOverP())/iEle->ecalEnergy();
-	    if (jEle->ecalEnergy() != 0 && std::isfinite(jEle->ecalEnergy()))	jeleEoverPInv = (1.0 - jEle->eSuperClusterOverP())/jEle->ecalEnergy();
 	    eleEoverPInv_.push_back(make_pair(ieleEoverPInv,jeleEoverPInv));
 
 	    //if (iEle->ecalEnergy() == 0)   eleEoverPInv_.push_back(1e30);
@@ -616,23 +611,20 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    ///HEEP ID
 	    double ieledEtaseedAtVtx = iEle->superCluster().isNonnull() && iEle->superCluster()->seed().isNonnull() ?
 	      iEle->deltaEtaSuperClusterTrackAtVtx() - iEle->superCluster()->eta() + iEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
-	    double jeledEtaseedAtVtx = jEle->superCluster().isNonnull() && jEle->superCluster()->seed().isNonnull() ?
-	      jEle->deltaEtaSuperClusterTrackAtVtx() - jEle->superCluster()->eta() + jEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
 
-	    eledEtaseedAtVtx_   .push_back(make_pair(ieledEtaseedAtVtx,jeledEtaseedAtVtx));
+	    eledEtaseedAtVtx_   .push_back(make_pair(ieledEtaseedAtVtx,-99));
 
-	    eleE1x5_            .push_back(make_pair(iEle->e1x5(),jEle->e1x5()));
-	    eleE2x5_            .push_back(make_pair(iEle->e2x5Max(),jEle->e2x5Max()));
-	    eleE5x5_            .push_back(make_pair(iEle->e5x5(),jEle->e5x5()));
+	    eleE1x5_            .push_back(make_pair(iEle->e1x5(),-99));
+	    eleE2x5_            .push_back(make_pair(iEle->e2x5Max(),-99));
+	    eleE5x5_            .push_back(make_pair(iEle->e5x5(),-99));
 
 	    reco::GsfElectron::PflowIsolationVariables ipfIso = iEle->pfIsolationVariables();
-	    reco::GsfElectron::PflowIsolationVariables jpfIso = jEle->pfIsolationVariables();
 
-	    elePFChIso_         .push_back(make_pair(ipfIso.sumChargedHadronPt,jpfIso.sumChargedHadronPt));
-	    elePFPhoIso_        .push_back(make_pair(ipfIso.sumPhotonEt,jpfIso.sumPhotonEt));
-	    elePFNeuIso_        .push_back(make_pair(ipfIso.sumNeutralHadronEt,jpfIso.sumNeutralHadronEt));
-	    elePFPUIso_         .push_back(make_pair(ipfIso.sumPUPt,jpfIso.sumPUPt));
-	    elecaloEnergy_      .push_back(make_pair(iEle->caloEnergy(),jEle->caloEnergy()));
+	    elePFChIso_         .push_back(make_pair(ipfIso.sumChargedHadronPt,-99));
+	    elePFPhoIso_        .push_back(make_pair(ipfIso.sumPhotonEt,-99));
+	    elePFNeuIso_        .push_back(make_pair(ipfIso.sumNeutralHadronEt,-99));
+	    elePFPUIso_         .push_back(make_pair(ipfIso.sumPUPt,-99));
+	    elecaloEnergy_      .push_back(make_pair(iEle->caloEnergy(),-99));
 	    //elePFMiniIso_       .push_back(make_pair(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*iEle)), 0.05, 0.2, 10., false),getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*jEle)), 0.05, 0.2, 10., false)));
 
 	    /////quantities which were used for Run1 - these do not
@@ -641,41 +633,39 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
 	    ///line 120
 
-	    eleSigmaIEtaIEtaFull5x5_    .push_back(make_pair(iEle->full5x5_sigmaIetaIeta(),jEle->full5x5_sigmaIetaIeta()));
-	    eleSigmaIPhiIPhiFull5x5_    .push_back(make_pair(iEle->full5x5_sigmaIphiIphi(),jEle->full5x5_sigmaIphiIphi()));
-	    eleE1x5Full5x5_             .push_back(make_pair(iEle->full5x5_e1x5(),jEle->full5x5_e1x5()));
-	    eleE2x5Full5x5_             .push_back(make_pair(iEle->full5x5_e2x5Max(),jEle->full5x5_e2x5Max()));
-	    eleE5x5Full5x5_             .push_back(make_pair(iEle->full5x5_e5x5(),jEle->full5x5_e5x5()));
-	    eleR9Full5x5_               .push_back(make_pair(iEle->full5x5_r9(),jEle->full5x5_r9()));
+	    eleSigmaIEtaIEtaFull5x5_    .push_back(make_pair(iEle->full5x5_sigmaIetaIeta(),-99));
+	    eleSigmaIPhiIPhiFull5x5_    .push_back(make_pair(iEle->full5x5_sigmaIphiIphi(),-99));
+	    eleE1x5Full5x5_             .push_back(make_pair(iEle->full5x5_e1x5(),-99));
+	    eleE2x5Full5x5_             .push_back(make_pair(iEle->full5x5_e2x5Max(),-99));
+	    eleE5x5Full5x5_             .push_back(make_pair(iEle->full5x5_e5x5(),-99));
+	    eleR9Full5x5_               .push_back(make_pair(iEle->full5x5_r9(),-99));
 
 	    ///For HEEP ID
-	    eleEcalDrivenSeed_          .push_back(make_pair(iEle->ecalDrivenSeed(),jEle->ecalDrivenSeed()));
-	    eleDr03EcalRecHitSumEt_     .push_back(make_pair(iEle->dr03EcalRecHitSumEt(),jEle->dr03EcalRecHitSumEt()));
-	    eleDr03HcalDepth1TowerSumEt_.push_back(make_pair(iEle->dr03HcalDepth1TowerSumEt(),jEle->dr03HcalDepth1TowerSumEt()));
-	    eleDr03HcalDepth2TowerSumEt_.push_back(make_pair(iEle->dr03HcalDepth2TowerSumEt(),jEle->dr03HcalDepth2TowerSumEt()));
-	    eleDr03HcalTowerSumEt_      .push_back(make_pair(iEle->dr03HcalTowerSumEt(),jEle->dr03HcalTowerSumEt()));
-	    eleDr03TkSumPt_             .push_back(make_pair(iEle->dr03TkSumPt(),jEle->dr03TkSumPt()));
+	    eleEcalDrivenSeed_          .push_back(make_pair(iEle->ecalDrivenSeed(),-99));
+	    eleDr03EcalRecHitSumEt_     .push_back(make_pair(iEle->dr03EcalRecHitSumEt(),-99));
+	    eleDr03HcalDepth1TowerSumEt_.push_back(make_pair(iEle->dr03HcalDepth1TowerSumEt(),-99));
+	    eleDr03HcalDepth2TowerSumEt_.push_back(make_pair(iEle->dr03HcalDepth2TowerSumEt(),-99));
+	    eleDr03HcalTowerSumEt_      .push_back(make_pair(iEle->dr03HcalTowerSumEt(),-99));
+	    eleDr03TkSumPt_             .push_back(make_pair(iEle->dr03TkSumPt(),-99));
 
 	    reco::GsfTrackRef igsfTrackRef = iEle->gsfTrack();
-	    reco::GsfTrackRef jgsfTrackRef = jEle->gsfTrack();
 
-	    if (iEle->gsfTrack().isNonnull() && jEle->gsfTrack().isNonnull()) {
-	      eleGSFChi2_.push_back(make_pair(igsfTrackRef->normalizedChi2(),jgsfTrackRef->normalizedChi2()));
+	    if (iEle->gsfTrack().isNonnull()) {
+	      eleGSFChi2_.push_back(make_pair(igsfTrackRef->normalizedChi2(),jEle->normalizedChi2()));
 	      if (recVtxs->size() > 0)
-		eleTrkdxy_.push_back(make_pair(igsfTrackRef->dxy(recVtxs->front().position()),jgsfTrackRef->dxy(recVtxs->front().position())));
+		eleTrkdxy_.push_back(make_pair(igsfTrackRef->dxy(recVtxs->front().position()),jEle->dxy(recVtxs->front().position())));
 	      else
 		eleTrkdxy_.push_back(make_pair(-999,-999));
 	    } else {
-	      eleGSFChi2_.push_back(make_pair(999.,999.));
+	      eleGSFChi2_.push_back(make_pair(999.,jEle->normalizedChi2()));
 	      eleTrkdxy_.push_back(make_pair(-999,-999));
 	    }
 	    
 	    reco::TrackRef ikfTrackRef = iEle->closestCtfTrackRef();
-	    reco::TrackRef jkfTrackRef = jEle->closestCtfTrackRef();
 
-	    if (ikfTrackRef.isAvailable() && ikfTrackRef.isNonnull() && jkfTrackRef.isAvailable() && jkfTrackRef.isNonnull()) {
-	      eleKFHits_.push_back(make_pair(ikfTrackRef->hitPattern().trackerLayersWithMeasurement(),jkfTrackRef->hitPattern().trackerLayersWithMeasurement()));
-	      eleKFChi2_.push_back(make_pair(ikfTrackRef->normalizedChi2(),jkfTrackRef->normalizedChi2()));
+	    if (ikfTrackRef.isAvailable() && ikfTrackRef.isNonnull()) {
+	      eleKFHits_.push_back(make_pair(ikfTrackRef->hitPattern().trackerLayersWithMeasurement(),-99));
+	      eleKFChi2_.push_back(make_pair(ikfTrackRef->normalizedChi2(),-99));
 	    } else {
 	      eleKFHits_.push_back(make_pair(-1.,-1.));
 	      eleKFChi2_.push_back(make_pair(999.,999.));
@@ -684,7 +674,6 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    //edm::Ptr<reco::GsfElectron> recoEl(iEle);      
 	    //const auto el = electrons->ptrAt(nEle_);
 	    const auto iel = electronHandle->ptrAt(iEle - electronHandle->begin());
-	    const auto jel = electronHandle->ptrAt(jEle - electronHandle->begin());
 	   
 	    unsigned short itmpeleIDbit = 0;
 	    unsigned short jtmpeleIDbit = 0;
@@ -706,26 +695,11 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    bool isPassHEEP = (*heep_id_decisions)[iel->originalObjectRef()];
 	    if (isPassHEEP) setbit(itmpeleIDbit, 4);
 
-	    isPassVeto  = (*veto_id_decisions)[jel->originalObjectRef()];
-	    if (isPassVeto) setbit(jtmpeleIDbit, 0);
-	    
-	    isPassLoose  = (*loose_id_decisions)[jel->originalObjectRef()];
-	    if (isPassLoose) setbit(jtmpeleIDbit, 1);
-	    
-	    isPassMedium = (*medium_id_decisions)[jel->originalObjectRef()];
-	    if (isPassMedium) setbit(jtmpeleIDbit, 2);
-	    
-	    isPassTight  = (*tight_id_decisions)[jel->originalObjectRef()];
-	    if (isPassTight) setbit(jtmpeleIDbit, 3);
-	    
-	    isPassHEEP = (*heep_id_decisions)[jel->originalObjectRef()];
-	    if (isPassHEEP) setbit(jtmpeleIDbit, 4);
+	    eleIDMVAIso_  .push_back(make_pair((*eleMVAIsoValues)[iel->originalObjectRef()],-99));
+	    eleIDMVANoIso_.push_back(make_pair((*eleMVANoIsoValues)[iel->originalObjectRef()],-99));
 
-	    eleIDMVAIso_  .push_back(make_pair((*eleMVAIsoValues)[iel->originalObjectRef()],(*eleMVAIsoValues)[jel->originalObjectRef()]));
-	    eleIDMVANoIso_.push_back(make_pair((*eleMVANoIsoValues)[iel->originalObjectRef()],(*eleMVANoIsoValues)[jel->originalObjectRef()]));
-
-	    elePFClusEcalIso_.push_back(make_pair(iEle->ecalPFClusterIso(),jEle->ecalPFClusterIso()));
-	    elePFClusHcalIso_.push_back(make_pair(iEle->hcalPFClusterIso(),jEle->hcalPFClusterIso()));
+	    elePFClusEcalIso_.push_back(make_pair(iEle->ecalPFClusterIso(),-99));
+	    elePFClusHcalIso_.push_back(make_pair(iEle->hcalPFClusterIso(),-99));
 
 	    eleIDbitFirst_.push_back(itmpeleIDbit);
 	    eleIDbitSecond_.push_back(jtmpeleIDbit);

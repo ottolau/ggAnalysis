@@ -102,6 +102,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
   const reco::TransientTrack getTransientTrack(const reco::Track& track);
+  const reco::TransientTrack getTransientTrack(const reco::GsfTrack& gsfTrack);
   OAEParametrizedMagneticField *paramField = new OAEParametrizedMagneticField("3_8T"); 
 
   void cleanupPhotons();
