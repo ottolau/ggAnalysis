@@ -548,6 +548,8 @@ ULong64_t ggNtuplizer::matchMuonTriggerFilters(double pt, double eta, double phi
         // remove the matched trigger object
         trgMuPt[f].erase(trgMuPt[f].begin() + v);
         trgMuEta[f].erase(trgMuEta[f].begin() + v);
+        trgMuPhi[f].erase(trgMuPhi[f].begin() + v);
+
         break;
       }
 
