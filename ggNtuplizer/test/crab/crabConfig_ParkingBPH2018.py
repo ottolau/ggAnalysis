@@ -29,7 +29,7 @@ if __name__ == '__main__':
     config.Data.lumiMask        = 'Cert_314472-317080_13TeV_PromptReco_Collisions18_JSON.txt'
 
     config.Site.storageSite     = 'T3_US_FNALLPC'
-    config.JobType.maxMemoryMB = 5000
+    config.JobType.maxMemoryMB = 4000
 
 
     def submit(config):
@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     #config.General.requestName = 'DoubleMuon_Run2016B-03Feb2017_ver2-v2_MINIAOD_18May18'
     #config.General.requestName = 'DoubleMuon_Run2016B-07Aug17_ver2-v1_AOD_26May18_GSF'
-    config.General.requestName = 'ParkingBPH4_Run2018A-14May2018-v1_AOD_09Jul18_JPsiPhi_4tracks'
+    config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_AOD_22Jul18_JPsiPhi_4tracks_nonTrgMu'
     #config.General.requestName = 'ParkingBPH1_Run2018B-PromptReco-v1_MINIAOD_18Jun18'
 
     config.Data.unitsPerJob    = 5
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     #config.Data.inputDataset   = '/DoubleMuon/Run2016D-03Feb2017-v1/MINIAOD'
     #config.Data.inputDataset   = '/DoubleMuon/Run2016B-07Aug17_ver2-v1/AOD'
     #config.Data.inputDataset   = '/ParkingBPH1/Run2018B-PromptReco-v1/MINIAOD'
-    config.Data.inputDataset   = '/ParkingBPH4/Run2018A-14May2018-v1/AOD'
+    config.Data.inputDataset   = '/ParkingBPH6/Run2018A-14May2018-v1/AOD'
 
     config.Data.outLFNDirBase  = '/store/user/klau/'
     p = Process(target=submit, args=(config,))

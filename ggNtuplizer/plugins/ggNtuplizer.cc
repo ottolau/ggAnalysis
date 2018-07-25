@@ -113,6 +113,9 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   tree_    = fs->make<TTree>("EventTree", "Event data (tag V08_00_26_03)");
   hEvents_ = fs->make<TH1F>("hEvents",    "total processed and skimmed events",   2,  0,   2);
 
+  htrgMudpT_ = fs->make<TH1F>("htrgMudpT",    "htrgMudpT",   100,  0,   1);
+  htrgMudR_  = fs->make<TH1F>("htrgMudR",     "htrgMudR",    100,  0, 0.2);
+
   branchesGlobalEvent(tree_);
 
   if (doGenParticles_) {

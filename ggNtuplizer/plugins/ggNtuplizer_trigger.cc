@@ -318,7 +318,8 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     // loop over particular filters (and not over full HLTs)
     for (trigger::size_type iF = 0; iF != triggerHandle->sizeFilters(); ++iF) {
       // full filter name and its keys each corresponding to a matched (pt, eta, phi, ...) object
-      //string const&        label = triggerHandle->filterTag(iF).label();
+      string const&        label = triggerHandle->filterTag(iF).label();
+      if ((label.find("Mu") == std::string::npos) && (label.find("Parking") == std::string::npos)) continue;
       const trigger::Keys& keys  = triggerHandle->filterKeys(iF);
 
       size_t idx = 0;
@@ -330,6 +331,24 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
         trgMuPhi[idx].push_back(trgV.phi());
       }
     } // HLT filter loop
+
+    edm::Handle<edm::View<pat::Muon> > muonHandle;
+    e.getByToken(muonCollection_, muonHandle);
+
+    // Muon trigger matching
+
+    for (size_t v=0; v<trgMuPt[0].size(); ++v){
+      for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+        float pt = iMu->pt();
+        float eta = iMu->eta();
+        float phi = iMu->phi();
+        if (fabs(pt - trgMuPt[0][v])/trgMuPt[0][v] < trgFilterDeltaPtCut_ &&
+          deltaR(eta, phi, trgMuEta[0][v], trgMuPhi[0][v]) < trgFilterDeltaRCut_) {
+          htrgMudpT_->Fill(fabs(pt - trgMuPt[0][v])/trgMuPt[0][v]);
+          htrgMudR_->Fill(deltaR(eta, phi, trgMuEta[0][v], trgMuPhi[0][v]));
+        }
+      }
+    }
 
     return;
   } // if AOD
@@ -431,7 +450,7 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
       }
     }
   }
-
+ 
 }
 
 ULong64_t ggNtuplizer::matchSingleElectronTriggerFilters(double pt, double eta, double phi) {
@@ -526,6 +545,9 @@ ULong64_t ggNtuplizer::matchMuonTriggerFilters(double pt, double eta, double phi
       if (fabs(pt - trgMuPt[f][v])/trgMuPt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgMuEta[f][v], trgMuPhi[f][v]) < trgFilterDeltaRCut_) {
         result |= (1<<f);
+        // remove the matched trigger object
+        trgMuPt[f].erase(trgMuPt[f].begin() + v);
+        trgMuEta[f].erase(trgMuEta[f].begin() + v);
         break;
       }
 

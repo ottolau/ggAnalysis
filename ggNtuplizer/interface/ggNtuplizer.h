@@ -205,6 +205,8 @@ class ggNtuplizer : public edm::EDAnalyzer {
   TH1F    *hPUTrue_;
   TH1F    *hGenWeight_;
   TH1F    *hSumGenWeight_;
+  TH1F    *htrgMudpT_;
+  TH1F    *htrgMudR_;
 
   CiCPhotonID                 *cicPhotonId_;
   //EnergyScaleCorrection_class *egmScaler_;

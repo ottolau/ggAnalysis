@@ -21,8 +21,8 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              doNoHFMET            = cms.bool(False),
                              separateVtxFit       = cms.bool(False),
 
-                             trgFilterDeltaPtCut  = cms.double(0.5),
-                             trgFilterDeltaRCut   = cms.double(0.3),
+                             trgFilterDeltaPtCut  = cms.double(0.4),
+                             trgFilterDeltaRCut   = cms.double(0.03),
 
                              triggerEvent         = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
                              #triggerEvent         = cms.InputTag("selectedPatTrigger", "", ""),

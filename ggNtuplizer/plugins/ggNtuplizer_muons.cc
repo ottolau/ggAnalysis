@@ -31,6 +31,7 @@
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+
 using namespace std;
 
 // (local) variables associated with tree branches
@@ -286,6 +287,9 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   }
 
   if (!(separateVtxFit_)) {
+
+
+
     for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
       //if (iMu->pt() < 2) continue;
       if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
