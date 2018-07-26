@@ -117,6 +117,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   htrgMudR_  = fs->make<TH1F>("htrgMudR",     "htrgMudR",    100,  0, 0.2);
 
   branchesGlobalEvent(tree_);
+  branchesTriggers(tree_);
 
   if (doGenParticles_) {
     branchesGenInfo(tree_, fs);
@@ -173,7 +174,7 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   fillGlobalEvent(e, es);
 
   if (!e.isRealData()) {
-    fillGenInfo(e);
+    //fillGenInfo(e);
     if (doGenParticles_)
       fillGenPart(e);
   }

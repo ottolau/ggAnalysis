@@ -77,6 +77,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
 			    double r_iso_min, double r_iso_max, double kt_scale, bool charged_only);
 
   void branchesGlobalEvent(TTree*);
+  void branchesTriggers   (TTree*);
   void branchesGenInfo    (TTree*, edm::Service<TFileService>&);
   void branchesGenPart    (TTree*);
   void branchesMET        (TTree*);

@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     #config.General.requestName = 'DoubleMuon_Run2016B-03Feb2017_ver2-v2_MINIAOD_18May18'
     #config.General.requestName = 'DoubleMuon_Run2016B-07Aug17_ver2-v1_AOD_26May18_GSF'
-    config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_AOD_22Jul18_JPsiPhi_4tracks_nonTrgMu'
+    config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_AOD_25Jul18_JPsiPhi_4tracks_muTrgObj'
     #config.General.requestName = 'ParkingBPH1_Run2018B-PromptReco-v1_MINIAOD_18Jun18'
 
     config.Data.unitsPerJob    = 5

@@ -36,6 +36,7 @@ using namespace std;
 
 // (local) variables associated with tree branches
 Int_t            nMu_;
+bool            matchedTrg_;
 vector<pair<float,float>>    muPt_;
 vector<pair<float,float>>    muEn_;
 vector<pair<float,float>>    muEta_;
@@ -113,6 +114,7 @@ vector<float>  uuHadPhiMass_;
 void ggNtuplizer::branchesMuons(TTree* tree) {
 
   tree->Branch("nMu",           &nMu_);
+  tree->Branch("matchedTrg",    &matchedTrg_);
   tree->Branch("muPt",          &muPt_);
   tree->Branch("muEn",          &muEn_);
   tree->Branch("muEta",         &muEta_);
@@ -268,9 +270,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   uuHadPhiMass_		      .clear();
 
 
-
-
   nMu_ = 0;
+  matchedTrg_ = false;
 
   edm::Handle<edm::View<pat::Muon> > muonHandle;
   e.getByToken(muonCollection_, muonHandle);
@@ -291,10 +292,13 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
 
 
     for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) matchedTrg_ = true;
+
       //if (iMu->pt() < 2) continue;
       if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
       if (fabs(iMu->eta()) > 2.5) continue;
       for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
+        //if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) != 1 || matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()) != 1) continue;
         //if (jMu->pt() < 2) continue;
         if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
         if (fabs(jMu->eta()) > 2.5) continue;
@@ -504,6 +508,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
 
   if (separateVtxFit_) {
     for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) matchedTrg_ = true;
+
       //if (iMu->pt() < 2) continue;
       if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
       if (fabs(iMu->eta()) > 2.5) continue;
@@ -582,6 +588,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
 
           muIDbitfirst_.push_back(tmpmuIDbitfirst);
           muIDbitsecond_.push_back(tmpmuIDbitsecond);
+
 
           muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
           muFiredL1Trgsfirst_.push_back(matchL1TriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));

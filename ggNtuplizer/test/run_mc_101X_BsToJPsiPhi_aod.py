@@ -19,7 +19,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7')
 
@@ -51,14 +52,25 @@ process.source = cms.Source("PoolSource",
         #'/store/data/Run2018A/ParkingBPH3/AOD/14May2018-v1/70000/3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
         #'/store/data/Run2018A/ParkingBPH3/AOD/14May2018-v1/70000/D82B8CFE-D15A-E811-96DA-0CC47AF9B2FE.root'
         #'/store/data/Run2018A/DoubleMuon/AOD/22May2018-v1/80000/C694B48F-595E-E811-9634-7CD30AD0A684.root'
-        'file:3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
+        #'file:3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
+        'file:46BFC0D9-D3AC-E711-850E-008CFAC913F8.root '
+        #'/store/mc/RunIISummer17DRStdmix/BsToJpsiPhi_BMuonFilter_TuneCUEP8M1_13TeV-pythia8-evtgen/AODSIM/NZSFlatPU28to62_92X_upgrade2017_realistic_v10-v1/150000/46BFC0D9-D3AC-E711-850E-008CFAC913F8.root',
+        #'/store/mc/RunIISummer17DRStdmix/BsToJpsiPhi_BMuonFilter_TuneCUEP8M1_13TeV-pythia8-evtgen/AODSIM/NZSFlatPU28to62_92X_upgrade2017_realistic_v10-v1/150000/80E3CBD8-F2AC-E711-9191-008CFAC93F0C.root',
+        #'/store/mc/RunIISummer17DRStdmix/BsToJpsiPhi_BMuonFilter_TuneCUEP8M1_13TeV-pythia8-evtgen/AODSIM/NZSFlatPU28to62_92X_upgrade2017_realistic_v10-v1/150000/629DACDD-E0AB-E711-8792-02163E016491.root',
+        #'/store/mc/RunIISummer17DRStdmix/BsToJpsiPhi_BMuonFilter_TuneCUEP8M1_13TeV-pythia8-evtgen/AODSIM/NZSFlatPU28to62_92X_upgrade2017_realistic_v10-v1/150000/8619CBC2-FBAB-E711-8754-02163E01643C.root',
+        #'/store/mc/RunIISummer17DRStdmix/BsToJpsiPhi_BMuonFilter_TuneCUEP8M1_13TeV-pythia8-evtgen/AODSIM/NZSFlatPU28to62_92X_upgrade2017_realistic_v10-v1/150000/A6221481-FDAB-E711-B8A0-02163E01765E.root',
         )
                             )
+
 
 #process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 process.load('PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff')
 patAlgosToolsTask.add(process.patCandidatesTask)
+
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
+
 #process.load( "PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cff" )
 #patAlgosToolsTask.add(process.triggerProducerTask)
 process.load('PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff')
@@ -70,10 +82,26 @@ patAlgosToolsTask.add(process.cleanPatCandidatesTask)
 from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger( process, None, None, None, None, '' )
 
-from PhysicsTools.PatAlgos.tools.coreTools import *
-runOnData( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outputModules = [] )
+## temporary fix until we find a more sustainable solution
+#from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
+#process.particleFlowPtrs = particleFlowPtrs
+#patAlgosToolsTask.add(process.particleFlowPtrs)
+
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+#process.source.fileNames = filesRelValProdTTbarAODSIM
+
+# reduce MC genParticles a la miniAOD
+#process.load('PhysicsTools.PatAlgos.slimming.genParticles_cff')
+#process.packedGenParticles.inputVertices = cms.InputTag('offlinePrimaryVertices')
+
+#from PhysicsTools.PatAlgos.tools.coreTools import *
+#runOnMC( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outputModules = [] )
+#runOnData( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outputModules = [] )
 #runOnData( process, outputModules = [] )
-removeMCMatching(process, names=['All'], outputModules=[])
+#removeMCMatching(process, names=['All'], outputModules=[])
+
+#from PhysicsTools.PatAlgos.tools.pfTools import *
+#adaptPFTaus(process,"shrinkingConePFTau",postfix="PFlow")
 
 # this loads all available b-taggers
 #process.load("RecoBTag.Configuration.RecoBTag_cff")
@@ -139,7 +167,7 @@ else :
 #process.ggNtuplizer.jecAK8PayloadNames=cms.vstring(jecLevels)
 process.ggNtuplizer.runHFElectrons=cms.bool(False)
 process.ggNtuplizer.isAOD=cms.bool(useAOD)
-process.ggNtuplizer.doGenParticles=cms.bool(False)
+process.ggNtuplizer.doGenParticles=cms.bool(True)
 process.ggNtuplizer.dumpSubJets=cms.bool(False)
 process.ggNtuplizer.dumpJets=cms.bool(False)
 process.ggNtuplizer.dumpTaus=cms.bool(False)

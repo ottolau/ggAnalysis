@@ -15,6 +15,23 @@ vector<float> trgMuPt[64],  trgMuEta[64],  trgMuPhi[64];
 vector<float> trgJetPt[64], trgJetEta[64], trgJetPhi[64];
 vector<float> trgL1Eta[64],  trgL1Phi[64];
 
+// (local) variables associated with tree branches
+Int_t          nTrg_;
+vector<float>  trgPt_;
+vector<float>  trgEta_;
+vector<float>  trgPhi_;
+
+void ggNtuplizer::branchesTriggers(TTree* tree) {
+
+  tree->Branch("nTrg",                    &nTrg_);
+  tree->Branch("trgPt",                   &trgPt_);
+  tree->Branch("trgEta",                  &trgEta_);
+  tree->Branch("trgPhi",                  &trgPhi_);
+  
+}
+
+
+
 void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
   // Fills the arrays above.
 
@@ -310,6 +327,13 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
   }
  
   if (isAOD_) {
+    // cleanup from previous execution
+    trgPt_                      .clear();
+    trgEta_                     .clear();
+    trgPhi_                     .clear();
+
+    nTrg_ = 0;
+
     edm::Handle<trigger::TriggerEvent> triggerHandle;
     e.getByToken(trgEventLabel_, triggerHandle);
 
@@ -329,6 +353,11 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
         trgMuPt [idx].push_back(trgV.pt());
         trgMuEta[idx].push_back(trgV.eta());
         trgMuPhi[idx].push_back(trgV.phi());
+
+        trgPt_.push_back(trgV.pt());
+        trgEta_.push_back(trgV.eta());
+        trgPhi_.push_back(trgV.phi());
+        nTrg_++;
       }
     } // HLT filter loop
 
