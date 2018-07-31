@@ -68,8 +68,10 @@ vector<pair<float,float>>    muPFPhoIso03_;
 vector<pair<float,float>>    muPFNeuIso03_;
 vector<pair<float,float>>    muPFPUIso03_;
 //vector<pair<float,float>>    muPFMiniIso_;
-vector<ULong64_t> muFiredTrgsfirst_;
-vector<ULong64_t> muFiredTrgssecond_;
+//vector<ULong64_t> muFiredTrgsfirst_;
+vector<bool> muFiredTrgsfirst_;
+//vector<ULong64_t> muFiredTrgssecond_;
+vector<bool> muFiredTrgssecond_;
 vector<ULong64_t> muFiredL1Trgsfirst_;
 vector<ULong64_t> muFiredL1Trgssecond_;
 vector<pair<float,float>>    muInnervalidFraction_;
@@ -287,6 +289,9 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
     return;
   }
 
+  vector<bool> muTrkMap;
+  muTrkMap = muonTriggerMap(e);
+
   if (!(separateVtxFit_)) {
 
 
@@ -440,9 +445,11 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muIDbitfirst_.push_back(tmpmuIDbitfirst);
             muIDbitsecond_.push_back(tmpmuIDbitsecond);
 
-            muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+            //muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+            muFiredTrgsfirst_.push_back(muTrkMap[iMu - muonHandle->begin()]);
             muFiredL1Trgsfirst_.push_back(matchL1TriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
-            muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+            //muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+            muFiredTrgssecond_.push_back(muTrkMap[jMu - muonHandle->begin()]);
             muFiredL1Trgssecond_.push_back(matchL1TriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
 
             muBestTrkPtError_        .push_back(make_pair(iMu->muonBestTrack()->ptError(),jMu->muonBestTrack()->ptError()));
@@ -590,10 +597,13 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
           muIDbitsecond_.push_back(tmpmuIDbitsecond);
 
 
-          muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+          //muFiredTrgsfirst_  .push_back(matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
+          muFiredTrgsfirst_.push_back(muTrkMap[iMu - muonHandle->begin()]);
           muFiredL1Trgsfirst_.push_back(matchL1TriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()));
-          muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+          //muFiredTrgssecond_  .push_back(matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+          muFiredTrgssecond_.push_back(muTrkMap[jMu - muonHandle->begin()]);
           muFiredL1Trgssecond_.push_back(matchL1TriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()));
+
 
           muBestTrkPtError_        .push_back(make_pair(iMu->muonBestTrack()->ptError(),jMu->muonBestTrack()->ptError()));
           muBestTrkPt_             .push_back(make_pair(iMu->muonBestTrack()->pt(),jMu->muonBestTrack()->pt()));

@@ -575,14 +575,33 @@ ULong64_t ggNtuplizer::matchMuonTriggerFilters(double pt, double eta, double phi
           deltaR(eta, phi, trgMuEta[f][v], trgMuPhi[f][v]) < trgFilterDeltaRCut_) {
         result |= (1<<f);
         // remove the matched trigger object
-        trgMuPt[f].erase(trgMuPt[f].begin() + v);
-        trgMuEta[f].erase(trgMuEta[f].begin() + v);
-        trgMuPhi[f].erase(trgMuPhi[f].begin() + v);
+        //trgMuPt[f].erase(trgMuPt[f].begin() + v);
+        //trgMuEta[f].erase(trgMuEta[f].begin() + v);
+        //trgMuPhi[f].erase(trgMuPhi[f].begin() + v);
 
         break;
       }
 
   return result;
+}
+
+vector<bool> ggNtuplizer::muonTriggerMap(const edm::Event &e) {
+
+  edm::Handle<edm::View<pat::Muon> > muonHandle;
+  e.getByToken(muonCollection_, muonHandle);
+  vector<bool> muTrkMap(muonHandle->size(), false);
+
+  size_t f = 0;
+  for (size_t v = 0; v < trgMuPt[f].size(); ++v) {
+    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      if (fabs(iMu->pt() - trgMuPt[f][v])/trgMuPt[f][v] < trgFilterDeltaPtCut_ &&
+          deltaR(iMu->eta(), iMu->phi(), trgMuEta[f][v], trgMuPhi[f][v]) < trgFilterDeltaRCut_ && muTrkMap[iMu - muonHandle->begin()] != true) {
+          muTrkMap[iMu - muonHandle->begin()] = true;
+          break;
+      }
+    }
+  }
+  return muTrkMap;
 }
 
 ULong64_t ggNtuplizer::matchJetTriggerFilters(double pt, double eta, double phi) {

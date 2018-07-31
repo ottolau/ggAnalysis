@@ -69,6 +69,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   ULong64_t matchDoublePhotonTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchTriplePhotonTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchMuonTriggerFilters(double pt, double eta, double phi);
+  vector<bool> muonTriggerMap(const edm::Event&);
   ULong64_t matchJetTriggerFilters(double pt, double eta, double phi);
   ULong64_t matchL1TriggerFilters(double pt, double eta, double phi);
   Double_t deltaPhi(Double_t phi1, Double_t phi2);
