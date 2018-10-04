@@ -48,6 +48,8 @@ vector<UShort_t> muIDbitsecond_;
 vector<pair<float,float>>    muD0_;
 vector<pair<float,float>>    muDz_;
 vector<pair<float,float>>    muSIP_;
+vector<pair<float,float>>    muD0Error_;
+vector<pair<float,float>>    muDzError_;
 vector<pair<float,float>>    muChi2NDF_;
 vector<pair<float,float>>    muInnerD0_;
 vector<pair<float,float>>    muInnerDz_;
@@ -128,6 +130,8 @@ void ggNtuplizer::branchesMuons(TTree* tree) {
   tree->Branch("muD0",          &muD0_);
   tree->Branch("muDz",          &muDz_);
   tree->Branch("muSIP",         &muSIP_);
+  tree->Branch("muD0Error",          &muD0Error_);
+  tree->Branch("muDzError",          &muDzError_);
   tree->Branch("muChi2NDF",     &muChi2NDF_);
   tree->Branch("muInnerD0",     &muInnerD0_);
   tree->Branch("muInnerDz",     &muInnerDz_);
@@ -210,6 +214,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   muD0_                  .clear();
   muDz_                  .clear();
   muSIP_                 .clear();
+  muD0Error_             .clear();
+  muDzError_             .clear();
   muChi2NDF_             .clear();
   muInnerD0_             .clear();
   muInnerDz_             .clear();
@@ -425,6 +431,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muD0_    .push_back(make_pair(iMu->muonBestTrack()->dxy(pv),jMu->muonBestTrack()->dxy(pv)));
             muDz_    .push_back(make_pair(iMu->muonBestTrack()->dz(pv),jMu->muonBestTrack()->dz(pv)));
             muSIP_   .push_back(make_pair(fabs(iMu->dB(pat::Muon::PV3D))/iMu->edB(pat::Muon::PV3D),fabs(jMu->dB(pat::Muon::PV3D))/jMu->edB(pat::Muon::PV3D)));
+            muD0Error_    .push_back(make_pair(iMu->muonBestTrack()->dxyError(),jMu->muonBestTrack()->dxyError()));
+            muDzError_    .push_back(make_pair(iMu->muonBestTrack()->dzError(),jMu->muonBestTrack()->dzError()));
 
             UShort_t tmpmuIDbitfirst = 0;
 

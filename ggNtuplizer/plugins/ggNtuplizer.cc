@@ -144,6 +144,14 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   hEvents_->Fill(0.5);
 
+  // Update when necessary the trigger table
+  bool changedConfig = false;
+  if (!hltConfig_.init(e.getRun(), es, trgResultsProcess_, changedConfig)) {
+    edm::LogError("ggNtuplizer") << "Initialization of HLTConfigProvider failed!";
+    return ;
+  } 
+
+
   if (doGenParticles_) {
     jetResolution_   = JME::JetResolution::get(es, "AK4PFchs_pt");
     jetResolutionSF_ = JME::JetResolutionScaleFactor::get(es, "AK4PFchs");

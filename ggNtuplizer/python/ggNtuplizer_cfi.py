@@ -26,6 +26,7 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
 
                              triggerEvent         = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
                              #triggerEvent         = cms.InputTag("selectedPatTrigger", "", ""),
+                             #triggerEvent         = cms.InputTag("selectedPatTrigger", "", "PAT"),
                              triggerResults       = cms.InputTag("TriggerResults", "", "HLT"),
                              patTriggerResults    = cms.InputTag("TriggerResults", "", "PAT"),
                              #patTriggerResults    = cms.InputTag("TriggerResults", "", "RECO"),
