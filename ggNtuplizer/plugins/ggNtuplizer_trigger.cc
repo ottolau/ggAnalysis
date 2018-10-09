@@ -2,6 +2,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "ggAnalysis/ggNtuplizer/interface/ggNtuplizer.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/PatCandidates/interface/TriggerObject.h"
 
 using namespace std;
 
@@ -339,7 +340,7 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     trgPath_                    .clear();
     nTrg_ = 0;
     hltMu9IP6_ = 0;
-    std::string parkingPathName = "";
+    std::string parkingPathName = "youcantmatchthisstring234235";
 
 /*
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerHandleMiniAOD;
@@ -369,8 +370,10 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     for (unsigned int iTrig=0; iTrig<trigNames.size(); ++iTrig) {
       if (trgResultsHandle->accept(iTrig)) {
         std::string pathName = trigNames.triggerName(iTrig);
+        //std::cout << "[PATH]: " << pathName << std::endl;
         trgPath_.push_back(pathName);
-        if (pathName.find("HLT_Mu9_IP6") !=std::string::npos) {
+        //if (pathName.find("HLT_Mu9_IP") !=std::string::npos || pathName.find("HLT_Mu8p5_IP3p5") !=std::string::npos || pathName.find("HLT_Mu8p5_IP3p5") !=std::string::npos) {
+        if (pathName.find("HLT_") != std::string::npos && pathName.find("Mu") != std::string::npos && pathName.find("IP") != std::string::npos) {
           hltMu9IP6_ = 1;
           parkingPathName = pathName;
         //std::cout << "[PATH]: " << pathName << std::endl; 
@@ -378,10 +381,13 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
       }
     }
 
+    if (hltMu9IP6_ == 0) return;
+
     edm::Handle<trigger::TriggerEvent> triggerHandle;
     e.getByToken(trgEventLabel_, triggerHandle);
 
     const trigger::TriggerObjectCollection& trgObjects = triggerHandle->getObjects();
+    const std::vector<std::string> tagName = hltConfig_.moduleLabels(parkingPathName);
 
     // loop over particular filters (and not over full HLTs)
     for (trigger::size_type iF = 0; iF != triggerHandle->sizeFilters(); ++iF) {
@@ -391,10 +397,16 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
       //cout<<label<<endl;
 
       // Matching between path and filter. Only select filters which belong to our desired path
-      const std::vector<std::string> tagName = hltConfig_.saveTagsModules(parkingPathName);
+      //const std::vector<std::string> tagName = hltConfig_.saveTagsModules(parkingPathName);
       bool isParkingTrig = false;
+      //cout<<"**************************************************************************"<<endl;
+      //cout<<"Path name: "<<parkingPathName<<endl;
+      //cout<<"--------------------"<<endl;
+      //cout<<"filter: "<<label<<endl;
+      //cout<<"--------------------"<<endl;
       for (std::vector<std::string>::const_iterator tag = tagName.begin(); tag != tagName.end(); ++tag) {
-        if (tag->compare(label) == 0) {
+        //cout<<*tag<<endl;
+        if (tag->find(label) != std::string::npos || label.find(*tag) != std::string::npos) {
           isParkingTrig = true;
           //cout<<label<<endl;
         }
@@ -408,6 +420,8 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
 
       for (size_t iK = 0; iK < keys.size(); ++iK) {
         const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
+        if (abs(trgV.id()) != 13) continue;
+        //cout<<trgV.id()<<endl;
         trgMuPt [idx].push_back(trgV.pt());
         trgMuEta[idx].push_back(trgV.eta());
         trgMuPhi[idx].push_back(trgV.phi());

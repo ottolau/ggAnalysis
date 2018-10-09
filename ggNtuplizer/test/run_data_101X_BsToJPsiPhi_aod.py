@@ -51,7 +51,9 @@ process.source = cms.Source("PoolSource",
         #'/store/data/Run2018A/ParkingBPH3/AOD/14May2018-v1/70000/3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
         #'/store/data/Run2018A/ParkingBPH3/AOD/14May2018-v1/70000/D82B8CFE-D15A-E811-96DA-0CC47AF9B2FE.root'
         #'/store/data/Run2018A/DoubleMuon/AOD/22May2018-v1/80000/C694B48F-595E-E811-9634-7CD30AD0A684.root'
-        'file:3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
+        #'file:3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
+        #'/store/data/Run2018A/ParkingBPH1/AOD/14May2018-v1/30000/609C9387-0D5A-E811-AD09-FA163EDE5C6B.root'
+        '/store/data/Run2018D/ParkingBPH2/AOD/PromptReco-v2/000/321/712/00000/F6E1D0C4-C7A8-E811-9367-FA163E986694.root'
         )
                             )
 

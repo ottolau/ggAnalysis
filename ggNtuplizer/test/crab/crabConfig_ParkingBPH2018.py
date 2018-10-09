@@ -26,7 +26,8 @@ if __name__ == '__main__':
     config.Data.totalUnits      = -1
     config.Data.publication     = False
     #config.Data.lumiMask        = 'testjson.txt'
-    config.Data.lumiMask        = 'Cert_314472-317080_13TeV_PromptReco_Collisions18_JSON.txt'
+    #config.Data.lumiMask        = 'Cert_314472-317080_13TeV_PromptReco_Collisions18_JSON.txt'
+    config.Data.lumiMask        = 'Cert_314472-323523_13TeV_PromptReco_Collisions18_JSON.txt'
 
     config.Site.storageSite     = 'T3_US_FNALLPC'
     config.JobType.maxMemoryMB = 4000
@@ -42,8 +43,8 @@ if __name__ == '__main__':
 
     #config.General.requestName = 'DoubleMuon_Run2016B-03Feb2017_ver2-v2_MINIAOD_18May18'
     #config.General.requestName = 'DoubleMuon_Run2016B-07Aug17_ver2-v1_AOD_26May18_GSF'
-    config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_AOD_31Jul18_JPsiPhi_4tracks_muTrgObjUpdate'
-    #config.General.requestName = 'ParkingBPH1_Run2018B-PromptReco-v1_MINIAOD_18Jun18'
+    #config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_AOD_05Oct18_JPsiPhi_4tracks_trigMu9IP6'
+    config.General.requestName = 'ParkingBPH5_Run2018B-PromptReco-v1_AOD_08Oct18_JPsiPhi_4tracks_trigMu9IP6'
 
     config.Data.unitsPerJob    = 5
     #config.Data.inputDataset   = '/DoubleMuon/Run2016B-23Sep2016-v3/MINIAOD'
@@ -51,7 +52,8 @@ if __name__ == '__main__':
     #config.Data.inputDataset   = '/DoubleMuon/Run2016D-03Feb2017-v1/MINIAOD'
     #config.Data.inputDataset   = '/DoubleMuon/Run2016B-07Aug17_ver2-v1/AOD'
     #config.Data.inputDataset   = '/ParkingBPH1/Run2018B-PromptReco-v1/MINIAOD'
-    config.Data.inputDataset   = '/ParkingBPH6/Run2018A-14May2018-v1/AOD'
+    #config.Data.inputDataset   = '/ParkingBPH6/Run2018A-14May2018-v1/AOD'
+    config.Data.inputDataset   = '/ParkingBPH5/Run2018B-PromptReco-v1/AOD'
 
     config.Data.outLFNDirBase  = '/store/user/klau/'
     p = Process(target=submit, args=(config,))
