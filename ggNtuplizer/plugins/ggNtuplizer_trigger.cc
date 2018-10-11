@@ -1,8 +1,6 @@
 #include "map"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "ggAnalysis/ggNtuplizer/interface/ggNtuplizer.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/PatCandidates/interface/TriggerObject.h"
 
 using namespace std;
 
@@ -332,225 +330,97 @@ void ggNtuplizer::initTriggerFilters(const edm::Event &e) {
     
   }
  
-  if (isAOD_) {
-    // cleanup from previous execution
-    trgPt_                      .clear();
-    trgEta_                     .clear();
-    trgPhi_                     .clear();
-    trgPath_                    .clear();
-    nTrg_ = 0;
-    hltMu9IP6_ = 0;
-    std::string parkingPathName = "youcantmatchthisstring234235";
-
-/*
-    edm::Handle<pat::TriggerObjectStandAloneCollection> triggerHandleMiniAOD;
-    e.getByToken(triggerObjectsLabel_, triggerHandleMiniAOD);
-
-    edm::Handle<edm::TriggerResults> trgResultsHandle;
-    e.getByToken(trgResultsLabel_, trgResultsHandle);
-
-    const edm::TriggerNames &names = e.triggerNames(*trgResultsHandle);
-
-    for (pat::TriggerObjectStandAlone obj : *triggerHandleMiniAOD) {
-      obj.unpackPathNames(names);
-      //obj.unpackPathNames(e);
-      for (size_t iF = 0; iF < obj.pathNames().size(); ++iF) {
-        string label = obj.pathNames()[iF];
-        cout<<label<<endl;
-      }
-    }
-*/
-
-    edm::Handle<edm::TriggerResults> trgResultsHandle;
-    e.getByToken(trgResultsLabel_, trgResultsHandle);
-
-    // Get the HLT trigger path name, desired path name: HLT_Mu9_IP6_part2_v1
-
-    const edm::TriggerNames& trigNames = e.triggerNames(*trgResultsHandle);   
-    for (unsigned int iTrig=0; iTrig<trigNames.size(); ++iTrig) {
-      if (trgResultsHandle->accept(iTrig)) {
-        std::string pathName = trigNames.triggerName(iTrig);
-        //std::cout << "[PATH]: " << pathName << std::endl;
-        trgPath_.push_back(pathName);
-        //if (pathName.find("HLT_Mu9_IP") !=std::string::npos || pathName.find("HLT_Mu8p5_IP3p5") !=std::string::npos || pathName.find("HLT_Mu8p5_IP3p5") !=std::string::npos) {
-        if (pathName.find("HLT_") != std::string::npos && pathName.find("Mu") != std::string::npos && pathName.find("IP") != std::string::npos) {
-          hltMu9IP6_ = 1;
-          parkingPathName = pathName;
-        //std::cout << "[PATH]: " << pathName << std::endl; 
-        }
-      }
-    }
-
-    if (hltMu9IP6_ == 0) return;
-
-    edm::Handle<trigger::TriggerEvent> triggerHandle;
-    e.getByToken(trgEventLabel_, triggerHandle);
-
-    const trigger::TriggerObjectCollection& trgObjects = triggerHandle->getObjects();
-    const std::vector<std::string> tagName = hltConfig_.moduleLabels(parkingPathName);
-
-    // loop over particular filters (and not over full HLTs)
-    for (trigger::size_type iF = 0; iF != triggerHandle->sizeFilters(); ++iF) {
-      // full filter name and its keys each corresponding to a matched (pt, eta, phi, ...) object
-      string const&        label = triggerHandle->filterTag(iF).label();
-      //if ((label.find("Mu") == std::string::npos) && (label.find("Parking") == std::string::npos)) continue;
-      //cout<<label<<endl;
-
-      // Matching between path and filter. Only select filters which belong to our desired path
-      //const std::vector<std::string> tagName = hltConfig_.saveTagsModules(parkingPathName);
-      bool isParkingTrig = false;
-      //cout<<"**************************************************************************"<<endl;
-      //cout<<"Path name: "<<parkingPathName<<endl;
-      //cout<<"--------------------"<<endl;
-      //cout<<"filter: "<<label<<endl;
-      //cout<<"--------------------"<<endl;
-      for (std::vector<std::string>::const_iterator tag = tagName.begin(); tag != tagName.end(); ++tag) {
-        //cout<<*tag<<endl;
-        if (tag->find(label) != std::string::npos || label.find(*tag) != std::string::npos) {
-          isParkingTrig = true;
-          //cout<<label<<endl;
-        }
-      }
-      
-      if (!isParkingTrig) continue;
-
-      const trigger::Keys& keys  = triggerHandle->filterKeys(iF);
-
-      size_t idx = 0;
-
-      for (size_t iK = 0; iK < keys.size(); ++iK) {
-        const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
-        if (abs(trgV.id()) != 13) continue;
-        //cout<<trgV.id()<<endl;
-        trgMuPt [idx].push_back(trgV.pt());
-        trgMuEta[idx].push_back(trgV.eta());
-        trgMuPhi[idx].push_back(trgV.phi());
-
-        trgPt_.push_back(trgV.pt());
-        trgEta_.push_back(trgV.eta());
-        trgPhi_.push_back(trgV.phi());
-        nTrg_++;
-      }
-    } // HLT filter loop
-
-    edm::Handle<edm::View<pat::Muon> > muonHandle;
-    e.getByToken(muonCollection_, muonHandle);
-
-    // Muon trigger matching
-
-    for (size_t v=0; v<trgMuPt[0].size(); ++v){
-      for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
-        float pt = iMu->pt();
-        float eta = iMu->eta();
-        float phi = iMu->phi();
-        if (fabs(pt - trgMuPt[0][v])/trgMuPt[0][v] < trgFilterDeltaPtCut_ &&
-          deltaR(eta, phi, trgMuEta[0][v], trgMuPhi[0][v]) < trgFilterDeltaRCut_) {
-          htrgMudpT_->Fill(fabs(pt - trgMuPt[0][v])/trgMuPt[0][v]);
-          htrgMudR_->Fill(deltaR(eta, phi, trgMuEta[0][v], trgMuPhi[0][v]));
-        }
-      }
-    }
-    
-    return;
-  } // if AOD
-
-
-  edm::Handle<pat::TriggerObjectStandAloneCollection> triggerHandleMiniAOD;
-  e.getByToken(triggerObjectsLabel_, triggerHandleMiniAOD);
+  // cleanup from previous execution
+  trgPt_                      .clear();
+  trgEta_                     .clear();
+  trgPhi_                     .clear();
+  trgPath_                    .clear();
+  nTrg_ = 0;
+  hltMu9IP6_ = 0;
+  std::string parkingPathName = "youcantmatchthisstring234235";
 
   edm::Handle<edm::TriggerResults> trgResultsHandle;
   e.getByToken(trgResultsLabel_, trgResultsHandle);
 
-  edm::Handle<std::string> filterLabels_;
-  e.getByLabel("slimmedPatTrigger:filterLabels", filterLabels_);
+  // Get the HLT trigger path name, desired path name: HLT_Mu9_IP6_part2_v1
 
-  //const edm::TriggerNames &names = e.triggerNames(*trgResultsHandle);
-
-  for (pat::TriggerObjectStandAlone obj : *triggerHandleMiniAOD) {
-    //obj.unpackPathNames(names);
-    //obj.unpackPathNames(e);
-    obj.unpackFilterLabels(e, *trgResultsHandle);
-
-    // loop over filters    
-    for (size_t iF = 0; iF < obj.filterLabels().size(); ++iF) {
-      string label = obj.filterLabels()[iF];
-
-      //cout<<"label : "<<iF<<" "<<label<<endl;
-
-      std::map<string,size_t>::iterator idxEleSingle = eleSingleFilters.find(label);
-      std::map<string,size_t>::iterator idxEleDouble = eleDoubleFilters.find(label);
-      std::map<string,size_t>::iterator idxPhoSingle = phoSingleFilters.find(label);
-      std::map<string,size_t>::iterator idxPhoDouble = phoDoubleFilters.find(label);
-      std::map<string,size_t>::iterator idxPhoTriple = phoTripleFilters.find(label);
-      std::map<string,size_t>::iterator idxMu  = muFilters.find(label);
-      std::map<string,size_t>::iterator idxJet = jetFilters.find(label);
-      std::map<string,size_t>::iterator idxL1 = l1Filters.find(label);
-
-      // single electron filters
-      if (idxEleSingle != eleSingleFilters.end()) {
-        size_t idx = idxEleSingle->second;
-        trgSingleElePt [idx].push_back(obj.pt());
-        trgSingleEleEta[idx].push_back(obj.eta());
-        trgSingleElePhi[idx].push_back(obj.phi());
-	//cout<<idx<<" "<<obj.pt()<<" "<<obj.eta()<<" "<<obj.phi()<<endl;
-      }
-
-      // double electron filters
-      if (idxEleDouble != eleDoubleFilters.end()) {
-        size_t idx = idxEleDouble->second;
-        trgDoubleElePt [idx].push_back(obj.pt());
-        trgDoubleEleEta[idx].push_back(obj.eta());
-        trgDoubleElePhi[idx].push_back(obj.phi());
-      }
-
-      // single photon filters
-      if (idxPhoSingle != phoSingleFilters.end()) {
-        size_t idx = idxPhoSingle->second;
-        trgSinglePhoPt [idx].push_back(obj.pt());
-        trgSinglePhoEta[idx].push_back(obj.eta());
-        trgSinglePhoPhi[idx].push_back(obj.phi());
-      }
-
-      // double photon filters
-      if (idxPhoDouble != phoDoubleFilters.end()) {
-        size_t idx = idxPhoDouble->second;
-        trgDoublePhoPt [idx].push_back(obj.pt());
-        trgDoublePhoEta[idx].push_back(obj.eta());
-        trgDoublePhoPhi[idx].push_back(obj.phi());
-      }
-
-      //triple photon filters
-      if (idxPhoTriple != phoTripleFilters.end()) {
-        size_t idx = idxPhoTriple->second;
-        trgTriplePhoPt [idx].push_back(obj.pt());
-        trgTriplePhoEta[idx].push_back(obj.eta());
-	trgTriplePhoPhi[idx].push_back(obj.phi());
-      }
-
-      // muon filters
-      if (idxMu != muFilters.end()) {
-        size_t idx = idxMu->second;
-        trgMuPt [idx].push_back(obj.pt());
-        trgMuEta[idx].push_back(obj.eta());
-        trgMuPhi[idx].push_back(obj.phi());
-      }
-
-      // jet filters
-      if (idxJet != jetFilters.end()) {
-        size_t idx = idxJet->second;
-        trgJetPt [idx].push_back(obj.pt());
-        trgJetEta[idx].push_back(obj.eta());
-        trgJetPhi[idx].push_back(obj.phi());
-      }
-
-      // L1 filters
-      if (idxL1 != l1Filters.end()) {
-        size_t idx = idxL1->second;
-        trgL1Eta[idx].push_back(obj.eta());
-        trgL1Phi[idx].push_back(obj.phi());
+  const edm::TriggerNames& trigNames = e.triggerNames(*trgResultsHandle);   
+  for (unsigned int iTrig=0; iTrig<trigNames.size(); ++iTrig) {
+    if (trgResultsHandle->accept(iTrig)) {
+      std::string pathName = trigNames.triggerName(iTrig);
+      //std::cout << "[PATH]: " << pathName << std::endl;
+      trgPath_.push_back(pathName);
+      //if (pathName.find("HLT_Mu9_IP") !=std::string::npos || pathName.find("HLT_Mu8p5_IP3p5") !=std::string::npos || pathName.find("HLT_Mu8p5_IP3p5") !=std::string::npos) {
+      if (pathName.find("HLT_") != std::string::npos && pathName.find("Mu") != std::string::npos && pathName.find("IP") != std::string::npos) {
+        hltMu9IP6_ = 1;
+        parkingPathName = pathName;
+      //std::cout << "[PATH]: " << pathName << std::endl; 
       }
     }
   }
+
+  if (hltMu9IP6_ == 0) return;
+
+  edm::Handle<trigger::TriggerEvent> triggerHandle;
+  e.getByToken(trgEventLabel_, triggerHandle);
+
+  const trigger::TriggerObjectCollection& trgObjects = triggerHandle->getObjects();
+  const std::vector<std::string> tagName = hltConfig_.moduleLabels(parkingPathName);
+
+  // loop over particular filters (and not over full HLTs)
+  for (trigger::size_type iF = 0; iF != triggerHandle->sizeFilters(); ++iF) {
+    // full filter name and its keys each corresponding to a matched (pt, eta, phi, ...) object
+    string const&        label = triggerHandle->filterTag(iF).label();
+
+    // Matching between path and filter. Only select filters which belong to our desired path
+    bool isParkingTrig = false;
+    for (std::vector<std::string>::const_iterator tag = tagName.begin(); tag != tagName.end(); ++tag) {
+      if (tag->find(label) != std::string::npos || label.find(*tag) != std::string::npos) {
+        isParkingTrig = true;
+      }
+    }
+    
+    if (!isParkingTrig) continue;
+
+    const trigger::Keys& keys  = triggerHandle->filterKeys(iF);
+
+    size_t idx = 0;
+
+    for (size_t iK = 0; iK < keys.size(); ++iK) {
+      const trigger::TriggerObject& trgV = trgObjects.at(keys[iK]);
+      if (abs(trgV.id()) != 13) continue;
+      //cout<<trgV.id()<<endl;
+      trgMuPt [idx].push_back(trgV.pt());
+      trgMuEta[idx].push_back(trgV.eta());
+      trgMuPhi[idx].push_back(trgV.phi());
+
+      trgPt_.push_back(trgV.pt());
+      trgEta_.push_back(trgV.eta());
+      trgPhi_.push_back(trgV.phi());
+      nTrg_++;
+    }
+  } // HLT filter loop
+
+  edm::Handle<edm::View<pat::Muon> > muonHandle;
+  e.getByToken(muonCollection_, muonHandle);
+
+  // Muon trigger matching
+
+  for (size_t v=0; v<trgMuPt[0].size(); ++v){
+    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      float pt = iMu->pt();
+      float eta = iMu->eta();
+      float phi = iMu->phi();
+      if (fabs(pt - trgMuPt[0][v])/trgMuPt[0][v] < trgFilterDeltaPtCut_ &&
+        deltaR(eta, phi, trgMuEta[0][v], trgMuPhi[0][v]) < trgFilterDeltaRCut_) {
+        htrgMudpT_->Fill(fabs(pt - trgMuPt[0][v])/trgMuPt[0][v]);
+        htrgMudR_->Fill(deltaR(eta, phi, trgMuEta[0][v], trgMuPhi[0][v]));
+      }
+    }
+  }
+  
+  return;
+
  
 }
 
@@ -646,11 +516,6 @@ ULong64_t ggNtuplizer::matchMuonTriggerFilters(double pt, double eta, double phi
       if (fabs(pt - trgMuPt[f][v])/trgMuPt[f][v] < trgFilterDeltaPtCut_ &&
           deltaR(eta, phi, trgMuEta[f][v], trgMuPhi[f][v]) < trgFilterDeltaRCut_) {
         result |= (1<<f);
-        // remove the matched trigger object
-        //trgMuPt[f].erase(trgMuPt[f].begin() + v);
-        //trgMuEta[f].erase(trgMuEta[f].begin() + v);
-        //trgMuPhi[f].erase(trgMuPhi[f].begin() + v);
-
         break;
       }
 
