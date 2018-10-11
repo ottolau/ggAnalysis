@@ -1,32 +1,20 @@
+#### Ntuplizer for Bs->phi ll
+###  Modified from ggNtuplizer
 #### Current production tag : 
 #### Newest tag for testing : 
-#### Note that the current head version can be run with CMSSW_9_4_4
+#### Note that the current head version can be run with CMSSW_10_2_5
 
-##### To work with CMSSW_9_4_4 and head version, you do :
-cd CMSSW_9_4_4/src <br>
+##### To work with CMSSW_10_2_5 and head version, you do :
+cd CMSSW_10_2_5/src <br>
 cmsenv <br>
 git cms-init <br>
-git cms-merge-topic lsoffi:CMSSW_9_4_0_pre3_TnP <br>
-git cms-merge-topic guitargeek:ElectronID_MVA2017_940pre3 <br>
-scram b -j8 <br>
-cd $CMSSW_BASE/external/slc6_amd64_gcc630 <br>
-git clone https://github.com/lsoffi/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data <br>
-cd data/RecoEgamma/PhotonIdentification/data <br>
-git checkout CMSSW_9_4_0_pre3_TnP <br>
-cd $CMSSW_BASE/external/slc6_amd64_gcc630/ <br>
-git clone https://github.com/lsoffi/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data <br>
-cd data/RecoEgamma/ElectronIdentification/data <br>
-git checkout CMSSW_9_4_0_pre3_TnP <br>
-cd $CMSSW_BASE/src <br>
-git cms-merge-topic cms-egamma:EGM_94X_v1 <br>
-cd EgammaAnalysis/ElectronTools/data <br>
-git clone https://github.com/ECALELFS/ScalesSmearings.git <br>
-cd ScalesSmearings/ <br>
-git checkout Run2017_17Nov2017_v1 <br>
-cd $CMSSW_BASE/src <br>
+mkdir CMGTools <br>
+cd CMGTools <br>
+git clone https://github.com/rmanzoni/BKstLL <br>
+cd .. <br>
 git clone https://github.com/cmkuo/HiggsAnalysis.git <br>
-git clone -b 94X https://github.com/cmkuo/ggAnalysis.git <br>
-scram b -j8 <br>
+git clone -b BsToJPsiPhi_Parking https://github.com/ottolau/ggAnalysis.git <br>
+scram b clean; scram b -j20 <br>
 
 The above code stores the decision in 64 integer. Each bit represents a decision<br>
 for ELECRON ID: 5 IDs (Veto, Loose, Medium, Tight and HEEP) so only 5 bits are imp for us (59 bits of this integer  we are not using so may be we can change that to 16 bit integer later)<br>
