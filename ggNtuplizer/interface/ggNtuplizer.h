@@ -166,6 +166,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::View<pat::Jet> >           jetsAK8Label_;
   edm::EDGetTokenT<reco::JetTagCollection>         boostedDoubleSVLabel_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> pckPFCandidateCollection_;
+  edm::EDGetTokenT<pat::PackedCandidateCollection> lostTracksLabel_;
 
   // for MET filters
   edm::EDGetTokenT<bool> BadChCandFilterToken_;

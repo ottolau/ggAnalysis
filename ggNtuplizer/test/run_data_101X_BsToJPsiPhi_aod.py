@@ -179,16 +179,15 @@ process.electronMVAValueMapProducer.srcAOD = cms.InputTag('selectedPatElectrons'
 #process.photonIDValueMapProducer.srcAOD = cms.InputTag('selectedPatPhotons')
 #process.photonMVAValueMapProducer.srcAOD = cms.InputTag('selectedPatPhotons')
 
+#add them to the VID producer
+#for idmod in my_phoid_modules:
+  #setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+
 process.ttk = cms.EDProducer(
     'AddElectronTransientTrack',
     patEleSrc = cms.InputTag('selectedPatElectrons'),
 
 )
-
-
-#add them to the VID producer
-#for idmod in my_phoid_modules:
-  #setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
 if useAOD == True:
   process.p = cms.Path(

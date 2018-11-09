@@ -79,6 +79,9 @@ vector<float>    muBestTrkPtError_lead_;
 vector<float>    muBestTrkPt_lead_;
 vector<int>      muBestTrkType_lead_;
 vector<float>    muTrkNormChi2_lead_;
+vector<float>    muIDPatMVA_lead_;
+vector<float>    muIDPatSoftMVA_lead_;
+vector<UShort_t> muIDSelectorBit_lead_;
 
 vector<float>    muPt_sublead_;
 vector<float>    muEn_sublead_;
@@ -122,6 +125,9 @@ vector<float>    muBestTrkPtError_sublead_;
 vector<float>    muBestTrkPt_sublead_;
 vector<int>      muBestTrkType_sublead_;
 vector<float>    muTrkNormChi2_sublead_;
+vector<float>    muIDPatMVA_sublead_;
+vector<float>    muIDPatSoftMVA_sublead_;
+vector<UShort_t> muIDSelectorBit_sublead_;
 
 vector<float> muSvChi2_;
 vector<float> muSvNDOF_;
@@ -221,6 +227,9 @@ void ggNtuplizer::branchesMuons(TTree* tree) {
   tree->Branch("muBestTrkPt_lead",            &muBestTrkPt_lead_);
   tree->Branch("muBestTrkType_lead",          &muBestTrkType_lead_);
   tree->Branch("muTrkNormChi2_lead",          &muTrkNormChi2_lead_);
+  tree->Branch("muIDPatMVA_lead",             &muIDPatMVA_lead_);
+  tree->Branch("muIDPatSoftMVA_lead",         &muIDPatSoftMVA_lead_);
+  tree->Branch("muIDSelectorBit_lead",             &muIDSelectorBit_lead_);
 
   tree->Branch("muPt_sublead",          &muPt_sublead_);
   tree->Branch("muEn_sublead",          &muEn_sublead_);
@@ -264,6 +273,9 @@ void ggNtuplizer::branchesMuons(TTree* tree) {
   tree->Branch("muBestTrkPt_sublead",            &muBestTrkPt_sublead_);
   tree->Branch("muBestTrkType_sublead",          &muBestTrkType_sublead_);
   tree->Branch("muTrkNormChi2_sublead",          &muTrkNormChi2_sublead_);
+  tree->Branch("muIDPatMVA_sublead",             &muIDPatMVA_sublead_);
+  tree->Branch("muIDPatSoftMVA_sublead",         &muIDPatSoftMVA_sublead_);
+  tree->Branch("muIDSelectorBit_sublead",             &muIDSelectorBit_sublead_);
 
   tree->Branch("muSvChi2",                  &muSvChi2_);
   tree->Branch("muSvNDOF",                  &muSvNDOF_);
@@ -364,6 +376,9 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   muBestTrkPt_lead_           .clear();
   muBestTrkType_lead_         .clear();
   muTrkNormChi2_lead_         .clear();
+  muIDPatMVA_lead_            .clear();
+  muIDPatSoftMVA_lead_        .clear();
+  muIDSelectorBit_lead_            .clear();
 
   muPt_sublead_                  .clear();
   muEn_sublead_                  .clear();
@@ -407,6 +422,9 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   muBestTrkPt_sublead_           .clear();
   muBestTrkType_sublead_         .clear();
   muTrkNormChi2_sublead_         .clear();
+  muIDPatMVA_sublead_            .clear();
+  muIDPatSoftMVA_sublead_        .clear();
+  muIDSelectorBit_sublead_            .clear();
 
   muSvChi2_.clear();
   muSvNDOF_.clear();
@@ -462,331 +480,699 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   nMu_ = 0;
   matchedTrg_ = false;
 
-  edm::Handle<edm::View<pat::Muon> > muonHandle;
-  e.getByToken(muonCollection_, muonHandle);
+  if (isAOD_) {
 
-//  edm::Handle<pat::PackedCandidateCollection> pfcands;
-//  e.getByToken(pckPFCandidateCollection_, pfcands);
+    edm::Handle<edm::View<pat::Muon> > muonHandle;
+    e.getByToken(muonCollection_, muonHandle);
 
-  edm::Handle<reco::TrackCollection> tracksHandle;
-  e.getByToken(tracklabel_, tracksHandle);
+  //  edm::Handle<pat::PackedCandidateCollection> pfcands;
+  //  e.getByToken(pckPFCandidateCollection_, pfcands);
 
-  if (!muonHandle.isValid()) {
-    edm::LogWarning("ggNtuplizer") << "no pat::Muons in event";
-    return;
-  }
+    edm::Handle<reco::TrackCollection> tracksHandle;
+    e.getByToken(tracklabel_, tracksHandle);
 
-  vector<bool> muTrkMap;
-  muTrkMap = muonTriggerMap(e);
+    if (!muonHandle.isValid()) {
+      edm::LogWarning("ggNtuplizer") << "no pat::Muons in event";
+      return;
+    }
+
+    vector<bool> muTrkMap;
+    muTrkMap = muonTriggerMap(e);
+
+    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) matchedTrg_ = true;
+
+      //if (iMu->pt() < 2) continue;
+      if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
+      if (fabs(iMu->eta()) > 2.5) continue;
+      for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
+        //if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) != 1 || matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()) != 1) continue;
+        //if (jMu->pt() < 2) continue;
+        if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
+        if (fabs(jMu->eta()) > 2.5) continue;
+        if (iMu->charge() * jMu->charge() > 0.) continue;
+        float pmass  = 0.1056583745;
+        TLorentzVector iMu_lv, jMu_lv;
+        iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), pmass);
+        jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), pmass);      
+        if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
+
+        KinematicParticleFactoryFromTransientTrack pFactory;  
+        std::vector<RefCountedKinematicParticle> XParticles;
+        float pmasse = 1.e-6 * pmass;
+        const reco::TransientTrack imuttk = getTransientTrack( *(iMu->bestTrack()) );
+        const reco::TransientTrack jmuttk = getTransientTrack( *(jMu->bestTrack()) );
 
 
+        //XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        //XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
 
-  for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
-    if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) matchedTrg_ = true;
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-    //if (iMu->pt() < 2) continue;
-    if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
-    if (fabs(iMu->eta()) > 2.5) continue;
-    for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
-      //if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) != 1 || matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()) != 1) continue;
-      //if (jMu->pt() < 2) continue;
-      if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
-      if (fabs(jMu->eta()) > 2.5) continue;
-      if (iMu->charge() * jMu->charge() > 0.) continue;
-      float pmass  = 0.1056583745;
-      TLorentzVector iMu_lv, jMu_lv;
-      iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), pmass);
-      jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), pmass);      
-      if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
+        if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+        //KinVtx->movePointerToTheTop();
+        //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
-      KinematicParticleFactoryFromTransientTrack pFactory;  
-      std::vector<RefCountedKinematicParticle> XParticles;
-      float pmasse = 1.e-6 * pmass;
-      const reco::TransientTrack imuttk = getTransientTrack( *(iMu->bestTrack()) );
-      const reco::TransientTrack jmuttk = getTransientTrack( *(jMu->bestTrack()) );
-
-
-      //XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
-      //XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
-      XParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
-      XParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
-
-      KinematicConstrainedVertexFitter kvFitter;
-      RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
-
-      if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
-      //KinVtx->movePointerToTheTop();
-      //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
-
-      //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
-      for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-        if (fabs(iHad->eta()) > 2.5) continue;
-        if (fabs(iMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
-        if (fabs(jMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
-        if (fabs(iMu->bestTrack()->vz() - iHad->vz()) > 1) continue;
-        if (iHad->normalizedChi2() < 0.0) continue;
-        if (iHad->normalizedChi2() > 20.0) continue;
-
-        //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
-        for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-          if (iHad->charge()*jHad->charge() > 0.0) continue;
-          if (fabs(iMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
-          if (fabs(jMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
-          if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
+        //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
+        for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
+          if (fabs(iHad->eta()) > 2.5) continue;
+          if (fabs(iMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
+          if (fabs(jMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
+          if (fabs(iMu->bestTrack()->vz() - iHad->vz()) > 1) continue;
           if (iHad->normalizedChi2() < 0.0) continue;
           if (iHad->normalizedChi2() > 20.0) continue;
 
-          // Phi mass window
-          float kpmass = 0.493677;
-          float bsM = 5.3663;
+          //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
+          for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
+            if (iHad->charge()*jHad->charge() > 0.0) continue;
+            if (fabs(iMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
+            if (fabs(jMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
+            if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
+            if (jHad->normalizedChi2() < 0.0) continue;
+            if (jHad->normalizedChi2() > 20.0) continue;
 
-          TLorentzVector iHad_lv, jHad_lv, bs_lv;
-          iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
-          jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);     
-          bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
-          //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-          if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-          if (fabs(jHad->eta()) > 2.5) continue;
+            // Phi mass window
+            float kpmass = 0.493677;
+            float bsM = 5.3663;
 
-          std::vector<RefCountedKinematicParticle> BsParticles;
-          float kpmasse = 1.e-6 * pmass;
+            TLorentzVector iHad_lv, jHad_lv, bs_lv;
+            iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
+            jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);     
+            bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
+            //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+            if (fabs(jHad->eta()) > 2.5) continue;
 
-          BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
-          BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
-          BsParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
-          BsParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
+            std::vector<RefCountedKinematicParticle> BsParticles;
+            float kpmasse = 1.e-6 * pmass;
 
-          KinematicConstrainedVertexFitter BsKvFitter;
-          RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
-          if (!(BsKinVtx->isValid())) continue;
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
+            BsParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
 
-          RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
+            KinematicConstrainedVertexFitter BsKvFitter;
+            RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
+            if (!(BsKinVtx->isValid())) continue;
 
-          if (DecayVtx->chiSquared() < 0.0) continue;
-          if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+            RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
 
-          // Accept these 4 tracks as a Bs candidate, fill ntuple
+            if (DecayVtx->chiSquared() < 0.0) continue;
+            if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
 
-          auto leadMu = iMu->pt() > jMu->pt() ? iMu : jMu;
-          auto subleadMu = iMu->pt() > jMu->pt() ? jMu : iMu;
-          auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
-          auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+            // Accept these 4 tracks as a Bs candidate, fill ntuple
 
-          double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bsM;
-          
-          math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
-          math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
-          math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
-          double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+            auto leadMu = iMu->pt() > jMu->pt() ? iMu : jMu;
+            auto subleadMu = iMu->pt() > jMu->pt() ? jMu : iMu;
+            auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+            auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
 
-          muSvChi2_.push_back(DecayVtx->chiSquared());
-          muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
-          muSvX_.push_back(DecayVtx->position().x());
-          muSvY_.push_back(DecayVtx->position().y());
-          muSvZ_.push_back(DecayVtx->position().z());
-          muSvXError_.push_back(DecayVtx->error().cxx());
-          muSvYError_.push_back(DecayVtx->error().cyy());
-          muSvZError_.push_back(DecayVtx->error().czz());
-          muSvMass_.push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
-          muSvCtxy_.push_back(ctxy);
-          muSvCosAngle_.push_back(cosAngle);
+            double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bsM;
+            
+            math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
+            math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
+            math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
+            double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
 
-          kaonMMCharge_lead_          .push_back(leadHad->charge());
-          kaonMMD0_lead_              .push_back(leadHad->dxy(pv));
-          kaonMMDz_lead_              .push_back(leadHad->dz(pv));
-          kaonMMD0Error_lead_		  .push_back(leadHad->dxyError());
-          kaonMMDzError_lead_		  .push_back(leadHad->dzError());
-          kaonMMPt_lead_              .push_back(leadHad->pt());
-          kaonMMEta_lead_             .push_back(leadHad->eta());
-          kaonMMPhi_lead_             .push_back(leadHad->phi());
-          kaonMMVx_lead_		      .push_back(leadHad->vx());
-          kaonMMVy_lead_		      .push_back(leadHad->vy());
-          kaonMMVz_lead_		      .push_back(leadHad->vz());
-//        kaonMMEn_lead_ 	          .push_back(leadHad->energy());
-          kaonMMTrkChi2_lead_		  .push_back(leadHad->chi2());
-          kaonMMTrkNDOF_lead_		  .push_back(leadHad->ndof());
-          kaonMMTrkNormChi2_lead_	  .push_back(leadHad->normalizedChi2());
+            muSvChi2_.push_back(DecayVtx->chiSquared());
+            muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+            muSvX_.push_back(DecayVtx->position().x());
+            muSvY_.push_back(DecayVtx->position().y());
+            muSvZ_.push_back(DecayVtx->position().z());
+            muSvXError_.push_back(DecayVtx->error().cxx());
+            muSvYError_.push_back(DecayVtx->error().cyy());
+            muSvZError_.push_back(DecayVtx->error().czz());
+            muSvMass_.push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
+            muSvCtxy_.push_back(ctxy);
+            muSvCosAngle_.push_back(cosAngle);
 
-          kaonMMCharge_sublead_       .push_back(subleadHad->charge());
-          kaonMMD0_sublead_           .push_back(subleadHad->dxy(pv));
-          kaonMMDz_sublead_           .push_back(subleadHad->dz(pv));
-          kaonMMD0Error_sublead_      .push_back(subleadHad->dxyError());
-          kaonMMDzError_sublead_	  .push_back(subleadHad->dzError());
-          kaonMMPt_sublead_           .push_back(subleadHad->pt());
-          kaonMMEta_sublead_          .push_back(subleadHad->eta());
-          kaonMMPhi_sublead_          .push_back(subleadHad->phi());
-          kaonMMVx_sublead_		      .push_back(subleadHad->vx());
-          kaonMMVy_sublead_		      .push_back(subleadHad->vy());
-          kaonMMVz_sublead_		      .push_back(subleadHad->vz());
-//        kaonMMEn_sublead_ 	      .push_back(subleadHad->energy());
-          kaonMMTrkChi2_sublead_      .push_back(subleadHad->chi2());
-          kaonMMTrkNDOF_sublead_      .push_back(subleadHad->ndof());
-          kaonMMTrkNormChi2_sublead_  .push_back(subleadHad->normalizedChi2());
+            kaonMMCharge_lead_          .push_back(leadHad->charge());
+            kaonMMD0_lead_              .push_back(leadHad->dxy(pv));
+            kaonMMDz_lead_              .push_back(leadHad->dz(pv));
+            kaonMMD0Error_lead_		  .push_back(leadHad->dxyError());
+            kaonMMDzError_lead_		  .push_back(leadHad->dzError());
+            kaonMMPt_lead_              .push_back(leadHad->pt());
+            kaonMMEta_lead_             .push_back(leadHad->eta());
+            kaonMMPhi_lead_             .push_back(leadHad->phi());
+            kaonMMVx_lead_		      .push_back(leadHad->vx());
+            kaonMMVy_lead_		      .push_back(leadHad->vy());
+            kaonMMVz_lead_		      .push_back(leadHad->vz());
+  //        kaonMMEn_lead_ 	          .push_back(leadHad->energy());
+            kaonMMTrkChi2_lead_		  .push_back(leadHad->chi2());
+            kaonMMTrkNDOF_lead_		  .push_back(leadHad->ndof());
+            kaonMMTrkNormChi2_lead_	  .push_back(leadHad->normalizedChi2());
 
-          bsMMdRmu_            .push_back(iMu_lv.DeltaR(jMu_lv));
-          bsMMdRkaon_          .push_back(iHad_lv.DeltaR(jHad_lv));
-          bsMMdRJpsiPhi_       .push_back((iMu_lv + jMu_lv).DeltaR(iHad_lv + jHad_lv));
-          bsMMJpsiMass_        .push_back((iMu_lv+jMu_lv).M());
-          bsMMPhiMass_         .push_back((iHad_lv+jHad_lv).M());
-          bsMMBsMass_          .push_back(bs_lv.M());
+            kaonMMCharge_sublead_       .push_back(subleadHad->charge());
+            kaonMMD0_sublead_           .push_back(subleadHad->dxy(pv));
+            kaonMMDz_sublead_           .push_back(subleadHad->dz(pv));
+            kaonMMD0Error_sublead_      .push_back(subleadHad->dxyError());
+            kaonMMDzError_sublead_	  .push_back(subleadHad->dzError());
+            kaonMMPt_sublead_           .push_back(subleadHad->pt());
+            kaonMMEta_sublead_          .push_back(subleadHad->eta());
+            kaonMMPhi_sublead_          .push_back(subleadHad->phi());
+            kaonMMVx_sublead_		      .push_back(subleadHad->vx());
+            kaonMMVy_sublead_		      .push_back(subleadHad->vy());
+            kaonMMVz_sublead_		      .push_back(subleadHad->vz());
+  //        kaonMMEn_sublead_ 	      .push_back(subleadHad->energy());
+            kaonMMTrkChi2_sublead_      .push_back(subleadHad->chi2());
+            kaonMMTrkNDOF_sublead_      .push_back(subleadHad->ndof());
+            kaonMMTrkNormChi2_sublead_  .push_back(subleadHad->normalizedChi2());
 
-          muPt_lead_    .push_back(leadMu->pt());
-          muEn_lead_    .push_back(leadMu->energy());
-          muEta_lead_   .push_back(leadMu->eta());
-          muPhi_lead_   .push_back(leadMu->phi());
-          muCharge_lead_.push_back(leadMu->charge());
-          muType_lead_  .push_back(leadMu->type());
-          muD0_lead_    .push_back(leadMu->muonBestTrack()->dxy(pv));
-          muDz_lead_    .push_back(leadMu->muonBestTrack()->dz(pv));
-          muSIP_lead_   .push_back(leadMu->dB(pat::Muon::PV3D)/leadMu->edB(pat::Muon::PV3D));
-          muD0Error_lead_    .push_back(leadMu->muonBestTrack()->dxyError());
-          muDzError_lead_    .push_back(leadMu->muonBestTrack()->dzError());
-          muTrkNormChi2_lead_.push_back(leadMu->muonBestTrack()->normalizedChi2());
+            bsMMdRmu_            .push_back(iMu_lv.DeltaR(jMu_lv));
+            bsMMdRkaon_          .push_back(iHad_lv.DeltaR(jHad_lv));
+            bsMMdRJpsiPhi_       .push_back((iMu_lv + jMu_lv).DeltaR(iHad_lv + jHad_lv));
+            bsMMJpsiMass_        .push_back((iMu_lv+jMu_lv).M());
+            bsMMPhiMass_         .push_back((iHad_lv+jHad_lv).M());
+            bsMMBsMass_          .push_back(bs_lv.M());
 
-          UShort_t tmpmuIDbit = 0;
+            muPt_lead_    .push_back(leadMu->pt());
+            muEn_lead_    .push_back(leadMu->energy());
+            muEta_lead_   .push_back(leadMu->eta());
+            muPhi_lead_   .push_back(leadMu->phi());
+            muCharge_lead_.push_back(leadMu->charge());
+            muType_lead_  .push_back(leadMu->type());
+            muD0_lead_    .push_back(leadMu->muonBestTrack()->dxy(pv));
+            muDz_lead_    .push_back(leadMu->muonBestTrack()->dz(pv));
+            muSIP_lead_   .push_back(leadMu->dB(pat::Muon::PV3D)/leadMu->edB(pat::Muon::PV3D));
+            muD0Error_lead_    .push_back(leadMu->muonBestTrack()->dxyError());
+            muDzError_lead_    .push_back(leadMu->muonBestTrack()->dzError());
+            muTrkNormChi2_lead_.push_back(leadMu->muonBestTrack()->normalizedChi2());
 
-          if (leadMu->isLooseMuon())     setbit(tmpmuIDbit, 0);
-          if (leadMu->isMediumMuon())    setbit(tmpmuIDbit, 1);
-          if (leadMu->isTightMuon(vtx))  setbit(tmpmuIDbit, 2);
-          if (leadMu->isSoftMuon(vtx))   setbit(tmpmuIDbit, 3);
-          if (leadMu->isHighPtMuon(vtx)) setbit(tmpmuIDbit, 4);
+            UShort_t tmpmuIDbit = 0;
 
-          muIDbit_lead_.push_back(tmpmuIDbit);
+            if (leadMu->isLooseMuon())     setbit(tmpmuIDbit, 0);
+            if (leadMu->isMediumMuon())    setbit(tmpmuIDbit, 1);
+            if (leadMu->isTightMuon(vtx))  setbit(tmpmuIDbit, 2);
+            if (leadMu->isSoftMuon(vtx))   setbit(tmpmuIDbit, 3);
+            if (leadMu->isHighPtMuon(vtx)) setbit(tmpmuIDbit, 4);
 
-          muFiredTrgs_lead_.push_back(muTrkMap[leadMu - muonHandle->begin()]);
-          muFiredL1Trgs_lead_.push_back(matchL1TriggerFilters(leadMu->pt(), leadMu->eta(), leadMu->phi()));
+            muIDbit_lead_.push_back(tmpmuIDbit);
+            muIDPatMVA_lead_.push_back(leadMu->mvaValue());
+            muIDPatMVA_sublead_.push_back(leadMu->softMvaValue());
+            // muon MVA is only available in MINIAOD
+            muIDSelectorBit_lead_.push_back(leadMu->selectors());
 
-          muBestTrkPtError_lead_        .push_back(leadMu->muonBestTrack()->ptError());
-          muBestTrkPt_lead_             .push_back(leadMu->muonBestTrack()->pt());
-          muBestTrkType_lead_           .push_back(leadMu->muonBestTrackType());
-          musegmentCompatibility_lead_  .push_back(leadMu->segmentCompatibility());
-          muchi2LocalPosition_lead_     .push_back(leadMu->combinedQuality().chi2LocalPosition);
-          mutrkKink_lead_               .push_back(leadMu->combinedQuality().trkKink);
+            muFiredTrgs_lead_.push_back(muTrkMap[leadMu - muonHandle->begin()]);
+            muFiredL1Trgs_lead_.push_back(matchL1TriggerFilters(leadMu->pt(), leadMu->eta(), leadMu->phi()));
 
-          reco::TrackRef glbmu = leadMu->globalTrack();
-          reco::TrackRef innmu = leadMu->innerTrack();
+            muBestTrkPtError_lead_        .push_back(leadMu->muonBestTrack()->ptError());
+            muBestTrkPt_lead_             .push_back(leadMu->muonBestTrack()->pt());
+            muBestTrkType_lead_           .push_back(leadMu->muonBestTrackType());
+            musegmentCompatibility_lead_  .push_back(leadMu->segmentCompatibility());
+            muchi2LocalPosition_lead_     .push_back(leadMu->combinedQuality().chi2LocalPosition);
+            mutrkKink_lead_               .push_back(leadMu->combinedQuality().trkKink);
 
-          if (glbmu.isNull()) {
-            muChi2NDF_lead_ .push_back(-99.);
-            muMuonHits_lead_.push_back(-99);
-          } else {
-            muChi2NDF_lead_.push_back(glbmu->normalizedChi2());
-            muMuonHits_lead_.push_back(glbmu->hitPattern().numberOfValidMuonHits());
+            reco::TrackRef glbmu = leadMu->globalTrack();
+            reco::TrackRef innmu = leadMu->innerTrack();
+
+            if (glbmu.isNull()) {
+              muChi2NDF_lead_ .push_back(-99.);
+              muMuonHits_lead_.push_back(-99);
+            } else {
+              muChi2NDF_lead_.push_back(glbmu->normalizedChi2());
+              muMuonHits_lead_.push_back(glbmu->hitPattern().numberOfValidMuonHits());
+            }
+
+            if (innmu.isNull()) {
+              muInnerD0_lead_     .push_back(-99.);
+              muInnerDz_lead_     .push_back(-99);
+              muTrkLayers_lead_   .push_back(-99);
+              muPixelLayers_lead_ .push_back(-99);
+              muPixelHits_lead_   .push_back(-99);
+              muTrkQuality_lead_  .push_back(-99);
+
+              muInnervalidFraction_lead_ .push_back(-99);
+            } else {
+              muInnerD0_lead_     .push_back(innmu->dxy(pv));
+              muInnerDz_lead_     .push_back(innmu->dz(pv));
+              muTrkLayers_lead_   .push_back(innmu->hitPattern().trackerLayersWithMeasurement());
+              muPixelLayers_lead_ .push_back(innmu->hitPattern().pixelLayersWithMeasurement());
+              muPixelHits_lead_   .push_back(innmu->hitPattern().numberOfValidPixelHits());
+              muTrkQuality_lead_  .push_back(innmu->quality(reco::TrackBase::highPurity));
+
+              muInnervalidFraction_lead_ .push_back(innmu->validFraction());
+            }
+
+            muStations_lead_   .push_back(leadMu->numberOfMatchedStations());
+            muMatches_lead_    .push_back(leadMu->numberOfMatches());
+            muIsoTrk_lead_     .push_back(leadMu->trackIso());
+            muPFChIso_lead_    .push_back(leadMu->pfIsolationR04().sumChargedHadronPt);
+            muPFPhoIso_lead_   .push_back(leadMu->pfIsolationR04().sumPhotonEt);
+            muPFNeuIso_lead_   .push_back(leadMu->pfIsolationR04().sumNeutralHadronEt);
+            muPFPUIso_lead_    .push_back(leadMu->pfIsolationR04().sumPUPt);
+            muPFChIso03_lead_  .push_back(leadMu->pfIsolationR03().sumChargedHadronPt);
+            muPFPhoIso03_lead_ .push_back(leadMu->pfIsolationR03().sumPhotonEt);
+            muPFNeuIso03_lead_ .push_back(leadMu->pfIsolationR03().sumNeutralHadronEt);
+            muPFPUIso03_lead_  .push_back(leadMu->pfIsolationR03().sumPUPt);
+
+            muPt_sublead_    .push_back(subleadMu->pt());
+            muEn_sublead_    .push_back(subleadMu->energy());
+            muEta_sublead_   .push_back(subleadMu->eta());
+            muPhi_sublead_   .push_back(subleadMu->phi());
+            muCharge_sublead_.push_back(subleadMu->charge());
+            muType_sublead_  .push_back(subleadMu->type());
+            muD0_sublead_    .push_back(subleadMu->muonBestTrack()->dxy(pv));
+            muDz_sublead_    .push_back(subleadMu->muonBestTrack()->dz(pv));
+            muSIP_sublead_   .push_back(subleadMu->dB(pat::Muon::PV3D)/subleadMu->edB(pat::Muon::PV3D));
+            muD0Error_sublead_    .push_back(subleadMu->muonBestTrack()->dxyError());
+            muDzError_sublead_    .push_back(subleadMu->muonBestTrack()->dzError());
+            muTrkNormChi2_sublead_.push_back(subleadMu->muonBestTrack()->normalizedChi2());
+
+            tmpmuIDbit = 0;
+
+            if (subleadMu->isLooseMuon())     setbit(tmpmuIDbit, 0);
+            if (subleadMu->isMediumMuon())    setbit(tmpmuIDbit, 1);
+            if (subleadMu->isTightMuon(vtx))  setbit(tmpmuIDbit, 2);
+            if (subleadMu->isSoftMuon(vtx))   setbit(tmpmuIDbit, 3);
+            if (subleadMu->isHighPtMuon(vtx)) setbit(tmpmuIDbit, 4);
+
+            muIDbit_sublead_.push_back(tmpmuIDbit);
+            muIDPatMVA_sublead_.push_back(subleadMu->mvaValue());
+            muIDPatSoftMVA_sublead_.push_back(subleadMu->softMvaValue());
+            // muon MVA is only available in MINIAOD
+            muIDSelectorBit_sublead_.push_back(subleadMu->selectors());
+
+            muFiredTrgs_sublead_.push_back(muTrkMap[subleadMu - muonHandle->begin()]);
+            muFiredL1Trgs_sublead_.push_back(matchL1TriggerFilters(subleadMu->pt(), subleadMu->eta(), subleadMu->phi()));
+
+            muBestTrkPtError_sublead_        .push_back(subleadMu->muonBestTrack()->ptError());
+            muBestTrkPt_sublead_             .push_back(subleadMu->muonBestTrack()->pt());
+            muBestTrkType_sublead_           .push_back(subleadMu->muonBestTrackType());
+            musegmentCompatibility_sublead_  .push_back(subleadMu->segmentCompatibility());
+            muchi2LocalPosition_sublead_     .push_back(subleadMu->combinedQuality().chi2LocalPosition);
+            mutrkKink_sublead_               .push_back(subleadMu->combinedQuality().trkKink);
+
+            glbmu = subleadMu->globalTrack();
+            innmu = subleadMu->innerTrack();
+
+            if (glbmu.isNull()) {
+              muChi2NDF_sublead_ .push_back(-99.);
+              muMuonHits_sublead_.push_back(-99);
+            } else {
+              muChi2NDF_sublead_.push_back(glbmu->normalizedChi2());
+              muMuonHits_sublead_.push_back(glbmu->hitPattern().numberOfValidMuonHits());
+            }
+
+            if (innmu.isNull()) {
+              muInnerD0_sublead_     .push_back(-99.);
+              muInnerDz_sublead_     .push_back(-99);
+              muTrkLayers_sublead_   .push_back(-99);
+              muPixelLayers_sublead_ .push_back(-99);
+              muPixelHits_sublead_   .push_back(-99);
+              muTrkQuality_sublead_  .push_back(-99);
+
+              muInnervalidFraction_sublead_ .push_back(-99);
+            } else {
+              muInnerD0_sublead_     .push_back(innmu->dxy(pv));
+              muInnerDz_sublead_     .push_back(innmu->dz(pv));
+              muTrkLayers_sublead_   .push_back(innmu->hitPattern().trackerLayersWithMeasurement());
+              muPixelLayers_sublead_ .push_back(innmu->hitPattern().pixelLayersWithMeasurement());
+              muPixelHits_sublead_   .push_back(innmu->hitPattern().numberOfValidPixelHits());
+              muTrkQuality_sublead_  .push_back(innmu->quality(reco::TrackBase::highPurity));
+
+              muInnervalidFraction_sublead_ .push_back(innmu->validFraction());
+            }
+
+            muStations_sublead_   .push_back(subleadMu->numberOfMatchedStations());
+            muMatches_sublead_    .push_back(subleadMu->numberOfMatches());
+            muIsoTrk_sublead_     .push_back(subleadMu->trackIso());
+            muPFChIso_sublead_    .push_back(subleadMu->pfIsolationR04().sumChargedHadronPt);
+            muPFPhoIso_sublead_   .push_back(subleadMu->pfIsolationR04().sumPhotonEt);
+            muPFNeuIso_sublead_   .push_back(subleadMu->pfIsolationR04().sumNeutralHadronEt);
+            muPFPUIso_sublead_    .push_back(subleadMu->pfIsolationR04().sumPUPt);
+            muPFChIso03_sublead_  .push_back(subleadMu->pfIsolationR03().sumChargedHadronPt);
+            muPFPhoIso03_sublead_ .push_back(subleadMu->pfIsolationR03().sumPhotonEt);
+            muPFNeuIso03_sublead_ .push_back(subleadMu->pfIsolationR03().sumNeutralHadronEt);
+            muPFPUIso03_sublead_  .push_back(subleadMu->pfIsolationR03().sumPUPt);
+
+
+            nMu_++;
           }
-
-          if (innmu.isNull()) {
-            muInnerD0_lead_     .push_back(-99.);
-            muInnerDz_lead_     .push_back(-99);
-            muTrkLayers_lead_   .push_back(-99);
-            muPixelLayers_lead_ .push_back(-99);
-            muPixelHits_lead_   .push_back(-99);
-            muTrkQuality_lead_  .push_back(-99);
-
-            muInnervalidFraction_lead_ .push_back(-99);
-          } else {
-            muInnerD0_lead_     .push_back(innmu->dxy(pv));
-            muInnerDz_lead_     .push_back(innmu->dz(pv));
-            muTrkLayers_lead_   .push_back(innmu->hitPattern().trackerLayersWithMeasurement());
-            muPixelLayers_lead_ .push_back(innmu->hitPattern().pixelLayersWithMeasurement());
-            muPixelHits_lead_   .push_back(innmu->hitPattern().numberOfValidPixelHits());
-            muTrkQuality_lead_  .push_back(innmu->quality(reco::TrackBase::highPurity));
-
-            muInnervalidFraction_lead_ .push_back(innmu->validFraction());
-          }
-
-          muStations_lead_   .push_back(leadMu->numberOfMatchedStations());
-          muMatches_lead_    .push_back(leadMu->numberOfMatches());
-          muIsoTrk_lead_     .push_back(leadMu->trackIso());
-          muPFChIso_lead_    .push_back(leadMu->pfIsolationR04().sumChargedHadronPt);
-          muPFPhoIso_lead_   .push_back(leadMu->pfIsolationR04().sumPhotonEt);
-          muPFNeuIso_lead_   .push_back(leadMu->pfIsolationR04().sumNeutralHadronEt);
-          muPFPUIso_lead_    .push_back(leadMu->pfIsolationR04().sumPUPt);
-          muPFChIso03_lead_  .push_back(leadMu->pfIsolationR03().sumChargedHadronPt);
-          muPFPhoIso03_lead_ .push_back(leadMu->pfIsolationR03().sumPhotonEt);
-          muPFNeuIso03_lead_ .push_back(leadMu->pfIsolationR03().sumNeutralHadronEt);
-          muPFPUIso03_lead_  .push_back(leadMu->pfIsolationR03().sumPUPt);
-
-          muPt_sublead_    .push_back(subleadMu->pt());
-          muEn_sublead_    .push_back(subleadMu->energy());
-          muEta_sublead_   .push_back(subleadMu->eta());
-          muPhi_sublead_   .push_back(subleadMu->phi());
-          muCharge_sublead_.push_back(subleadMu->charge());
-          muType_sublead_  .push_back(subleadMu->type());
-          muD0_sublead_    .push_back(subleadMu->muonBestTrack()->dxy(pv));
-          muDz_sublead_    .push_back(subleadMu->muonBestTrack()->dz(pv));
-          muSIP_sublead_   .push_back(subleadMu->dB(pat::Muon::PV3D)/subleadMu->edB(pat::Muon::PV3D));
-          muD0Error_sublead_    .push_back(subleadMu->muonBestTrack()->dxyError());
-          muDzError_sublead_    .push_back(subleadMu->muonBestTrack()->dzError());
-          muTrkNormChi2_sublead_.push_back(subleadMu->muonBestTrack()->normalizedChi2());
-
-          tmpmuIDbit = 0;
-
-          if (subleadMu->isLooseMuon())     setbit(tmpmuIDbit, 0);
-          if (subleadMu->isMediumMuon())    setbit(tmpmuIDbit, 1);
-          if (subleadMu->isTightMuon(vtx))  setbit(tmpmuIDbit, 2);
-          if (subleadMu->isSoftMuon(vtx))   setbit(tmpmuIDbit, 3);
-          if (subleadMu->isHighPtMuon(vtx)) setbit(tmpmuIDbit, 4);
-
-          muIDbit_sublead_.push_back(tmpmuIDbit);
-
-          muFiredTrgs_sublead_.push_back(muTrkMap[subleadMu - muonHandle->begin()]);
-          muFiredL1Trgs_sublead_.push_back(matchL1TriggerFilters(subleadMu->pt(), subleadMu->eta(), subleadMu->phi()));
-
-          muBestTrkPtError_sublead_        .push_back(subleadMu->muonBestTrack()->ptError());
-          muBestTrkPt_sublead_             .push_back(subleadMu->muonBestTrack()->pt());
-          muBestTrkType_sublead_           .push_back(subleadMu->muonBestTrackType());
-          musegmentCompatibility_sublead_  .push_back(subleadMu->segmentCompatibility());
-          muchi2LocalPosition_sublead_     .push_back(subleadMu->combinedQuality().chi2LocalPosition);
-          mutrkKink_sublead_               .push_back(subleadMu->combinedQuality().trkKink);
-
-          glbmu = subleadMu->globalTrack();
-          innmu = subleadMu->innerTrack();
-
-          if (glbmu.isNull()) {
-            muChi2NDF_sublead_ .push_back(-99.);
-            muMuonHits_sublead_.push_back(-99);
-          } else {
-            muChi2NDF_sublead_.push_back(glbmu->normalizedChi2());
-            muMuonHits_sublead_.push_back(glbmu->hitPattern().numberOfValidMuonHits());
-          }
-
-          if (innmu.isNull()) {
-            muInnerD0_sublead_     .push_back(-99.);
-            muInnerDz_sublead_     .push_back(-99);
-            muTrkLayers_sublead_   .push_back(-99);
-            muPixelLayers_sublead_ .push_back(-99);
-            muPixelHits_sublead_   .push_back(-99);
-            muTrkQuality_sublead_  .push_back(-99);
-
-            muInnervalidFraction_sublead_ .push_back(-99);
-          } else {
-            muInnerD0_sublead_     .push_back(innmu->dxy(pv));
-            muInnerDz_sublead_     .push_back(innmu->dz(pv));
-            muTrkLayers_sublead_   .push_back(innmu->hitPattern().trackerLayersWithMeasurement());
-            muPixelLayers_sublead_ .push_back(innmu->hitPattern().pixelLayersWithMeasurement());
-            muPixelHits_sublead_   .push_back(innmu->hitPattern().numberOfValidPixelHits());
-            muTrkQuality_sublead_  .push_back(innmu->quality(reco::TrackBase::highPurity));
-
-            muInnervalidFraction_sublead_ .push_back(innmu->validFraction());
-          }
-
-          muStations_sublead_   .push_back(subleadMu->numberOfMatchedStations());
-          muMatches_sublead_    .push_back(subleadMu->numberOfMatches());
-          muIsoTrk_sublead_     .push_back(subleadMu->trackIso());
-          muPFChIso_sublead_    .push_back(subleadMu->pfIsolationR04().sumChargedHadronPt);
-          muPFPhoIso_sublead_   .push_back(subleadMu->pfIsolationR04().sumPhotonEt);
-          muPFNeuIso_sublead_   .push_back(subleadMu->pfIsolationR04().sumNeutralHadronEt);
-          muPFPUIso_sublead_    .push_back(subleadMu->pfIsolationR04().sumPUPt);
-          muPFChIso03_sublead_  .push_back(subleadMu->pfIsolationR03().sumChargedHadronPt);
-          muPFPhoIso03_sublead_ .push_back(subleadMu->pfIsolationR03().sumPhotonEt);
-          muPFNeuIso03_sublead_ .push_back(subleadMu->pfIsolationR03().sumNeutralHadronEt);
-          muPFPUIso03_sublead_  .push_back(subleadMu->pfIsolationR03().sumPUPt);
-
-
-          nMu_++;
         }
       }
     }
-  }
+  } else {
 
+    edm::Handle<edm::View<pat::Muon> > muonHandle;
+    e.getByToken(muonCollection_, muonHandle);
+
+    edm::Handle<pat::PackedCandidateCollection> pfcands;
+    e.getByToken(pckPFCandidateCollection_, pfcands);
+
+    edm::Handle<pat::PackedCandidateCollection> losttracks;
+    //e.getByLabel("lostTracks", losttracks);
+    e.getByToken(lostTracksLabel_, losttracks);
+
+    std::vector<pat::PackedCandidate> alltracks;
+    //edm::Handle<pat::PackedCandidateCollection> alltracks;
+    alltracks.reserve(pfcands->size() + losttracks->size());
+    alltracks.insert(alltracks.end(), pfcands->begin(), pfcands->end());
+    alltracks.insert(alltracks.end(), losttracks->begin(), losttracks->end());
+
+    //pfcands->reserve(pfcands->size() + losttracks->size());
+    //pfcands->insert(pfcands->end(), losttracks->begin(), losttracks->end());
+    //std::copy(pfcands->begin(), pfcands->end(), std::back_inserter(alltracks));
+    //std::copy(losttracks->begin(), losttracks->end(), std::back_inserter(alltracks));
+
+    if (!muonHandle.isValid()) {
+      edm::LogWarning("ggNtuplizer") << "no pat::Muons in event";
+      return;
+    }
+
+    vector<bool> muTrkMap;
+    muTrkMap = muonTriggerMap(e);
+
+    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+      if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) matchedTrg_ = true;
+
+      //if (iMu->pt() < 2) continue;
+      if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
+      if (fabs(iMu->eta()) > 2.5) continue;
+      for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
+        //if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) != 1 || matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()) != 1) continue;
+        //if (jMu->pt() < 2) continue;
+        if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
+        if (fabs(jMu->eta()) > 2.5) continue;
+        if (iMu->charge() * jMu->charge() > 0.) continue;
+        float pmass  = 0.1056583745;
+        TLorentzVector iMu_lv, jMu_lv;
+        iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), pmass);
+        jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), pmass);      
+        if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
+
+        KinematicParticleFactoryFromTransientTrack pFactory;  
+        std::vector<RefCountedKinematicParticle> XParticles;
+        float pmasse = 1.e-6 * pmass;
+        const reco::TransientTrack imuttk = getTransientTrack( *(iMu->bestTrack()) );
+        const reco::TransientTrack jmuttk = getTransientTrack( *(jMu->bestTrack()) );
+
+
+        //XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        //XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
+
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+
+        if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+        //KinVtx->movePointerToTheTop();
+        //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+
+        //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
+        for (pat::PackedCandidateCollection::const_iterator iHad = alltracks.begin(); iHad != alltracks.end(); ++iHad) {
+
+          //if (iHad->pt() <= 0.5) continue;
+          if (iHad->charge() == 0) continue;
+          if (abs(iHad->pdgId()) != 211) continue;
+          if (iHad->bestTrack() == nullptr) continue;
+          if (fabs(iHad->eta()) > 2.5) continue;
+          //if (fabs(iMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
+          //if (fabs(jMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
+          if (fabs(iMu->bestTrack()->vz() - iHad->vz()) > 1) continue;
+          //if (iHad->normalizedChi2() < 0.0) continue;
+          //if (iHad->normalizedChi2() > 20.0) continue;
+
+          //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
+          for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != alltracks.end(); ++jHad) {
+
+            //if (jHad->pt() <= 0.5) continue;
+            if (jHad->charge() == 0) continue;
+            if (abs(jHad->pdgId()) != 211) continue;
+            if (jHad->bestTrack() == nullptr) continue;
+            if (iHad->charge()*jHad->charge() > 0.0) continue;
+            //if (fabs(iMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
+            //if (fabs(jMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
+            if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
+            //if (jHad->normalizedChi2() < 0.0) continue;
+            //if (jHad->normalizedChi2() > 20.0) continue;
+
+            // Phi mass window
+            float kpmass = 0.493677;
+            float bsM = 5.3663;
+
+            TLorentzVector iHad_lv, jHad_lv, bs_lv;
+            iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
+            jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);     
+            bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
+            //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+            if (fabs(jHad->eta()) > 2.5) continue;
+
+            std::vector<RefCountedKinematicParticle> BsParticles;
+            float kpmasse = 1.e-6 * pmass;
+
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
+            BsParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
+
+            KinematicConstrainedVertexFitter BsKvFitter;
+            RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
+            if (!(BsKinVtx->isValid())) continue;
+
+            RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
+
+            if (DecayVtx->chiSquared() < 0.0) continue;
+            if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+
+            // Accept these 4 tracks as a Bs candidate, fill ntuple
+
+            auto leadMu = iMu->pt() > jMu->pt() ? iMu : jMu;
+            auto subleadMu = iMu->pt() > jMu->pt() ? jMu : iMu;
+            auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+            auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+
+            double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bsM;
+            
+            math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
+            math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
+            math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
+            double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+
+            muSvChi2_.push_back(DecayVtx->chiSquared());
+            muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+            muSvX_.push_back(DecayVtx->position().x());
+            muSvY_.push_back(DecayVtx->position().y());
+            muSvZ_.push_back(DecayVtx->position().z());
+            muSvXError_.push_back(DecayVtx->error().cxx());
+            muSvYError_.push_back(DecayVtx->error().cyy());
+            muSvZError_.push_back(DecayVtx->error().czz());
+            muSvMass_.push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
+            muSvCtxy_.push_back(ctxy);
+            muSvCosAngle_.push_back(cosAngle);
+
+            kaonMMCharge_lead_          .push_back(leadHad->charge());
+            kaonMMD0_lead_              .push_back(leadHad->dxy(pv));
+            kaonMMDz_lead_              .push_back(leadHad->dz(pv));
+            kaonMMD0Error_lead_		  .push_back(leadHad->dxyError());
+            kaonMMDzError_lead_		  .push_back(leadHad->dzError());
+            kaonMMPt_lead_              .push_back(leadHad->pt());
+            kaonMMEta_lead_             .push_back(leadHad->eta());
+            kaonMMPhi_lead_             .push_back(leadHad->phi());
+            kaonMMVx_lead_		      .push_back(leadHad->vx());
+            kaonMMVy_lead_		      .push_back(leadHad->vy());
+            kaonMMVz_lead_		      .push_back(leadHad->vz());
+  //        kaonMMEn_lead_ 	          .push_back(leadHad->energy());
+            kaonMMTrkChi2_lead_		  .push_back(leadHad->bestTrack()->chi2());
+            kaonMMTrkNDOF_lead_		  .push_back(leadHad->bestTrack()->ndof());
+            kaonMMTrkNormChi2_lead_	  .push_back(leadHad->bestTrack()->normalizedChi2());
+
+            kaonMMCharge_sublead_       .push_back(subleadHad->charge());
+            kaonMMD0_sublead_           .push_back(subleadHad->dxy(pv));
+            kaonMMDz_sublead_           .push_back(subleadHad->dz(pv));
+            kaonMMD0Error_sublead_      .push_back(subleadHad->dxyError());
+            kaonMMDzError_sublead_	  .push_back(subleadHad->dzError());
+            kaonMMPt_sublead_           .push_back(subleadHad->pt());
+            kaonMMEta_sublead_          .push_back(subleadHad->eta());
+            kaonMMPhi_sublead_          .push_back(subleadHad->phi());
+            kaonMMVx_sublead_		      .push_back(subleadHad->vx());
+            kaonMMVy_sublead_		      .push_back(subleadHad->vy());
+            kaonMMVz_sublead_		      .push_back(subleadHad->vz());
+  //        kaonMMEn_sublead_ 	      .push_back(subleadHad->energy());
+            kaonMMTrkChi2_sublead_		  .push_back(subleadHad->bestTrack()->chi2());
+            kaonMMTrkNDOF_sublead_		  .push_back(subleadHad->bestTrack()->ndof());
+            kaonMMTrkNormChi2_sublead_	  .push_back(subleadHad->bestTrack()->normalizedChi2());
+
+            bsMMdRmu_            .push_back(iMu_lv.DeltaR(jMu_lv));
+            bsMMdRkaon_          .push_back(iHad_lv.DeltaR(jHad_lv));
+            bsMMdRJpsiPhi_       .push_back((iMu_lv + jMu_lv).DeltaR(iHad_lv + jHad_lv));
+            bsMMJpsiMass_        .push_back((iMu_lv+jMu_lv).M());
+            bsMMPhiMass_         .push_back((iHad_lv+jHad_lv).M());
+            bsMMBsMass_          .push_back(bs_lv.M());
+
+            muPt_lead_    .push_back(leadMu->pt());
+            muEn_lead_    .push_back(leadMu->energy());
+            muEta_lead_   .push_back(leadMu->eta());
+            muPhi_lead_   .push_back(leadMu->phi());
+            muCharge_lead_.push_back(leadMu->charge());
+            muType_lead_  .push_back(leadMu->type());
+            muD0_lead_    .push_back(leadMu->muonBestTrack()->dxy(pv));
+            muDz_lead_    .push_back(leadMu->muonBestTrack()->dz(pv));
+            muSIP_lead_   .push_back(leadMu->dB(pat::Muon::PV3D)/leadMu->edB(pat::Muon::PV3D));
+            muD0Error_lead_    .push_back(leadMu->muonBestTrack()->dxyError());
+            muDzError_lead_    .push_back(leadMu->muonBestTrack()->dzError());
+            muTrkNormChi2_lead_.push_back(leadMu->muonBestTrack()->normalizedChi2());
+
+            UShort_t tmpmuIDbit = 0;
+
+            if (leadMu->isLooseMuon())     setbit(tmpmuIDbit, 0);
+            if (leadMu->isMediumMuon())    setbit(tmpmuIDbit, 1);
+            if (leadMu->isTightMuon(vtx))  setbit(tmpmuIDbit, 2);
+            if (leadMu->isSoftMuon(vtx))   setbit(tmpmuIDbit, 3);
+            if (leadMu->isHighPtMuon(vtx)) setbit(tmpmuIDbit, 4);
+
+
+            muIDbit_lead_.push_back(tmpmuIDbit);
+            muIDPatMVA_lead_.push_back(leadMu->mvaValue());
+            muIDPatSoftMVA_lead_.push_back(leadMu->softMvaValue());
+            // muon MVA is only available in MINIAOD
+            muIDSelectorBit_lead_.push_back(leadMu->selectors());
+
+            muFiredTrgs_lead_.push_back(muTrkMap[leadMu - muonHandle->begin()]);
+            muFiredL1Trgs_lead_.push_back(matchL1TriggerFilters(leadMu->pt(), leadMu->eta(), leadMu->phi()));
+
+            muBestTrkPtError_lead_        .push_back(leadMu->muonBestTrack()->ptError());
+            muBestTrkPt_lead_             .push_back(leadMu->muonBestTrack()->pt());
+            muBestTrkType_lead_           .push_back(leadMu->muonBestTrackType());
+            musegmentCompatibility_lead_  .push_back(leadMu->segmentCompatibility());
+            muchi2LocalPosition_lead_     .push_back(leadMu->combinedQuality().chi2LocalPosition);
+            mutrkKink_lead_               .push_back(leadMu->combinedQuality().trkKink);
+
+            reco::TrackRef glbmu = leadMu->globalTrack();
+            reco::TrackRef innmu = leadMu->innerTrack();
+
+            if (glbmu.isNull()) {
+              muChi2NDF_lead_ .push_back(-99.);
+              muMuonHits_lead_.push_back(-99);
+            } else {
+              muChi2NDF_lead_.push_back(glbmu->normalizedChi2());
+              muMuonHits_lead_.push_back(glbmu->hitPattern().numberOfValidMuonHits());
+            }
+
+            if (innmu.isNull()) {
+              muInnerD0_lead_     .push_back(-99.);
+              muInnerDz_lead_     .push_back(-99);
+              muTrkLayers_lead_   .push_back(-99);
+              muPixelLayers_lead_ .push_back(-99);
+              muPixelHits_lead_   .push_back(-99);
+              muTrkQuality_lead_  .push_back(-99);
+
+              muInnervalidFraction_lead_ .push_back(-99);
+            } else {
+              muInnerD0_lead_     .push_back(innmu->dxy(pv));
+              muInnerDz_lead_     .push_back(innmu->dz(pv));
+              muTrkLayers_lead_   .push_back(innmu->hitPattern().trackerLayersWithMeasurement());
+              muPixelLayers_lead_ .push_back(innmu->hitPattern().pixelLayersWithMeasurement());
+              muPixelHits_lead_   .push_back(innmu->hitPattern().numberOfValidPixelHits());
+              muTrkQuality_lead_  .push_back(innmu->quality(reco::TrackBase::highPurity));
+
+              muInnervalidFraction_lead_ .push_back(innmu->validFraction());
+            }
+
+            muStations_lead_   .push_back(leadMu->numberOfMatchedStations());
+            muMatches_lead_    .push_back(leadMu->numberOfMatches());
+            muIsoTrk_lead_     .push_back(leadMu->trackIso());
+            muPFChIso_lead_    .push_back(leadMu->pfIsolationR04().sumChargedHadronPt);
+            muPFPhoIso_lead_   .push_back(leadMu->pfIsolationR04().sumPhotonEt);
+            muPFNeuIso_lead_   .push_back(leadMu->pfIsolationR04().sumNeutralHadronEt);
+            muPFPUIso_lead_    .push_back(leadMu->pfIsolationR04().sumPUPt);
+            muPFChIso03_lead_  .push_back(leadMu->pfIsolationR03().sumChargedHadronPt);
+            muPFPhoIso03_lead_ .push_back(leadMu->pfIsolationR03().sumPhotonEt);
+            muPFNeuIso03_lead_ .push_back(leadMu->pfIsolationR03().sumNeutralHadronEt);
+            muPFPUIso03_lead_  .push_back(leadMu->pfIsolationR03().sumPUPt);
+
+            muPt_sublead_    .push_back(subleadMu->pt());
+            muEn_sublead_    .push_back(subleadMu->energy());
+            muEta_sublead_   .push_back(subleadMu->eta());
+            muPhi_sublead_   .push_back(subleadMu->phi());
+            muCharge_sublead_.push_back(subleadMu->charge());
+            muType_sublead_  .push_back(subleadMu->type());
+            muD0_sublead_    .push_back(subleadMu->muonBestTrack()->dxy(pv));
+            muDz_sublead_    .push_back(subleadMu->muonBestTrack()->dz(pv));
+            muSIP_sublead_   .push_back(subleadMu->dB(pat::Muon::PV3D)/subleadMu->edB(pat::Muon::PV3D));
+            muD0Error_sublead_    .push_back(subleadMu->muonBestTrack()->dxyError());
+            muDzError_sublead_    .push_back(subleadMu->muonBestTrack()->dzError());
+            muTrkNormChi2_sublead_.push_back(subleadMu->muonBestTrack()->normalizedChi2());
+
+            tmpmuIDbit = 0;
+
+            if (subleadMu->isLooseMuon())     setbit(tmpmuIDbit, 0);
+            if (subleadMu->isMediumMuon())    setbit(tmpmuIDbit, 1);
+            if (subleadMu->isTightMuon(vtx))  setbit(tmpmuIDbit, 2);
+            if (subleadMu->isSoftMuon(vtx))   setbit(tmpmuIDbit, 3);
+            if (subleadMu->isHighPtMuon(vtx)) setbit(tmpmuIDbit, 4);
+
+            muIDbit_sublead_.push_back(tmpmuIDbit);
+            muIDPatMVA_sublead_.push_back(subleadMu->mvaValue());
+            muIDPatSoftMVA_sublead_.push_back(subleadMu->softMvaValue());
+            // muon MVA is only available in MINIAOD
+            muIDSelectorBit_sublead_.push_back(subleadMu->selectors());
+
+            muFiredTrgs_sublead_.push_back(muTrkMap[subleadMu - muonHandle->begin()]);
+            muFiredL1Trgs_sublead_.push_back(matchL1TriggerFilters(subleadMu->pt(), subleadMu->eta(), subleadMu->phi()));
+
+            muBestTrkPtError_sublead_        .push_back(subleadMu->muonBestTrack()->ptError());
+            muBestTrkPt_sublead_             .push_back(subleadMu->muonBestTrack()->pt());
+            muBestTrkType_sublead_           .push_back(subleadMu->muonBestTrackType());
+            musegmentCompatibility_sublead_  .push_back(subleadMu->segmentCompatibility());
+            muchi2LocalPosition_sublead_     .push_back(subleadMu->combinedQuality().chi2LocalPosition);
+            mutrkKink_sublead_               .push_back(subleadMu->combinedQuality().trkKink);
+
+            glbmu = subleadMu->globalTrack();
+            innmu = subleadMu->innerTrack();
+
+            if (glbmu.isNull()) {
+              muChi2NDF_sublead_ .push_back(-99.);
+              muMuonHits_sublead_.push_back(-99);
+            } else {
+              muChi2NDF_sublead_.push_back(glbmu->normalizedChi2());
+              muMuonHits_sublead_.push_back(glbmu->hitPattern().numberOfValidMuonHits());
+            }
+
+            if (innmu.isNull()) {
+              muInnerD0_sublead_     .push_back(-99.);
+              muInnerDz_sublead_     .push_back(-99);
+              muTrkLayers_sublead_   .push_back(-99);
+              muPixelLayers_sublead_ .push_back(-99);
+              muPixelHits_sublead_   .push_back(-99);
+              muTrkQuality_sublead_  .push_back(-99);
+
+              muInnervalidFraction_sublead_ .push_back(-99);
+            } else {
+              muInnerD0_sublead_     .push_back(innmu->dxy(pv));
+              muInnerDz_sublead_     .push_back(innmu->dz(pv));
+              muTrkLayers_sublead_   .push_back(innmu->hitPattern().trackerLayersWithMeasurement());
+              muPixelLayers_sublead_ .push_back(innmu->hitPattern().pixelLayersWithMeasurement());
+              muPixelHits_sublead_   .push_back(innmu->hitPattern().numberOfValidPixelHits());
+              muTrkQuality_sublead_  .push_back(innmu->quality(reco::TrackBase::highPurity));
+
+              muInnervalidFraction_sublead_ .push_back(innmu->validFraction());
+            }
+
+            muStations_sublead_   .push_back(subleadMu->numberOfMatchedStations());
+            muMatches_sublead_    .push_back(subleadMu->numberOfMatches());
+            muIsoTrk_sublead_     .push_back(subleadMu->trackIso());
+            muPFChIso_sublead_    .push_back(subleadMu->pfIsolationR04().sumChargedHadronPt);
+            muPFPhoIso_sublead_   .push_back(subleadMu->pfIsolationR04().sumPhotonEt);
+            muPFNeuIso_sublead_   .push_back(subleadMu->pfIsolationR04().sumNeutralHadronEt);
+            muPFPUIso_sublead_    .push_back(subleadMu->pfIsolationR04().sumPUPt);
+            muPFChIso03_sublead_  .push_back(subleadMu->pfIsolationR03().sumChargedHadronPt);
+            muPFPhoIso03_sublead_ .push_back(subleadMu->pfIsolationR03().sumPhotonEt);
+            muPFNeuIso03_sublead_ .push_back(subleadMu->pfIsolationR03().sumNeutralHadronEt);
+            muPFPUIso03_sublead_  .push_back(subleadMu->pfIsolationR03().sumPUPt);
+
+
+            nMu_++;
+          }
+        }
+        
+
+      }
+    }
+
+  }
 }

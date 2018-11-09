@@ -59,6 +59,8 @@ vector<float>  eleESEnP2_lead_;
 //vector<float>  eleESEnP2Raw_lead_;
 vector<float>  eleD0_lead_;
 vector<float>  eleDz_lead_;
+vector<float>  eleD0Error_lead_;
+vector<float>  eleDzError_lead_;
 vector<float>  eleSIP_lead_;
 vector<float>  elePt_lead_;
 vector<float>  eleEta_lead_;
@@ -132,6 +134,8 @@ vector<float>  eleESEnP2_sublead_;
 //vector<float>  eleESEnP2Raw_sublead_;
 vector<float>  eleD0_sublead_;
 vector<float>  eleDz_sublead_;
+vector<float>  eleD0Error_sublead_;
+vector<float>  eleDzError_sublead_;
 vector<float>  eleSIP_sublead_;
 vector<float>  elePt_sublead_;
 vector<float>  eleEta_sublead_;
@@ -223,7 +227,7 @@ vector<float>  kaonEETrkNDOF_lead_;
 vector<float>  kaonEETrkNormChi2_lead_;
 vector<float>  kaonEEJPsiMass_lead_;
 vector<float>  kaonEEPhiMass_lead_;
-vector<float>  kaonEETrkdEdx_lead_;
+//vector<float>  kaonEETrkdEdx_lead_;
 
 vector<int>    kaonEECharge_sublead_;
 vector<float>  kaonEED0_sublead_;
@@ -240,7 +244,7 @@ vector<float>  kaonEEVz_sublead_;
 vector<float>  kaonEETrkChi2_sublead_;
 vector<float>  kaonEETrkNDOF_sublead_;
 vector<float>  kaonEETrkNormChi2_sublead_;
-vector<float>  kaonEETrkdEdx_sublead_;
+//vector<float>  kaonEETrkdEdx_sublead_;
 
 vector<float>  bsEEdRele_;
 vector<float>  bsEEdRkaon_;
@@ -261,6 +265,8 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   tree->Branch("eleESEnP2_lead",               &eleESEnP2_lead_);
   tree->Branch("eleD0_lead",                   &eleD0_lead_);
   tree->Branch("eleDz_lead",                   &eleDz_lead_);
+  tree->Branch("eleD0Error_lead",              &eleD0Error_lead_);
+  tree->Branch("eleDzError_lead",              &eleDzError_lead_);
   tree->Branch("eleSIP_lead",                  &eleSIP_lead_);
   tree->Branch("elePt_lead",                   &elePt_lead_);
   tree->Branch("eleEta_lead",                  &eleEta_lead_);
@@ -331,6 +337,8 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   tree->Branch("eleESEnP2_sublead",               &eleESEnP2_sublead_);
   tree->Branch("eleD0_sublead",                   &eleD0_sublead_);
   tree->Branch("eleDz_sublead",                   &eleDz_sublead_);
+  tree->Branch("eleD0Error_sublead",              &eleD0Error_sublead_);
+  tree->Branch("eleDzError_sublead",              &eleDzError_sublead_);
   tree->Branch("eleSIP_sublead",                  &eleSIP_sublead_);
   tree->Branch("elePt_sublead",                   &elePt_sublead_);
   tree->Branch("eleEta_sublead",                  &eleEta_sublead_);
@@ -419,7 +427,7 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   tree->Branch("kaonEETrkChi2_lead",              &kaonEETrkChi2_lead_);
   tree->Branch("kaonEETrkNDOF_lead",              &kaonEETrkNDOF_lead_);
   tree->Branch("kaonEETrkNormChi2_lead",          &kaonEETrkNormChi2_lead_);
-  tree->Branch("kaonEETrkdEdx_lead",              &kaonEETrkdEdx_lead_);
+//  tree->Branch("kaonEETrkdEdx_lead",              &kaonEETrkdEdx_lead_);
 
   tree->Branch("kaonEECharge_sublead",               &kaonEECharge_sublead_);
   tree->Branch("kaonEED0_sublead",                   &kaonEED0_sublead_);
@@ -436,7 +444,7 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   tree->Branch("kaonEETrkChi2_sublead",              &kaonEETrkChi2_sublead_);
   tree->Branch("kaonEETrkNDOF_sublead",              &kaonEETrkNDOF_sublead_);
   tree->Branch("kaonEETrkNormChi2_sublead",          &kaonEETrkNormChi2_sublead_);
-  tree->Branch("kaonEETrkdEdx_sublead",              &kaonEETrkdEdx_sublead_);
+//  tree->Branch("kaonEETrkdEdx_sublead",              &kaonEETrkdEdx_sublead_);
 
   tree->Branch("bsEEdRele",                     &bsEEdRele_);
   tree->Branch("bsEEdRkaon",                    &bsEEdRkaon_);
@@ -461,6 +469,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   //eleESEnP2Raw_lead_               .clear();
   eleD0_lead_                      .clear();
   eleDz_lead_                      .clear();
+  eleD0Error_lead_                 .clear();
+  eleDzError_lead_                 .clear();
   eleSIP_lead_                     .clear();
   elePt_lead_                      .clear();
   eleEta_lead_                     .clear();
@@ -534,6 +544,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   //eleESEnP2Raw_sublead_               .clear();
   eleD0_sublead_                      .clear();
   eleDz_sublead_                      .clear();
+  eleD0Error_sublead_                 .clear();
+  eleDzError_sublead_                 .clear();
   eleSIP_sublead_                     .clear();
   elePt_sublead_                      .clear();
   eleEta_sublead_                     .clear();
@@ -623,7 +635,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   kaonEETrkChi2_lead_                 .clear();
   kaonEETrkNDOF_lead_                 .clear();
   kaonEETrkNormChi2_lead_             .clear();
-  kaonEETrkdEdx_lead_	              .clear();
+//  kaonEETrkdEdx_lead_	              .clear();
 
   kaonEECharge_sublead_                  .clear();
   kaonEED0_sublead_                      .clear();
@@ -640,7 +652,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   kaonEETrkChi2_sublead_                 .clear();
   kaonEETrkNDOF_sublead_                 .clear();
   kaonEETrkNormChi2_sublead_             .clear();
-  kaonEETrkdEdx_sublead_	         .clear();
+//  kaonEETrkdEdx_sublead_	         .clear();
 
   bsEEdRele_		      .clear();
   bsEEdRkaon_                 .clear();
@@ -651,522 +663,1066 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
   nEle_ = 0;
 
-  edm::Handle<edm::View<pat::Electron> > electronHandle;
-  e.getByToken(electronCollection_, electronHandle);
+  if (isAOD_) {
 
-  edm::Handle<edm::View<pat::Electron> > calibelectronHandle;
-  e.getByToken(calibelectronCollection_, calibelectronHandle);
+    edm::Handle<edm::View<pat::Electron> > electronHandle;
+    e.getByToken(electronCollection_, electronHandle);
 
-//  edm::Handle<pat::PackedCandidateCollection> pfcands;
-//  e.getByToken(pckPFCandidateCollection_, pfcands);
+    edm::Handle<edm::View<pat::Electron> > calibelectronHandle;
+    e.getByToken(calibelectronCollection_, calibelectronHandle);
 
-  edm::Handle<reco::TrackCollection> tracksHandle;
-  e.getByToken(tracklabel_, tracksHandle);
+  //  edm::Handle<pat::PackedCandidateCollection> pfcands;
+  //  e.getByToken(pckPFCandidateCollection_, pfcands);
 
-  edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
-  e.getByToken(deDxProducer_, dEdxObjectHandle );
-  const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
+    edm::Handle<reco::TrackCollection> tracksHandle;
+    e.getByToken(tracklabel_, tracksHandle);
 
-
-  edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
-  e.getByToken( tok_eleTtk_, eleTrackMap);
-  std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> eletrks = *(eleTrackMap.product());
-
-  if (!electronHandle.isValid()) {
-    edm::LogWarning("ggNtuplizer") << "no pat::Electrons in event";
-    return;
-  }
-
-  if (!calibelectronHandle.isValid()) {
-    edm::LogWarning("ggNtuplizer") << "no calibrated pat::Electrons in event";
-    return;
-  }
-
-  edm::Handle<edm::ValueMap<bool> >  veto_id_decisions;
-  edm::Handle<edm::ValueMap<bool> >  loose_id_decisions;
-  edm::Handle<edm::ValueMap<bool> >  medium_id_decisions;
-  edm::Handle<edm::ValueMap<bool> >  tight_id_decisions;
-  edm::Handle<edm::ValueMap<bool> >  heep_id_decisions;
-  edm::Handle<edm::ValueMap<float> > eleMVAIsoValues;
-  edm::Handle<edm::ValueMap<float> > eleMVANoIsoValues;
-  //edm::Handle<edm::ValueMap<float> > elePFClusEcalIsoValues;
-  //edm::Handle<edm::ValueMap<float> > elePFClusHcalIsoValues;
-
-  e.getByToken(eleVetoIdMapToken_ ,         veto_id_decisions);
-  e.getByToken(eleLooseIdMapToken_ ,        loose_id_decisions);
-  e.getByToken(eleMediumIdMapToken_,        medium_id_decisions);
-  e.getByToken(eleTightIdMapToken_,         tight_id_decisions);
-  e.getByToken(eleHEEPIdMapToken_ ,         heep_id_decisions);
-  e.getByToken(eleMVAIsoValuesMapToken_,    eleMVAIsoValues);
-  e.getByToken(eleMVANoIsoValuesMapToken_,  eleMVANoIsoValues);
-  //e.getByToken(elePFClusEcalIsoToken_,      elePFClusEcalIsoValues);
-  //e.getByToken(elePFClusHcalIsoToken_,      elePFClusHcalIsoValues);
-
-  edm::Handle<reco::VertexCollection> recVtxs;
-  e.getByToken(vtxLabel_, recVtxs);
-
-  EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
-  noZS::EcalClusterLazyTools lazyToolnoZS(e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+  //  edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
+  //  e.getByToken(deDxProducer_, dEdxObjectHandle );
+  //  const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
 
 
-  for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
-    for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
-      if (iEle->charge()*jEle->charge() > 0.0) continue;
-      float pmass  = 0.0005109989461;
-      TLorentzVector iele_lv, jele_lv;
-      iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
-      jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
-      if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
+    edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
+    e.getByToken( tok_eleTtk_, eleTrackMap);
+    std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> eletrks = *(eleTrackMap.product());
 
-      KinematicParticleFactoryFromTransientTrack pFactory;  
-      std::vector<RefCountedKinematicParticle> XParticles;
-      float pmasse = 1.e-6 * pmass;
-      reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
-      reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
-      const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
-      const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
+    if (!electronHandle.isValid()) {
+      edm::LogWarning("ggNtuplizer") << "no pat::Electrons in event";
+      return;
+    }
 
-      //XParticles.push_back(pFactory.particle(getTransientTrack( ieletrk ), pmass, 0.0, 0, pmasse));
-      //XParticles.push_back(pFactory.particle(getTransientTrack( jeletrk ), pmass, 0.0, 0, pmasse));
+    if (!calibelectronHandle.isValid()) {
+      edm::LogWarning("ggNtuplizer") << "no calibrated pat::Electrons in event";
+      return;
+    }
 
-      XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
-      XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
+    edm::Handle<edm::ValueMap<bool> >  veto_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  loose_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  medium_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  tight_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  heep_id_decisions;
+    edm::Handle<edm::ValueMap<float> > eleMVAIsoValues;
+    edm::Handle<edm::ValueMap<float> > eleMVANoIsoValues;
+    //edm::Handle<edm::ValueMap<float> > elePFClusEcalIsoValues;
+    //edm::Handle<edm::ValueMap<float> > elePFClusHcalIsoValues;
 
-      KinematicConstrainedVertexFitter kvFitter;
-      RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+    e.getByToken(eleVetoIdMapToken_ ,         veto_id_decisions);
+    e.getByToken(eleLooseIdMapToken_ ,        loose_id_decisions);
+    e.getByToken(eleMediumIdMapToken_,        medium_id_decisions);
+    e.getByToken(eleTightIdMapToken_,         tight_id_decisions);
+    e.getByToken(eleHEEPIdMapToken_ ,         heep_id_decisions);
+    e.getByToken(eleMVAIsoValuesMapToken_,    eleMVAIsoValues);
+    e.getByToken(eleMVANoIsoValuesMapToken_,  eleMVANoIsoValues);
+    //e.getByToken(elePFClusEcalIsoToken_,      elePFClusEcalIsoValues);
+    //e.getByToken(elePFClusHcalIsoToken_,      elePFClusHcalIsoValues);
 
-      if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
-      //KinVtx->movePointerToTheTop();
-      //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+    edm::Handle<reco::VertexCollection> recVtxs;
+    e.getByToken(vtxLabel_, recVtxs);
 
-      //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
-      for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-	if (fabs(iHad->eta()) > 2.5) continue;
-	if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
-	if (iHad->normalizedChi2() < 0.0) continue;
-	if (iHad->normalizedChi2() > 20.0) continue;
+    EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+    noZS::EcalClusterLazyTools lazyToolnoZS(e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
 
-	//for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
-	for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-	  if (iHad->charge()*jHad->charge() > 0.0) continue;
-	  if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
-	  if (jHad->normalizedChi2() < 0.0) continue;
-	  if (jHad->normalizedChi2() > 20) continue;
 
-	  // Phi mass window
-	  float kpmass = 0.493677;
-	  TLorentzVector iHad_lv, jHad_lv, bs_lv;
-	  iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
-	  jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
-	  bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
-	  //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-	  if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-	  if (fabs(jHad->eta()) > 2.5) continue;
+    for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
+      for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
+	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	float pmass  = 0.0005109989461;
+	TLorentzVector iele_lv, jele_lv;
+	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
+	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
+	if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
 
-	  std::vector<RefCountedKinematicParticle> BsParticles;
-	  float kpmasse = 1.e-6 * pmass;
-          float bsM = 5.3663;
+	KinematicParticleFactoryFromTransientTrack pFactory;  
+	std::vector<RefCountedKinematicParticle> XParticles;
+	float pmasse = 1.e-6 * pmass;
+	reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
+	reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
+	const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
+	const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
 
-	  BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
-	  BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
-	  BsParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
-	  BsParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
+	//XParticles.push_back(pFactory.particle(getTransientTrack( ieletrk ), pmass, 0.0, 0, pmasse));
+	//XParticles.push_back(pFactory.particle(getTransientTrack( jeletrk ), pmass, 0.0, 0, pmasse));
 
-	  //BsParticles.push_back(jpsi_part);
+	XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
+	XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
 
-	  KinematicConstrainedVertexFitter BsKvFitter;
-	  RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
-	  if (!(BsKinVtx->isValid())) continue;
+	KinematicConstrainedVertexFitter kvFitter;
+	RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-	  RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
+	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+	//KinVtx->movePointerToTheTop();
+	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
-	  if (DecayVtx->chiSquared() < 0.0) continue;
-	  if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	//for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
+	for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
+	  if (fabs(iHad->eta()) > 2.5) continue;
+	  if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+	  if (iHad->normalizedChi2() < 0.0) continue;
+	  if (iHad->normalizedChi2() > 20.0) continue;
 
-          // Accept these 4 tracks as a Bs candidate, fill ntuple
+	  //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
+	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
+	    if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    if (jHad->normalizedChi2() < 0.0) continue;
+	    if (jHad->normalizedChi2() > 20) continue;
 
-          auto leadEle = iEle->pt() > jEle->pt() ? iEle : jEle;
-          auto subleadEle = iEle->pt() > jEle->pt() ? jEle : iEle;
-          auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
-          auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+	    // Phi mass window
+	    float kpmass = 0.493677;
+	    TLorentzVector iHad_lv, jHad_lv, bs_lv;
+	    iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
+	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
+	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+	    if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+	    if (fabs(jHad->eta()) > 2.5) continue;
 
-          double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bsM;
-          
-          math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
-          math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
-          math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
-          double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+	    std::vector<RefCountedKinematicParticle> BsParticles;
+	    float kpmasse = 1.e-6 * pmass;
+	    float bsM = 5.3663;
 
-	  eleSvChi2_.push_back(DecayVtx->chiSquared());
-	  eleSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
-	  eleSvX_.push_back(DecayVtx->position().x());
-	  eleSvY_.push_back(DecayVtx->position().y());
-	  eleSvZ_.push_back(DecayVtx->position().z());
-	  eleSvXError_.push_back(DecayVtx->error().cxx());
-	  eleSvYError_.push_back(DecayVtx->error().cyy());
-	  eleSvZError_.push_back(DecayVtx->error().czz());
-	  eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
-	  eleSvCtxy_.push_back(ctxy);
-	  eleSvCosAngle_.push_back(cosAngle);
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
+	    BsParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
+	    BsParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
 
-	  kaonEECharge_lead_            .push_back(leadHad->charge());
-	  kaonEED0_lead_                .push_back(leadHad->dxy(pv));
-	  kaonEEDz_lead_                .push_back(leadHad->dz(pv));
-	  kaonEED0Error_lead_ 		.push_back(leadHad->dxyError());
-	  kaonEEDzError_lead_ 		.push_back(leadHad->dzError());
-	  kaonEEPt_lead_                .push_back(leadHad->pt());
-	  kaonEEEta_lead_               .push_back(leadHad->eta());
-	  kaonEEPhi_lead_               .push_back(leadHad->phi());
-	  kaonEEVx_lead_ 		.push_back(leadHad->vx());
-	  kaonEEVy_lead_ 		.push_back(leadHad->vy());
-	  kaonEEVz_lead_ 		.push_back(leadHad->vz());
-	  kaonEETrkChi2_lead_ 		.push_back(leadHad->chi2());
-	  kaonEETrkNDOF_lead_ 		.push_back(leadHad->ndof());
-	  kaonEETrkNormChi2_lead_ 	.push_back(leadHad->normalizedChi2());
-	  kaonEETrkdEdx_lead_		.push_back(dEdxColl[reco::TrackRef(tracksHandle, leadHad-tracksHandle->begin())].dEdx());
+	    //BsParticles.push_back(jpsi_part);
 
-	  kaonEECharge_sublead_         .push_back(subleadHad->charge());
-	  kaonEED0_sublead_             .push_back(subleadHad->dxy(pv));
-	  kaonEEDz_sublead_             .push_back(subleadHad->dz(pv));
-	  kaonEED0Error_sublead_ 	.push_back(subleadHad->dxyError());
-	  kaonEEDzError_sublead_ 	.push_back(subleadHad->dzError());
-	  kaonEEPt_sublead_             .push_back(subleadHad->pt());
-	  kaonEEEta_sublead_            .push_back(subleadHad->eta());
-	  kaonEEPhi_sublead_            .push_back(subleadHad->phi());
-	  kaonEEVx_sublead_ 		.push_back(subleadHad->vx());
-	  kaonEEVy_sublead_ 		.push_back(subleadHad->vy());
-	  kaonEEVz_sublead_ 		.push_back(subleadHad->vz());
-	  kaonEETrkChi2_sublead_ 	.push_back(subleadHad->chi2());
-	  kaonEETrkNDOF_sublead_ 	.push_back(subleadHad->ndof());
-	  kaonEETrkNormChi2_sublead_ 	.push_back(subleadHad->normalizedChi2());
-	  kaonEETrkdEdx_sublead_	.push_back(dEdxColl[reco::TrackRef(tracksHandle, subleadHad-tracksHandle->begin())].dEdx());
+	    KinematicConstrainedVertexFitter BsKvFitter;
+	    RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
+	    if (!(BsKinVtx->isValid())) continue;
 
-	  bsEEdRele_             .push_back(iele_lv.DeltaR(jele_lv));
-	  bsEEdRkaon_            .push_back(iHad_lv.DeltaR(jHad_lv));
-	  bsEEdRJpsiPhi_         .push_back((iele_lv+jele_lv).DeltaR(iHad_lv+jHad_lv));
-	  bsEEJpsiMass_          .push_back((iele_lv+jele_lv).M());
-	  bsEEPhiMass_           .push_back((iHad_lv+jHad_lv).M());
-	  bsEEBsMass_            .push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+	    RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
 
-	  Float_t corrPt_lead = -1;
-	  Float_t corrEn_lead = -1;
-	  Float_t corrPt_sublead = -1;
-	  Float_t corrEn_sublead = -1;
+	    if (DecayVtx->chiSquared() < 0.0) continue;
+	    if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
 
-	  for (edm::View<pat::Electron>::const_iterator iCEle = calibelectronHandle->begin(); iCEle != calibelectronHandle->end(); ++iCEle) {
+	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
-	    if (fabs(leadEle->eta() - iCEle->eta()) < 0.001 && fabs(leadEle->phi() - iCEle->phi()) < 0.001) {
-	      corrPt_lead = iCEle->pt();
-	      corrEn_lead = iCEle->energy();
+	    auto leadEle = iEle->pt() > jEle->pt() ? iEle : jEle;
+	    auto subleadEle = iEle->pt() > jEle->pt() ? jEle : iEle;
+	    auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+	    auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+
+	    double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bsM;
+	    
+	    math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
+	    math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
+	    math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
+	    double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+
+	    eleSvChi2_.push_back(DecayVtx->chiSquared());
+	    eleSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+	    eleSvX_.push_back(DecayVtx->position().x());
+	    eleSvY_.push_back(DecayVtx->position().y());
+	    eleSvZ_.push_back(DecayVtx->position().z());
+	    eleSvXError_.push_back(DecayVtx->error().cxx());
+	    eleSvYError_.push_back(DecayVtx->error().cyy());
+	    eleSvZError_.push_back(DecayVtx->error().czz());
+	    eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+	    eleSvCtxy_.push_back(ctxy);
+	    eleSvCosAngle_.push_back(cosAngle);
+
+	    kaonEECharge_lead_            .push_back(leadHad->charge());
+	    kaonEED0_lead_                .push_back(leadHad->dxy(pv));
+	    kaonEEDz_lead_                .push_back(leadHad->dz(pv));
+	    kaonEED0Error_lead_ 		.push_back(leadHad->dxyError());
+	    kaonEEDzError_lead_ 		.push_back(leadHad->dzError());
+	    kaonEEPt_lead_                .push_back(leadHad->pt());
+	    kaonEEEta_lead_               .push_back(leadHad->eta());
+	    kaonEEPhi_lead_               .push_back(leadHad->phi());
+	    kaonEEVx_lead_ 		.push_back(leadHad->vx());
+	    kaonEEVy_lead_ 		.push_back(leadHad->vy());
+	    kaonEEVz_lead_ 		.push_back(leadHad->vz());
+	    kaonEETrkChi2_lead_ 		.push_back(leadHad->chi2());
+	    kaonEETrkNDOF_lead_ 		.push_back(leadHad->ndof());
+	    kaonEETrkNormChi2_lead_ 	.push_back(leadHad->normalizedChi2());
+	    //kaonEETrkdEdx_lead_		.push_back(dEdxColl[reco::TrackRef(tracksHandle, leadHad-tracksHandle->begin())].dEdx());
+
+	    kaonEECharge_sublead_         .push_back(subleadHad->charge());
+	    kaonEED0_sublead_             .push_back(subleadHad->dxy(pv));
+	    kaonEEDz_sublead_             .push_back(subleadHad->dz(pv));
+	    kaonEED0Error_sublead_ 	.push_back(subleadHad->dxyError());
+	    kaonEEDzError_sublead_ 	.push_back(subleadHad->dzError());
+	    kaonEEPt_sublead_             .push_back(subleadHad->pt());
+	    kaonEEEta_sublead_            .push_back(subleadHad->eta());
+	    kaonEEPhi_sublead_            .push_back(subleadHad->phi());
+	    kaonEEVx_sublead_ 		.push_back(subleadHad->vx());
+	    kaonEEVy_sublead_ 		.push_back(subleadHad->vy());
+	    kaonEEVz_sublead_ 		.push_back(subleadHad->vz());
+	    kaonEETrkChi2_sublead_ 	.push_back(subleadHad->chi2());
+	    kaonEETrkNDOF_sublead_ 	.push_back(subleadHad->ndof());
+	    kaonEETrkNormChi2_sublead_ 	.push_back(subleadHad->normalizedChi2());
+	    //kaonEETrkdEdx_sublead_	.push_back(dEdxColl[reco::TrackRef(tracksHandle, subleadHad-tracksHandle->begin())].dEdx());
+
+	    bsEEdRele_             .push_back(iele_lv.DeltaR(jele_lv));
+	    bsEEdRkaon_            .push_back(iHad_lv.DeltaR(jHad_lv));
+	    bsEEdRJpsiPhi_         .push_back((iele_lv+jele_lv).DeltaR(iHad_lv+jHad_lv));
+	    bsEEJpsiMass_          .push_back((iele_lv+jele_lv).M());
+	    bsEEPhiMass_           .push_back((iHad_lv+jHad_lv).M());
+	    bsEEBsMass_            .push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+
+	    Float_t corrPt_lead = -1;
+	    Float_t corrEn_lead = -1;
+	    Float_t corrPt_sublead = -1;
+	    Float_t corrEn_sublead = -1;
+
+	    for (edm::View<pat::Electron>::const_iterator iCEle = calibelectronHandle->begin(); iCEle != calibelectronHandle->end(); ++iCEle) {
+
+	      if (fabs(leadEle->eta() - iCEle->eta()) < 0.001 && fabs(leadEle->phi() - iCEle->phi()) < 0.001) {
+		corrPt_lead = iCEle->pt();
+		corrEn_lead = iCEle->energy();
+	      }
+	      if (fabs(subleadEle->eta() - iCEle->eta()) < 0.001 && fabs(subleadEle->phi() - iCEle->phi()) < 0.001) {
+		corrPt_sublead = iCEle->pt();
+		corrEn_sublead = iCEle->energy();
+	      }
 	    }
-	    if (fabs(subleadEle->eta() - iCEle->eta()) < 0.001 && fabs(subleadEle->phi() - iCEle->phi()) < 0.001) {
-	      corrPt_sublead = iCEle->pt();
-	      corrEn_sublead = iCEle->energy();
-	    }
-	  }
 
-	  eleCalibPt_lead_        .push_back(corrPt_lead);
-	  eleCalibEn_lead_        .push_back(corrEn_lead);
-	  eleCalibPt_sublead_     .push_back(corrPt_sublead);
-	  eleCalibEn_sublead_     .push_back(corrEn_sublead);
+	    eleCalibPt_lead_        .push_back(corrPt_lead);
+	    eleCalibEn_lead_        .push_back(corrEn_lead);
+	    eleCalibPt_sublead_     .push_back(corrPt_sublead);
+	    eleCalibEn_sublead_     .push_back(corrEn_sublead);
 
-	  eleCharge_lead_          .push_back(leadEle->charge());
-	  eleChargeConsistent_lead_.push_back((Int_t)leadEle->isGsfCtfScPixChargeConsistent());
-	  eleEn_lead_              .push_back(leadEle->energy());
-	  eleD0_lead_              .push_back(leadEle->gsfTrack()->dxy(pv));
-	  eleDz_lead_              .push_back(leadEle->gsfTrack()->dz(pv));
-	  eleSIP_lead_             .push_back(fabs(leadEle->dB(pat::Electron::PV3D))/leadEle->edB(pat::Electron::PV3D));
-	  elePt_lead_              .push_back(leadEle->pt());
-	  eleEta_lead_             .push_back(leadEle->eta());
-	  elePhi_lead_             .push_back(leadEle->phi());
-	  eleR9_lead_              .push_back(leadEle->r9());
-	  eleSCEn_lead_            .push_back(leadEle->superCluster()->energy());
-	  eleEcalEn_lead_          .push_back(leadEle->ecalEnergy());
-	  eleESEnP1_lead_          .push_back(leadEle->superCluster()->preshowerEnergyPlane1());
-	  eleESEnP2_lead_          .push_back(leadEle->superCluster()->preshowerEnergyPlane2());
-	  eleSCEta_lead_           .push_back(leadEle->superCluster()->eta());
-	  eleSCPhi_lead_           .push_back(leadEle->superCluster()->phi());
-	  eleSCRawEn_lead_         .push_back(leadEle->superCluster()->rawEnergy());
-	  eleSCEtaWidth_lead_      .push_back(leadEle->superCluster()->etaWidth());
-	  eleSCPhiWidth_lead_      .push_back(leadEle->superCluster()->phiWidth());
-	  eleHoverE_lead_          .push_back(leadEle->hcalOverEcal());
+	    eleCharge_lead_          .push_back(leadEle->charge());
+	    eleChargeConsistent_lead_.push_back((Int_t)leadEle->isGsfCtfScPixChargeConsistent());
+	    eleEn_lead_              .push_back(leadEle->energy());
+	    eleD0_lead_              .push_back(leadEle->gsfTrack()->dxy(pv));
+	    eleDz_lead_              .push_back(leadEle->gsfTrack()->dz(pv));
+	    eleD0Error_lead_         .push_back(leadEle->gsfTrack()->dxyError());
+	    eleDzError_lead_         .push_back(leadEle->gsfTrack()->dzError());
+	    eleSIP_lead_             .push_back(fabs(leadEle->dB(pat::Electron::PV3D))/leadEle->edB(pat::Electron::PV3D));
+	    elePt_lead_              .push_back(leadEle->pt());
+	    eleEta_lead_             .push_back(leadEle->eta());
+	    elePhi_lead_             .push_back(leadEle->phi());
+	    eleR9_lead_              .push_back(leadEle->r9());
+	    eleSCEn_lead_            .push_back(leadEle->superCluster()->energy());
+	    eleEcalEn_lead_          .push_back(leadEle->ecalEnergy());
+	    eleESEnP1_lead_          .push_back(leadEle->superCluster()->preshowerEnergyPlane1());
+	    eleESEnP2_lead_          .push_back(leadEle->superCluster()->preshowerEnergyPlane2());
+	    eleSCEta_lead_           .push_back(leadEle->superCluster()->eta());
+	    eleSCPhi_lead_           .push_back(leadEle->superCluster()->phi());
+	    eleSCRawEn_lead_         .push_back(leadEle->superCluster()->rawEnergy());
+	    eleSCEtaWidth_lead_      .push_back(leadEle->superCluster()->etaWidth());
+	    eleSCPhiWidth_lead_      .push_back(leadEle->superCluster()->phiWidth());
+	    eleHoverE_lead_          .push_back(leadEle->hcalOverEcal());
 
-	  //eleFiredSingleTrgs_lead_ .push_back(matchSingleElectronTriggerFilters(leadEle->pt(), leadEle->eta());
+	    //eleFiredSingleTrgs_lead_ .push_back(matchSingleElectronTriggerFilters(leadEle->pt(), leadEle->eta());
 
-	  //eleFiredDoubleTrgs_lead_ .push_back(matchDoubleElectronTriggerFilters(leadEle->pt(), leadEle->eta());
-	  //eleFiredL1Trgs_lead_     .push_back(matchL1TriggerFilters(leadEle->pt(), leadEle->eta(), leadEle->phi()));
+	    //eleFiredDoubleTrgs_lead_ .push_back(matchDoubleElectronTriggerFilters(leadEle->pt(), leadEle->eta());
+	    //eleFiredL1Trgs_lead_     .push_back(matchL1TriggerFilters(leadEle->pt(), leadEle->eta(), leadEle->phi()));
 
-	  ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
-	  eleEoverP_lead_          .push_back(leadEle->eSuperClusterOverP());
-	  eleEoverPout_lead_       .push_back(leadEle->eEleClusterOverPout());
-	  eleBrem_lead_            .push_back(leadEle->fbrem());
-	  eledEtaAtVtx_lead_       .push_back(leadEle->deltaEtaSuperClusterTrackAtVtx());
-	  eledPhiAtVtx_lead_       .push_back(leadEle->deltaPhiSuperClusterTrackAtVtx());
-	  eledEtaAtCalo_lead_      .push_back(leadEle->deltaEtaSeedClusterTrackAtCalo());
-	  //eleSigmaIEtaIEta_lead_   .push_back(leadEle->sigmaIetaIeta()); ///new sigmaietaieta
-	  //eleSigmaIEtaIPhi_lead_   .push_back(leadEle->sigmaIetaIphi());
-	  //eleSigmaIPhiIPhi_lead_   .push_back(leadEle->sigmaIphiIphi());
-	  eleConvVeto_lead_        .push_back((Int_t)leadEle->passConversionVeto()); // ConvVtxFit || missHit == 0
-	  eleMissHits_lead_        .push_back(leadEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS));
-	  eleESEffSigmaRR_lead_    .push_back(lazyTool.eseffsirir(*((*leadEle).superCluster())));
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
+	    eleEoverP_lead_          .push_back(leadEle->eSuperClusterOverP());
+	    eleEoverPout_lead_       .push_back(leadEle->eEleClusterOverPout());
+	    eleBrem_lead_            .push_back(leadEle->fbrem());
+	    eledEtaAtVtx_lead_       .push_back(leadEle->deltaEtaSuperClusterTrackAtVtx());
+	    eledPhiAtVtx_lead_       .push_back(leadEle->deltaPhiSuperClusterTrackAtVtx());
+	    eledEtaAtCalo_lead_      .push_back(leadEle->deltaEtaSeedClusterTrackAtCalo());
+	    //eleSigmaIEtaIEta_lead_   .push_back(leadEle->sigmaIetaIeta()); ///new sigmaietaieta
+	    //eleSigmaIEtaIPhi_lead_   .push_back(leadEle->sigmaIetaIphi());
+	    //eleSigmaIPhiIPhi_lead_   .push_back(leadEle->sigmaIphiIphi());
+	    eleConvVeto_lead_        .push_back((Int_t)leadEle->passConversionVeto()); // ConvVtxFit || missHit == 0
+	    eleMissHits_lead_        .push_back(leadEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS));
+	    eleESEffSigmaRR_lead_    .push_back(lazyTool.eseffsirir(*((*leadEle).superCluster())));
 
-	  // VID calculation of (1/E - 1/p)
-	  double leadeleEoverPInv = 1e30;
-	  if (leadEle->ecalEnergy() != 0 && std::isfinite(leadEle->ecalEnergy()))	leadeleEoverPInv = (1.0 - leadEle->eSuperClusterOverP())/leadEle->ecalEnergy();
-	  eleEoverPInv_lead_.push_back(leadeleEoverPInv);
+	    // VID calculation of (1/E - 1/p)
+	    double leadeleEoverPInv = 1e30;
+	    if (leadEle->ecalEnergy() != 0 && std::isfinite(leadEle->ecalEnergy()))	leadeleEoverPInv = (1.0 - leadEle->eSuperClusterOverP())/leadEle->ecalEnergy();
+	    eleEoverPInv_lead_.push_back(leadeleEoverPInv);
 
-	  //if (leadEle->ecalEnergy() == 0)   eleEoverPInv_lead_.push_back(1e30);
-	  //else if (!std::isfinite(leadEle->ecalEnergy()))  eleEoverPInv_lead_.push_back(1e30);
-	  //else  eleEoverPInv_lead_.push_back((1.0 - leadEle->eSuperClusterOverP())/leadEle->ecalEnergy());
+	    //if (leadEle->ecalEnergy() == 0)   eleEoverPInv_lead_.push_back(1e30);
+	    //else if (!std::isfinite(leadEle->ecalEnergy()))  eleEoverPInv_lead_.push_back(1e30);
+	    //else  eleEoverPInv_lead_.push_back((1.0 - leadEle->eSuperClusterOverP())/leadEle->ecalEnergy());
 
-	  ///HEEP ID
-	  double leadeledEtaseedAtVtx = leadEle->superCluster().isNonnull() && leadEle->superCluster()->seed().isNonnull() ?
-	    leadEle->deltaEtaSuperClusterTrackAtVtx() - leadEle->superCluster()->eta() + leadEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+	    ///HEEP ID
+	    double leadeledEtaseedAtVtx = leadEle->superCluster().isNonnull() && leadEle->superCluster()->seed().isNonnull() ?
+	      leadEle->deltaEtaSuperClusterTrackAtVtx() - leadEle->superCluster()->eta() + leadEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
 
-	  eledEtaseedAtVtx_lead_   .push_back(leadeledEtaseedAtVtx);
+	    eledEtaseedAtVtx_lead_   .push_back(leadeledEtaseedAtVtx);
 
-	  eleE1x5_lead_            .push_back(leadEle->e1x5());
-	  eleE2x5_lead_            .push_back(leadEle->e2x5Max());
-	  eleE5x5_lead_            .push_back(leadEle->e5x5());
+	    eleE1x5_lead_            .push_back(leadEle->e1x5());
+	    eleE2x5_lead_            .push_back(leadEle->e2x5Max());
+	    eleE5x5_lead_            .push_back(leadEle->e5x5());
 
-	  reco::GsfElectron::PflowIsolationVariables leadpfIso = leadEle->pfIsolationVariables();
+	    reco::GsfElectron::PflowIsolationVariables leadpfIso = leadEle->pfIsolationVariables();
 
-	  elePFChIso_lead_         .push_back(leadpfIso.sumChargedHadronPt);
-	  elePFPhoIso_lead_        .push_back(leadpfIso.sumPhotonEt);
-	  elePFNeuIso_lead_        .push_back(leadpfIso.sumNeutralHadronEt);
-	  elePFPUIso_lead_         .push_back(leadpfIso.sumPUPt);
-	  elecaloEnergy_lead_      .push_back(leadEle->caloEnergy());
-	  //elePFMiniIso_lead_       .push_back(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*leadEle)), 0.05, 0.2, 10., false));
+	    elePFChIso_lead_         .push_back(leadpfIso.sumChargedHadronPt);
+	    elePFPhoIso_lead_        .push_back(leadpfIso.sumPhotonEt);
+	    elePFNeuIso_lead_        .push_back(leadpfIso.sumNeutralHadronEt);
+	    elePFPUIso_lead_         .push_back(leadpfIso.sumPUPt);
+	    elecaloEnergy_lead_      .push_back(leadEle->caloEnergy());
+	    //elePFMiniIso_lead_       .push_back(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*leadEle)), 0.05, 0.2, 10., false));
 
-	  /////quantities which were used for Run1 - these do not
-	  ///calculated through PF (meaning no energy is subtracted
-	  ///using PF)
-	  ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
-	  ///line 120
+	    /////quantities which were used for Run1 - these do not
+	    ///calculated through PF (meaning no energy is subtracted
+	    ///using PF)
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
+	    ///line 120
 
-	  eleSigmaIEtaIEtaFull5x5_lead_    .push_back(leadEle->full5x5_sigmaIetaIeta());
-	  eleSigmaIPhiIPhiFull5x5_lead_    .push_back(leadEle->full5x5_sigmaIphiIphi());
-	  eleE1x5Full5x5_lead_             .push_back(leadEle->full5x5_e1x5());
-	  eleE2x5Full5x5_lead_             .push_back(leadEle->full5x5_e2x5Max());
-	  eleE5x5Full5x5_lead_             .push_back(leadEle->full5x5_e5x5());
-	  eleR9Full5x5_lead_               .push_back(leadEle->full5x5_r9());
+	    eleSigmaIEtaIEtaFull5x5_lead_    .push_back(leadEle->full5x5_sigmaIetaIeta());
+	    eleSigmaIPhiIPhiFull5x5_lead_    .push_back(leadEle->full5x5_sigmaIphiIphi());
+	    eleE1x5Full5x5_lead_             .push_back(leadEle->full5x5_e1x5());
+	    eleE2x5Full5x5_lead_             .push_back(leadEle->full5x5_e2x5Max());
+	    eleE5x5Full5x5_lead_             .push_back(leadEle->full5x5_e5x5());
+	    eleR9Full5x5_lead_               .push_back(leadEle->full5x5_r9());
 
-	  ///For HEEP ID
-	  eleEcalDrivenSeed_lead_          .push_back(leadEle->ecalDrivenSeed());
-	  eleDr03EcalRecHitSumEt_lead_     .push_back(leadEle->dr03EcalRecHitSumEt());
-	  eleDr03HcalDepth1TowerSumEt_lead_.push_back(leadEle->dr03HcalDepth1TowerSumEt());
-	  eleDr03HcalDepth2TowerSumEt_lead_.push_back(leadEle->dr03HcalDepth2TowerSumEt());
-	  eleDr03HcalTowerSumEt_lead_      .push_back(leadEle->dr03HcalTowerSumEt());
-	  eleDr03TkSumPt_lead_             .push_back(leadEle->dr03TkSumPt());
+	    ///For HEEP ID
+	    eleEcalDrivenSeed_lead_          .push_back(leadEle->ecalDrivenSeed());
+	    eleDr03EcalRecHitSumEt_lead_     .push_back(leadEle->dr03EcalRecHitSumEt());
+	    eleDr03HcalDepth1TowerSumEt_lead_.push_back(leadEle->dr03HcalDepth1TowerSumEt());
+	    eleDr03HcalDepth2TowerSumEt_lead_.push_back(leadEle->dr03HcalDepth2TowerSumEt());
+	    eleDr03HcalTowerSumEt_lead_      .push_back(leadEle->dr03HcalTowerSumEt());
+	    eleDr03TkSumPt_lead_             .push_back(leadEle->dr03TkSumPt());
 
-	  reco::GsfTrackRef leadgsfTrackRef = leadEle->gsfTrack();
+	    reco::GsfTrackRef leadgsfTrackRef = leadEle->gsfTrack();
 
-	  if (leadEle->gsfTrack().isNonnull()) {
-	    eleGSFChi2_lead_.push_back(leadgsfTrackRef->normalizedChi2());
-	    if (recVtxs->size() > 0)
-	      eleTrkdxy_lead_.push_back(leadgsfTrackRef->dxy(recVtxs->front().position()));
-	    else
+	    if (leadEle->gsfTrack().isNonnull()) {
+	      eleGSFChi2_lead_.push_back(leadgsfTrackRef->normalizedChi2());
+	      if (recVtxs->size() > 0)
+		eleTrkdxy_lead_.push_back(leadgsfTrackRef->dxy(recVtxs->front().position()));
+	      else
+		eleTrkdxy_lead_.push_back(-999);
+	    } else {
+	      eleGSFChi2_lead_.push_back(999.);
 	      eleTrkdxy_lead_.push_back(-999);
-	  } else {
-	    eleGSFChi2_lead_.push_back(999.);
-	    eleTrkdxy_lead_.push_back(-999);
-	  }
-	  
-	  reco::TrackRef leadkfTrackRef = leadEle->closestCtfTrackRef();
+	    }
+	    
+	    reco::TrackRef leadkfTrackRef = leadEle->closestCtfTrackRef();
 
-	  if (leadkfTrackRef.isAvailable() && leadkfTrackRef.isNonnull()) {
-	    eleKFHits_lead_.push_back(leadkfTrackRef->hitPattern().trackerLayersWithMeasurement());
-	    eleKFChi2_lead_.push_back(leadkfTrackRef->normalizedChi2());
-	  } else {
-	    eleKFHits_lead_.push_back(-1.);
-	    eleKFChi2_lead_.push_back(999.);
-	  }
+	    if (leadkfTrackRef.isAvailable() && leadkfTrackRef.isNonnull()) {
+	      eleKFHits_lead_.push_back(leadkfTrackRef->hitPattern().trackerLayersWithMeasurement());
+	      eleKFChi2_lead_.push_back(leadkfTrackRef->normalizedChi2());
+	    } else {
+	      eleKFHits_lead_.push_back(-1.);
+	      eleKFChi2_lead_.push_back(999.);
+	    }
 
-	  //edm::Ptr<reco::GsfElectron> recoEl(leadEle);      
-	  //const auto el = electrons->ptrAt(nEle_);
-	  const auto leadel = electronHandle->ptrAt(leadEle - electronHandle->begin());
-	 
-	  unsigned short leadtmpeleIDbit = 0;
-	 
-	  ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
+	    //edm::Ptr<reco::GsfElectron> recoEl(leadEle);      
+	    //const auto el = electrons->ptrAt(nEle_);
+	    const auto leadel = electronHandle->ptrAt(leadEle - electronHandle->begin());
+	   
+	    unsigned short leadtmpeleIDbit = 0;
+	   
+	    ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
 
-	  bool isPassVeto  = (*veto_id_decisions)[leadel->originalObjectRef()];
-	  if (isPassVeto) setbit(leadtmpeleIDbit, 0);
-      
-	  bool isPassLoose  = (*loose_id_decisions)[leadel->originalObjectRef()];
-	  if (isPassLoose) setbit(leadtmpeleIDbit, 1);
+	    bool isPassVeto  = (*veto_id_decisions)[leadel->originalObjectRef()];
+	    if (isPassVeto) setbit(leadtmpeleIDbit, 0);
+	
+	    bool isPassLoose  = (*loose_id_decisions)[leadel->originalObjectRef()];
+	    if (isPassLoose) setbit(leadtmpeleIDbit, 1);
 
-	  bool isPassMedium = (*medium_id_decisions)[leadel->originalObjectRef()];
-	  if (isPassMedium) setbit(leadtmpeleIDbit, 2);
+	    bool isPassMedium = (*medium_id_decisions)[leadel->originalObjectRef()];
+	    if (isPassMedium) setbit(leadtmpeleIDbit, 2);
 
-	  bool isPassTight  = (*tight_id_decisions)[leadel->originalObjectRef()];
-	  if (isPassTight) setbit(leadtmpeleIDbit, 3);
+	    bool isPassTight  = (*tight_id_decisions)[leadel->originalObjectRef()];
+	    if (isPassTight) setbit(leadtmpeleIDbit, 3);
 
-	  bool isPassHEEP = (*heep_id_decisions)[leadel->originalObjectRef()];
-	  if (isPassHEEP) setbit(leadtmpeleIDbit, 4);
+	    bool isPassHEEP = (*heep_id_decisions)[leadel->originalObjectRef()];
+	    if (isPassHEEP) setbit(leadtmpeleIDbit, 4);
 
-	  eleIDMVAIso_lead_  .push_back((*eleMVAIsoValues)[leadel->originalObjectRef()]);
-	  eleIDMVANoIso_lead_.push_back((*eleMVANoIsoValues)[leadel->originalObjectRef()]);
+	    eleIDMVAIso_lead_  .push_back((*eleMVAIsoValues)[leadel->originalObjectRef()]);
+	    eleIDMVANoIso_lead_.push_back((*eleMVANoIsoValues)[leadel->originalObjectRef()]);
 
-	  elePFClusEcalIso_lead_.push_back(leadEle->ecalPFClusterIso());
-	  elePFClusHcalIso_lead_.push_back(leadEle->hcalPFClusterIso());
+	    elePFClusEcalIso_lead_.push_back(leadEle->ecalPFClusterIso());
+	    elePFClusHcalIso_lead_.push_back(leadEle->hcalPFClusterIso());
 
-	  eleIDbit_lead_.push_back(leadtmpeleIDbit);
+	    eleIDbit_lead_.push_back(leadtmpeleIDbit);
 
 
-	  eleCharge_sublead_          .push_back(subleadEle->charge());
-	  eleChargeConsistent_sublead_.push_back((Int_t)subleadEle->isGsfCtfScPixChargeConsistent());
-	  eleEn_sublead_              .push_back(subleadEle->energy());
-	  eleD0_sublead_              .push_back(subleadEle->gsfTrack()->dxy(pv));
-	  eleDz_sublead_              .push_back(subleadEle->gsfTrack()->dz(pv));
-	  eleSIP_sublead_             .push_back(fabs(subleadEle->dB(pat::Electron::PV3D))/subleadEle->edB(pat::Electron::PV3D));
-	  elePt_sublead_              .push_back(subleadEle->pt());
-	  eleEta_sublead_             .push_back(subleadEle->eta());
-	  elePhi_sublead_             .push_back(subleadEle->phi());
-	  eleR9_sublead_              .push_back(subleadEle->r9());
-	  eleSCEn_sublead_            .push_back(subleadEle->superCluster()->energy());
-	  eleEcalEn_sublead_          .push_back(subleadEle->ecalEnergy());
-	  eleESEnP1_sublead_          .push_back(subleadEle->superCluster()->preshowerEnergyPlane1());
-	  eleESEnP2_sublead_          .push_back(subleadEle->superCluster()->preshowerEnergyPlane2());
-	  eleSCEta_sublead_           .push_back(subleadEle->superCluster()->eta());
-	  eleSCPhi_sublead_           .push_back(subleadEle->superCluster()->phi());
-	  eleSCRawEn_sublead_         .push_back(subleadEle->superCluster()->rawEnergy());
-	  eleSCEtaWidth_sublead_      .push_back(subleadEle->superCluster()->etaWidth());
-	  eleSCPhiWidth_sublead_      .push_back(subleadEle->superCluster()->phiWidth());
-	  eleHoverE_sublead_          .push_back(subleadEle->hcalOverEcal());
+	    eleCharge_sublead_          .push_back(subleadEle->charge());
+	    eleChargeConsistent_sublead_.push_back((Int_t)subleadEle->isGsfCtfScPixChargeConsistent());
+	    eleEn_sublead_              .push_back(subleadEle->energy());
+	    eleD0_sublead_              .push_back(subleadEle->gsfTrack()->dxy(pv));
+	    eleDz_sublead_              .push_back(subleadEle->gsfTrack()->dz(pv));
+	    eleD0Error_sublead_         .push_back(subleadEle->gsfTrack()->dxyError());
+	    eleDzError_sublead_         .push_back(subleadEle->gsfTrack()->dzError());
+	    eleSIP_sublead_             .push_back(fabs(subleadEle->dB(pat::Electron::PV3D))/subleadEle->edB(pat::Electron::PV3D));
+	    elePt_sublead_              .push_back(subleadEle->pt());
+	    eleEta_sublead_             .push_back(subleadEle->eta());
+	    elePhi_sublead_             .push_back(subleadEle->phi());
+	    eleR9_sublead_              .push_back(subleadEle->r9());
+	    eleSCEn_sublead_            .push_back(subleadEle->superCluster()->energy());
+	    eleEcalEn_sublead_          .push_back(subleadEle->ecalEnergy());
+	    eleESEnP1_sublead_          .push_back(subleadEle->superCluster()->preshowerEnergyPlane1());
+	    eleESEnP2_sublead_          .push_back(subleadEle->superCluster()->preshowerEnergyPlane2());
+	    eleSCEta_sublead_           .push_back(subleadEle->superCluster()->eta());
+	    eleSCPhi_sublead_           .push_back(subleadEle->superCluster()->phi());
+	    eleSCRawEn_sublead_         .push_back(subleadEle->superCluster()->rawEnergy());
+	    eleSCEtaWidth_sublead_      .push_back(subleadEle->superCluster()->etaWidth());
+	    eleSCPhiWidth_sublead_      .push_back(subleadEle->superCluster()->phiWidth());
+	    eleHoverE_sublead_          .push_back(subleadEle->hcalOverEcal());
 
-	  //eleFiredSingleTrgs_sublead_ .push_back(matchSingleElectronTriggerFilters(subleadEle->pt(), subleadEle->eta());
+	    //eleFiredSingleTrgs_sublead_ .push_back(matchSingleElectronTriggerFilters(subleadEle->pt(), subleadEle->eta());
 
-	  //eleFiredDoubleTrgs_sublead_ .push_back(matchDoubleElectronTriggerFilters(subleadEle->pt(), subleadEle->eta());
-	  //eleFiredL1Trgs_sublead_     .push_back(matchL1TriggerFilters(subleadEle->pt(), subleadEle->eta(), subleadEle->phi()));
+	    //eleFiredDoubleTrgs_sublead_ .push_back(matchDoubleElectronTriggerFilters(subleadEle->pt(), subleadEle->eta());
+	    //eleFiredL1Trgs_sublead_     .push_back(matchL1TriggerFilters(subleadEle->pt(), subleadEle->eta(), subleadEle->phi()));
 
-	  ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
-	  eleEoverP_sublead_          .push_back(subleadEle->eSuperClusterOverP());
-	  eleEoverPout_sublead_       .push_back(subleadEle->eEleClusterOverPout());
-	  eleBrem_sublead_            .push_back(subleadEle->fbrem());
-	  eledEtaAtVtx_sublead_       .push_back(subleadEle->deltaEtaSuperClusterTrackAtVtx());
-	  eledPhiAtVtx_sublead_       .push_back(subleadEle->deltaPhiSuperClusterTrackAtVtx());
-	  eledEtaAtCalo_sublead_      .push_back(subleadEle->deltaEtaSeedClusterTrackAtCalo());
-	  //eleSigmaIEtaIEta_sublead_   .push_back(subleadEle->sigmaIetaIeta()); ///new sigmaietaieta
-	  //eleSigmaIEtaIPhi_sublead_   .push_back(subleadEle->sigmaIetaIphi());
-	  //eleSigmaIPhiIPhi_sublead_   .push_back(subleadEle->sigmaIphiIphi());
-	  eleConvVeto_sublead_        .push_back((Int_t)subleadEle->passConversionVeto()); // ConvVtxFit || missHit == 0
-	  eleMissHits_sublead_        .push_back(subleadEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS));
-	  eleESEffSigmaRR_sublead_    .push_back(lazyTool.eseffsirir(*((*subleadEle).superCluster())));
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
+	    eleEoverP_sublead_          .push_back(subleadEle->eSuperClusterOverP());
+	    eleEoverPout_sublead_       .push_back(subleadEle->eEleClusterOverPout());
+	    eleBrem_sublead_            .push_back(subleadEle->fbrem());
+	    eledEtaAtVtx_sublead_       .push_back(subleadEle->deltaEtaSuperClusterTrackAtVtx());
+	    eledPhiAtVtx_sublead_       .push_back(subleadEle->deltaPhiSuperClusterTrackAtVtx());
+	    eledEtaAtCalo_sublead_      .push_back(subleadEle->deltaEtaSeedClusterTrackAtCalo());
+	    //eleSigmaIEtaIEta_sublead_   .push_back(subleadEle->sigmaIetaIeta()); ///new sigmaietaieta
+	    //eleSigmaIEtaIPhi_sublead_   .push_back(subleadEle->sigmaIetaIphi());
+	    //eleSigmaIPhiIPhi_sublead_   .push_back(subleadEle->sigmaIphiIphi());
+	    eleConvVeto_sublead_        .push_back((Int_t)subleadEle->passConversionVeto()); // ConvVtxFit || missHit == 0
+	    eleMissHits_sublead_        .push_back(subleadEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS));
+	    eleESEffSigmaRR_sublead_    .push_back(lazyTool.eseffsirir(*((*subleadEle).superCluster())));
 
-	  // VID calculation of (1/E - 1/p)
-	  double subleadeleEoverPInv = 1e30;
-	  if (subleadEle->ecalEnergy() != 0 && std::isfinite(subleadEle->ecalEnergy()))	subleadeleEoverPInv = (1.0 - subleadEle->eSuperClusterOverP())/subleadEle->ecalEnergy();
-	  eleEoverPInv_sublead_.push_back(subleadeleEoverPInv);
+	    // VID calculation of (1/E - 1/p)
+	    double subleadeleEoverPInv = 1e30;
+	    if (subleadEle->ecalEnergy() != 0 && std::isfinite(subleadEle->ecalEnergy()))	subleadeleEoverPInv = (1.0 - subleadEle->eSuperClusterOverP())/subleadEle->ecalEnergy();
+	    eleEoverPInv_sublead_.push_back(subleadeleEoverPInv);
 
-	  //if (subleadEle->ecalEnergy() == 0)   eleEoverPInv_sublead_.push_back(1e30);
-	  //else if (!std::isfinite(subleadEle->ecalEnergy()))  eleEoverPInv_sublead_.push_back(1e30);
-	  //else  eleEoverPInv_sublead_.push_back((1.0 - subleadEle->eSuperClusterOverP())/subleadEle->ecalEnergy());
+	    //if (subleadEle->ecalEnergy() == 0)   eleEoverPInv_sublead_.push_back(1e30);
+	    //else if (!std::isfinite(subleadEle->ecalEnergy()))  eleEoverPInv_sublead_.push_back(1e30);
+	    //else  eleEoverPInv_sublead_.push_back((1.0 - subleadEle->eSuperClusterOverP())/subleadEle->ecalEnergy());
 
-	  ///HEEP ID
-	  double subleadeledEtaseedAtVtx = subleadEle->superCluster().isNonnull() && subleadEle->superCluster()->seed().isNonnull() ?
-	    subleadEle->deltaEtaSuperClusterTrackAtVtx() - subleadEle->superCluster()->eta() + subleadEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+	    ///HEEP ID
+	    double subleadeledEtaseedAtVtx = subleadEle->superCluster().isNonnull() && subleadEle->superCluster()->seed().isNonnull() ?
+	      subleadEle->deltaEtaSuperClusterTrackAtVtx() - subleadEle->superCluster()->eta() + subleadEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
 
-	  eledEtaseedAtVtx_sublead_   .push_back(subleadeledEtaseedAtVtx);
+	    eledEtaseedAtVtx_sublead_   .push_back(subleadeledEtaseedAtVtx);
 
-	  eleE1x5_sublead_            .push_back(subleadEle->e1x5());
-	  eleE2x5_sublead_            .push_back(subleadEle->e2x5Max());
-	  eleE5x5_sublead_            .push_back(subleadEle->e5x5());
+	    eleE1x5_sublead_            .push_back(subleadEle->e1x5());
+	    eleE2x5_sublead_            .push_back(subleadEle->e2x5Max());
+	    eleE5x5_sublead_            .push_back(subleadEle->e5x5());
 
-	  reco::GsfElectron::PflowIsolationVariables subleadpfIso = subleadEle->pfIsolationVariables();
+	    reco::GsfElectron::PflowIsolationVariables subleadpfIso = subleadEle->pfIsolationVariables();
 
-	  elePFChIso_sublead_         .push_back(subleadpfIso.sumChargedHadronPt);
-	  elePFPhoIso_sublead_        .push_back(subleadpfIso.sumPhotonEt);
-	  elePFNeuIso_sublead_        .push_back(subleadpfIso.sumNeutralHadronEt);
-	  elePFPUIso_sublead_         .push_back(subleadpfIso.sumPUPt);
-	  elecaloEnergy_sublead_      .push_back(subleadEle->caloEnergy());
-	  //elePFMiniIso_sublead_       .push_back(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*subleadEle)), 0.05, 0.2, 10., false));
+	    elePFChIso_sublead_         .push_back(subleadpfIso.sumChargedHadronPt);
+	    elePFPhoIso_sublead_        .push_back(subleadpfIso.sumPhotonEt);
+	    elePFNeuIso_sublead_        .push_back(subleadpfIso.sumNeutralHadronEt);
+	    elePFPUIso_sublead_         .push_back(subleadpfIso.sumPUPt);
+	    elecaloEnergy_sublead_      .push_back(subleadEle->caloEnergy());
+	    //elePFMiniIso_sublead_       .push_back(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*subleadEle)), 0.05, 0.2, 10., false));
 
-	  /////quantities which were used for Run1 - these do not
-	  ///calculated through PF (meaning no energy is subtracted
-	  ///using PF)
-	  ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
-	  ///line 120
+	    /////quantities which were used for Run1 - these do not
+	    ///calculated through PF (meaning no energy is subtracted
+	    ///using PF)
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
+	    ///line 120
 
-	  eleSigmaIEtaIEtaFull5x5_sublead_    .push_back(subleadEle->full5x5_sigmaIetaIeta());
-	  eleSigmaIPhiIPhiFull5x5_sublead_    .push_back(subleadEle->full5x5_sigmaIphiIphi());
-	  eleE1x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e1x5());
-	  eleE2x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e2x5Max());
-	  eleE5x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e5x5());
-	  eleR9Full5x5_sublead_               .push_back(subleadEle->full5x5_r9());
+	    eleSigmaIEtaIEtaFull5x5_sublead_    .push_back(subleadEle->full5x5_sigmaIetaIeta());
+	    eleSigmaIPhiIPhiFull5x5_sublead_    .push_back(subleadEle->full5x5_sigmaIphiIphi());
+	    eleE1x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e1x5());
+	    eleE2x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e2x5Max());
+	    eleE5x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e5x5());
+	    eleR9Full5x5_sublead_               .push_back(subleadEle->full5x5_r9());
 
-	  ///For HEEP ID
-	  eleEcalDrivenSeed_sublead_          .push_back(subleadEle->ecalDrivenSeed());
-	  eleDr03EcalRecHitSumEt_sublead_     .push_back(subleadEle->dr03EcalRecHitSumEt());
-	  eleDr03HcalDepth1TowerSumEt_sublead_.push_back(subleadEle->dr03HcalDepth1TowerSumEt());
-	  eleDr03HcalDepth2TowerSumEt_sublead_.push_back(subleadEle->dr03HcalDepth2TowerSumEt());
-	  eleDr03HcalTowerSumEt_sublead_      .push_back(subleadEle->dr03HcalTowerSumEt());
-	  eleDr03TkSumPt_sublead_             .push_back(subleadEle->dr03TkSumPt());
+	    ///For HEEP ID
+	    eleEcalDrivenSeed_sublead_          .push_back(subleadEle->ecalDrivenSeed());
+	    eleDr03EcalRecHitSumEt_sublead_     .push_back(subleadEle->dr03EcalRecHitSumEt());
+	    eleDr03HcalDepth1TowerSumEt_sublead_.push_back(subleadEle->dr03HcalDepth1TowerSumEt());
+	    eleDr03HcalDepth2TowerSumEt_sublead_.push_back(subleadEle->dr03HcalDepth2TowerSumEt());
+	    eleDr03HcalTowerSumEt_sublead_      .push_back(subleadEle->dr03HcalTowerSumEt());
+	    eleDr03TkSumPt_sublead_             .push_back(subleadEle->dr03TkSumPt());
 
-	  reco::GsfTrackRef subleadgsfTrackRef = subleadEle->gsfTrack();
+	    reco::GsfTrackRef subleadgsfTrackRef = subleadEle->gsfTrack();
 
-	  if (subleadEle->gsfTrack().isNonnull()) {
-	    eleGSFChi2_sublead_.push_back(subleadgsfTrackRef->normalizedChi2());
-	    if (recVtxs->size() > 0)
-	      eleTrkdxy_sublead_.push_back(subleadgsfTrackRef->dxy(recVtxs->front().position()));
-	    else
+	    if (subleadEle->gsfTrack().isNonnull()) {
+	      eleGSFChi2_sublead_.push_back(subleadgsfTrackRef->normalizedChi2());
+	      if (recVtxs->size() > 0)
+		eleTrkdxy_sublead_.push_back(subleadgsfTrackRef->dxy(recVtxs->front().position()));
+	      else
+		eleTrkdxy_sublead_.push_back(-999);
+	    } else {
+	      eleGSFChi2_sublead_.push_back(999.);
 	      eleTrkdxy_sublead_.push_back(-999);
-	  } else {
-	    eleGSFChi2_sublead_.push_back(999.);
-	    eleTrkdxy_sublead_.push_back(-999);
+	    }
+	    
+	    reco::TrackRef subleadkfTrackRef = subleadEle->closestCtfTrackRef();
+
+	    if (subleadkfTrackRef.isAvailable() && subleadkfTrackRef.isNonnull()) {
+	      eleKFHits_sublead_.push_back(subleadkfTrackRef->hitPattern().trackerLayersWithMeasurement());
+	      eleKFChi2_sublead_.push_back(subleadkfTrackRef->normalizedChi2());
+	    } else {
+	      eleKFHits_sublead_.push_back(-1.);
+	      eleKFChi2_sublead_.push_back(999.);
+	    }
+
+	    //edm::Ptr<reco::GsfElectron> recoEl(subleadEle);      
+	    //const auto el = electrons->ptrAt(nEle_);
+	    const auto subleadel = electronHandle->ptrAt(subleadEle - electronHandle->begin());
+	   
+	    unsigned short subleadtmpeleIDbit = 0;
+	   
+	    ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
+
+	    isPassVeto  = (*veto_id_decisions)[subleadel->originalObjectRef()];
+	    if (isPassVeto) setbit(subleadtmpeleIDbit, 0);
+	
+	    isPassLoose  = (*loose_id_decisions)[subleadel->originalObjectRef()];
+	    if (isPassLoose) setbit(subleadtmpeleIDbit, 1);
+
+	    isPassMedium = (*medium_id_decisions)[subleadel->originalObjectRef()];
+	    if (isPassMedium) setbit(subleadtmpeleIDbit, 2);
+
+	    isPassTight  = (*tight_id_decisions)[subleadel->originalObjectRef()];
+	    if (isPassTight) setbit(subleadtmpeleIDbit, 3);
+
+	    isPassHEEP = (*heep_id_decisions)[subleadel->originalObjectRef()];
+	    if (isPassHEEP) setbit(subleadtmpeleIDbit, 4);
+
+	    eleIDMVAIso_sublead_  .push_back((*eleMVAIsoValues)[subleadel->originalObjectRef()]);
+	    eleIDMVANoIso_sublead_.push_back((*eleMVANoIsoValues)[subleadel->originalObjectRef()]);
+
+	    elePFClusEcalIso_sublead_.push_back(subleadEle->ecalPFClusterIso());
+	    elePFClusHcalIso_sublead_.push_back(subleadEle->hcalPFClusterIso());
+
+	    eleIDbit_sublead_.push_back(subleadtmpeleIDbit);
+
+
+
+
+	    nEle_++;
 	  }
-	  
-	  reco::TrackRef subleadkfTrackRef = subleadEle->closestCtfTrackRef();
-
-	  if (subleadkfTrackRef.isAvailable() && subleadkfTrackRef.isNonnull()) {
-	    eleKFHits_sublead_.push_back(subleadkfTrackRef->hitPattern().trackerLayersWithMeasurement());
-	    eleKFChi2_sublead_.push_back(subleadkfTrackRef->normalizedChi2());
-	  } else {
-	    eleKFHits_sublead_.push_back(-1.);
-	    eleKFChi2_sublead_.push_back(999.);
-	  }
-
-	  //edm::Ptr<reco::GsfElectron> recoEl(subleadEle);      
-	  //const auto el = electrons->ptrAt(nEle_);
-	  const auto subleadel = electronHandle->ptrAt(subleadEle - electronHandle->begin());
-	 
-	  unsigned short subleadtmpeleIDbit = 0;
-	 
-	  ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
-
-	  isPassVeto  = (*veto_id_decisions)[subleadel->originalObjectRef()];
-	  if (isPassVeto) setbit(subleadtmpeleIDbit, 0);
-      
-	  isPassLoose  = (*loose_id_decisions)[subleadel->originalObjectRef()];
-	  if (isPassLoose) setbit(subleadtmpeleIDbit, 1);
-
-	  isPassMedium = (*medium_id_decisions)[subleadel->originalObjectRef()];
-	  if (isPassMedium) setbit(subleadtmpeleIDbit, 2);
-
-	  isPassTight  = (*tight_id_decisions)[subleadel->originalObjectRef()];
-	  if (isPassTight) setbit(subleadtmpeleIDbit, 3);
-
-	  isPassHEEP = (*heep_id_decisions)[subleadel->originalObjectRef()];
-	  if (isPassHEEP) setbit(subleadtmpeleIDbit, 4);
-
-	  eleIDMVAIso_sublead_  .push_back((*eleMVAIsoValues)[subleadel->originalObjectRef()]);
-	  eleIDMVANoIso_sublead_.push_back((*eleMVANoIsoValues)[subleadel->originalObjectRef()]);
-
-	  elePFClusEcalIso_sublead_.push_back(subleadEle->ecalPFClusterIso());
-	  elePFClusHcalIso_sublead_.push_back(subleadEle->hcalPFClusterIso());
-
-	  eleIDbit_sublead_.push_back(subleadtmpeleIDbit);
-
-
-
-
-	  nEle_++;
-
 	}
       }
     }
-  }
+  } else {
 
+    edm::Handle<edm::View<pat::Electron> > electronHandle;
+    e.getByToken(electronCollection_, electronHandle);
+
+    edm::Handle<edm::View<pat::Electron> > calibelectronHandle;
+    e.getByToken(calibelectronCollection_, calibelectronHandle);
+
+    edm::Handle<pat::PackedCandidateCollection> pfcands;
+    e.getByToken(pckPFCandidateCollection_, pfcands);
+
+    edm::Handle<pat::PackedCandidateCollection> losttracks;
+    //e.getByLabel("lostTracks", losttracks);
+    e.getByToken(lostTracksLabel_, losttracks);
+
+    std::vector<pat::PackedCandidate> alltracks;
+    //edm::Handle<pat::PackedCandidateCollection> alltracks;
+    alltracks.reserve(pfcands->size() + losttracks->size());
+    alltracks.insert(alltracks.end(), pfcands->begin(), pfcands->end());
+    alltracks.insert(alltracks.end(), losttracks->begin(), losttracks->end());
+
+  //  edm::Handle<reco::TrackCollection> tracksHandle;
+  //  e.getByToken(tracklabel_, tracksHandle);
+
+  //  edm::Handle<reco::DeDxDataValueMap> dEdxObjectHandle;
+  //  e.getByToken(deDxProducer_, dEdxObjectHandle );
+  //  const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
+
+
+    edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
+    e.getByToken( tok_eleTtk_, eleTrackMap);
+    std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> eletrks = *(eleTrackMap.product());
+
+    if (!electronHandle.isValid()) {
+      edm::LogWarning("ggNtuplizer") << "no pat::Electrons in event";
+      return;
+    }
+
+    if (!calibelectronHandle.isValid()) {
+      edm::LogWarning("ggNtuplizer") << "no calibrated pat::Electrons in event";
+      return;
+    }
+
+    edm::Handle<edm::ValueMap<bool> >  veto_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  loose_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  medium_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  tight_id_decisions;
+    edm::Handle<edm::ValueMap<bool> >  heep_id_decisions;
+    edm::Handle<edm::ValueMap<float> > eleMVAIsoValues;
+    edm::Handle<edm::ValueMap<float> > eleMVANoIsoValues;
+    //edm::Handle<edm::ValueMap<float> > elePFClusEcalIsoValues;
+    //edm::Handle<edm::ValueMap<float> > elePFClusHcalIsoValues;
+
+    e.getByToken(eleVetoIdMapToken_ ,         veto_id_decisions);
+    e.getByToken(eleLooseIdMapToken_ ,        loose_id_decisions);
+    e.getByToken(eleMediumIdMapToken_,        medium_id_decisions);
+    e.getByToken(eleTightIdMapToken_,         tight_id_decisions);
+    e.getByToken(eleHEEPIdMapToken_ ,         heep_id_decisions);
+    e.getByToken(eleMVAIsoValuesMapToken_,    eleMVAIsoValues);
+    e.getByToken(eleMVANoIsoValuesMapToken_,  eleMVANoIsoValues);
+    //e.getByToken(elePFClusEcalIsoToken_,      elePFClusEcalIsoValues);
+    //e.getByToken(elePFClusHcalIsoToken_,      elePFClusHcalIsoValues);
+
+    edm::Handle<reco::VertexCollection> recVtxs;
+    e.getByToken(vtxLabel_, recVtxs);
+
+    EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+    noZS::EcalClusterLazyTools lazyToolnoZS(e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+
+
+    for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
+      for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
+	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	float pmass  = 0.0005109989461;
+	TLorentzVector iele_lv, jele_lv;
+	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
+	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
+	if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
+
+	KinematicParticleFactoryFromTransientTrack pFactory;  
+	std::vector<RefCountedKinematicParticle> XParticles;
+	float pmasse = 1.e-6 * pmass;
+	reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
+	reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
+	const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
+	const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
+
+	//XParticles.push_back(pFactory.particle(getTransientTrack( ieletrk ), pmass, 0.0, 0, pmasse));
+	//XParticles.push_back(pFactory.particle(getTransientTrack( jeletrk ), pmass, 0.0, 0, pmasse));
+
+	XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
+	XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
+
+	KinematicConstrainedVertexFitter kvFitter;
+	RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+
+	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+	//KinVtx->movePointerToTheTop();
+	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+
+	for (pat::PackedCandidateCollection::const_iterator iHad = alltracks.begin(); iHad != alltracks.end(); ++iHad) {
+	//for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
+	  //if (iHad->pt() <= 0.5) continue;
+          if (iHad->charge() == 0) continue;
+          if (abs(iHad->pdgId()) != 211) continue;
+          if (iHad->bestTrack() == nullptr) continue;
+	  if (fabs(iHad->eta()) > 2.5) continue;
+	  if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+	  //if (iHad->normalizedChi2() < 0.0) continue;
+	  //if (iHad->normalizedChi2() > 20.0) continue;
+
+	  for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != alltracks.end(); ++jHad) {
+	  //for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
+	    //if (jHad->pt() <= 0.5) continue;
+            if (jHad->charge() == 0) continue;
+            if (abs(jHad->pdgId()) != 211) continue;
+            if (jHad->bestTrack() == nullptr) continue;
+	    if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    //if (jHad->normalizedChi2() < 0.0) continue;
+	    //if (jHad->normalizedChi2() > 20) continue;
+
+	    // Phi mass window
+	    float kpmass = 0.493677;
+	    TLorentzVector iHad_lv, jHad_lv, bs_lv;
+	    iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
+	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
+	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+	    if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+	    if (fabs(jHad->eta()) > 2.5) continue;
+
+	    std::vector<RefCountedKinematicParticle> BsParticles;
+	    float kpmasse = 1.e-6 * pmass;
+	    float bsM = 5.3663;
+
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad->bestTrack()) ), kpmass, 0.0, 0, kpmasse));
+	    BsParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
+	    BsParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
+
+	    //BsParticles.push_back(jpsi_part);
+
+	    KinematicConstrainedVertexFitter BsKvFitter;
+	    RefCountedKinematicTree BsKinVtx = BsKvFitter.fit(BsParticles);
+	    if (!(BsKinVtx->isValid())) continue;
+
+	    RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
+
+	    if (DecayVtx->chiSquared() < 0.0) continue;
+	    if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+
+	    // Accept these 4 tracks as a Bs candidate, fill ntuple
+
+	    auto leadEle = iEle->pt() > jEle->pt() ? iEle : jEle;
+	    auto subleadEle = iEle->pt() > jEle->pt() ? jEle : iEle;
+	    auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+	    auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+
+	    double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bsM;
+	    
+	    math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
+	    math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
+	    math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
+	    double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+
+	    eleSvChi2_.push_back(DecayVtx->chiSquared());
+	    eleSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+	    eleSvX_.push_back(DecayVtx->position().x());
+	    eleSvY_.push_back(DecayVtx->position().y());
+	    eleSvZ_.push_back(DecayVtx->position().z());
+	    eleSvXError_.push_back(DecayVtx->error().cxx());
+	    eleSvYError_.push_back(DecayVtx->error().cyy());
+	    eleSvZError_.push_back(DecayVtx->error().czz());
+	    eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+	    eleSvCtxy_.push_back(ctxy);
+	    eleSvCosAngle_.push_back(cosAngle);
+
+	    kaonEECharge_lead_            .push_back(leadHad->charge());
+	    kaonEED0_lead_                .push_back(leadHad->dxy(pv));
+	    kaonEEDz_lead_                .push_back(leadHad->dz(pv));
+	    kaonEED0Error_lead_ 		.push_back(leadHad->dxyError());
+	    kaonEEDzError_lead_ 		.push_back(leadHad->dzError());
+	    kaonEEPt_lead_                .push_back(leadHad->pt());
+	    kaonEEEta_lead_               .push_back(leadHad->eta());
+	    kaonEEPhi_lead_               .push_back(leadHad->phi());
+	    kaonEEVx_lead_ 		.push_back(leadHad->vx());
+	    kaonEEVy_lead_ 		.push_back(leadHad->vy());
+	    kaonEEVz_lead_ 		.push_back(leadHad->vz());
+	    kaonEETrkChi2_lead_ 		.push_back(leadHad->bestTrack()->chi2());
+	    kaonEETrkNDOF_lead_ 		.push_back(leadHad->bestTrack()->ndof());
+	    kaonEETrkNormChi2_lead_ 	.push_back(leadHad->bestTrack()->normalizedChi2());
+	    //kaonEETrkdEdx_lead_		.push_back(dEdxColl[reco::TrackRef(tracksHandle, leadHad-tracksHandle->begin())].dEdx());
+
+	    kaonEECharge_sublead_         .push_back(subleadHad->charge());
+	    kaonEED0_sublead_             .push_back(subleadHad->dxy(pv));
+	    kaonEEDz_sublead_             .push_back(subleadHad->dz(pv));
+	    kaonEED0Error_sublead_ 	.push_back(subleadHad->dxyError());
+	    kaonEEDzError_sublead_ 	.push_back(subleadHad->dzError());
+	    kaonEEPt_sublead_             .push_back(subleadHad->pt());
+	    kaonEEEta_sublead_            .push_back(subleadHad->eta());
+	    kaonEEPhi_sublead_            .push_back(subleadHad->phi());
+	    kaonEEVx_sublead_ 		.push_back(subleadHad->vx());
+	    kaonEEVy_sublead_ 		.push_back(subleadHad->vy());
+	    kaonEEVz_sublead_ 		.push_back(subleadHad->vz());
+	    kaonEETrkChi2_sublead_ 	.push_back(subleadHad->bestTrack()->chi2());
+	    kaonEETrkNDOF_sublead_ 	.push_back(subleadHad->bestTrack()->ndof());
+	    kaonEETrkNormChi2_sublead_ 	.push_back(subleadHad->bestTrack()->normalizedChi2());
+	    //kaonEETrkdEdx_sublead_	.push_back(dEdxColl[reco::TrackRef(tracksHandle, subleadHad-tracksHandle->begin())].dEdx());
+
+	    bsEEdRele_             .push_back(iele_lv.DeltaR(jele_lv));
+	    bsEEdRkaon_            .push_back(iHad_lv.DeltaR(jHad_lv));
+	    bsEEdRJpsiPhi_         .push_back((iele_lv+jele_lv).DeltaR(iHad_lv+jHad_lv));
+	    bsEEJpsiMass_          .push_back((iele_lv+jele_lv).M());
+	    bsEEPhiMass_           .push_back((iHad_lv+jHad_lv).M());
+	    bsEEBsMass_            .push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+
+	    Float_t corrPt_lead = -1;
+	    Float_t corrEn_lead = -1;
+	    Float_t corrPt_sublead = -1;
+	    Float_t corrEn_sublead = -1;
+
+	    for (edm::View<pat::Electron>::const_iterator iCEle = calibelectronHandle->begin(); iCEle != calibelectronHandle->end(); ++iCEle) {
+
+	      if (fabs(leadEle->eta() - iCEle->eta()) < 0.001 && fabs(leadEle->phi() - iCEle->phi()) < 0.001) {
+		corrPt_lead = iCEle->pt();
+		corrEn_lead = iCEle->energy();
+	      }
+	      if (fabs(subleadEle->eta() - iCEle->eta()) < 0.001 && fabs(subleadEle->phi() - iCEle->phi()) < 0.001) {
+		corrPt_sublead = iCEle->pt();
+		corrEn_sublead = iCEle->energy();
+	      }
+	    }
+
+	    eleCalibPt_lead_        .push_back(corrPt_lead);
+	    eleCalibEn_lead_        .push_back(corrEn_lead);
+	    eleCalibPt_sublead_     .push_back(corrPt_sublead);
+	    eleCalibEn_sublead_     .push_back(corrEn_sublead);
+
+	    eleCharge_lead_          .push_back(leadEle->charge());
+	    eleChargeConsistent_lead_.push_back((Int_t)leadEle->isGsfCtfScPixChargeConsistent());
+	    eleEn_lead_              .push_back(leadEle->energy());
+	    eleD0_lead_              .push_back(leadEle->gsfTrack()->dxy(pv));
+	    eleDz_lead_              .push_back(leadEle->gsfTrack()->dz(pv));
+	    eleD0Error_lead_         .push_back(leadEle->gsfTrack()->dxyError());
+	    eleDzError_lead_         .push_back(leadEle->gsfTrack()->dzError());
+	    eleSIP_lead_             .push_back(fabs(leadEle->dB(pat::Electron::PV3D))/leadEle->edB(pat::Electron::PV3D));
+	    elePt_lead_              .push_back(leadEle->pt());
+	    eleEta_lead_             .push_back(leadEle->eta());
+	    elePhi_lead_             .push_back(leadEle->phi());
+	    eleR9_lead_              .push_back(leadEle->r9());
+	    eleSCEn_lead_            .push_back(leadEle->superCluster()->energy());
+	    eleEcalEn_lead_          .push_back(leadEle->ecalEnergy());
+	    eleESEnP1_lead_          .push_back(leadEle->superCluster()->preshowerEnergyPlane1());
+	    eleESEnP2_lead_          .push_back(leadEle->superCluster()->preshowerEnergyPlane2());
+	    eleSCEta_lead_           .push_back(leadEle->superCluster()->eta());
+	    eleSCPhi_lead_           .push_back(leadEle->superCluster()->phi());
+	    eleSCRawEn_lead_         .push_back(leadEle->superCluster()->rawEnergy());
+	    eleSCEtaWidth_lead_      .push_back(leadEle->superCluster()->etaWidth());
+	    eleSCPhiWidth_lead_      .push_back(leadEle->superCluster()->phiWidth());
+	    eleHoverE_lead_          .push_back(leadEle->hcalOverEcal());
+
+	    //eleFiredSingleTrgs_lead_ .push_back(matchSingleElectronTriggerFilters(leadEle->pt(), leadEle->eta());
+
+	    //eleFiredDoubleTrgs_lead_ .push_back(matchDoubleElectronTriggerFilters(leadEle->pt(), leadEle->eta());
+	    //eleFiredL1Trgs_lead_     .push_back(matchL1TriggerFilters(leadEle->pt(), leadEle->eta(), leadEle->phi()));
+
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
+	    eleEoverP_lead_          .push_back(leadEle->eSuperClusterOverP());
+	    eleEoverPout_lead_       .push_back(leadEle->eEleClusterOverPout());
+	    eleBrem_lead_            .push_back(leadEle->fbrem());
+	    eledEtaAtVtx_lead_       .push_back(leadEle->deltaEtaSuperClusterTrackAtVtx());
+	    eledPhiAtVtx_lead_       .push_back(leadEle->deltaPhiSuperClusterTrackAtVtx());
+	    eledEtaAtCalo_lead_      .push_back(leadEle->deltaEtaSeedClusterTrackAtCalo());
+	    //eleSigmaIEtaIEta_lead_   .push_back(leadEle->sigmaIetaIeta()); ///new sigmaietaieta
+	    //eleSigmaIEtaIPhi_lead_   .push_back(leadEle->sigmaIetaIphi());
+	    //eleSigmaIPhiIPhi_lead_   .push_back(leadEle->sigmaIphiIphi());
+	    eleConvVeto_lead_        .push_back((Int_t)leadEle->passConversionVeto()); // ConvVtxFit || missHit == 0
+	    eleMissHits_lead_        .push_back(leadEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS));
+	    eleESEffSigmaRR_lead_    .push_back(lazyTool.eseffsirir(*((*leadEle).superCluster())));
+
+	    // VID calculation of (1/E - 1/p)
+	    double leadeleEoverPInv = 1e30;
+	    if (leadEle->ecalEnergy() != 0 && std::isfinite(leadEle->ecalEnergy()))	leadeleEoverPInv = (1.0 - leadEle->eSuperClusterOverP())/leadEle->ecalEnergy();
+	    eleEoverPInv_lead_.push_back(leadeleEoverPInv);
+
+	    //if (leadEle->ecalEnergy() == 0)   eleEoverPInv_lead_.push_back(1e30);
+	    //else if (!std::isfinite(leadEle->ecalEnergy()))  eleEoverPInv_lead_.push_back(1e30);
+	    //else  eleEoverPInv_lead_.push_back((1.0 - leadEle->eSuperClusterOverP())/leadEle->ecalEnergy());
+
+	    ///HEEP ID
+	    double leadeledEtaseedAtVtx = leadEle->superCluster().isNonnull() && leadEle->superCluster()->seed().isNonnull() ?
+	      leadEle->deltaEtaSuperClusterTrackAtVtx() - leadEle->superCluster()->eta() + leadEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+
+	    eledEtaseedAtVtx_lead_   .push_back(leadeledEtaseedAtVtx);
+
+	    eleE1x5_lead_            .push_back(leadEle->e1x5());
+	    eleE2x5_lead_            .push_back(leadEle->e2x5Max());
+	    eleE5x5_lead_            .push_back(leadEle->e5x5());
+
+	    reco::GsfElectron::PflowIsolationVariables leadpfIso = leadEle->pfIsolationVariables();
+
+	    elePFChIso_lead_         .push_back(leadpfIso.sumChargedHadronPt);
+	    elePFPhoIso_lead_        .push_back(leadpfIso.sumPhotonEt);
+	    elePFNeuIso_lead_        .push_back(leadpfIso.sumNeutralHadronEt);
+	    elePFPUIso_lead_         .push_back(leadpfIso.sumPUPt);
+	    elecaloEnergy_lead_      .push_back(leadEle->caloEnergy());
+	    //elePFMiniIso_lead_       .push_back(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*leadEle)), 0.05, 0.2, 10., false));
+
+	    /////quantities which were used for Run1 - these do not
+	    ///calculated through PF (meaning no energy is subtracted
+	    ///using PF)
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
+	    ///line 120
+
+	    eleSigmaIEtaIEtaFull5x5_lead_    .push_back(leadEle->full5x5_sigmaIetaIeta());
+	    eleSigmaIPhiIPhiFull5x5_lead_    .push_back(leadEle->full5x5_sigmaIphiIphi());
+	    eleE1x5Full5x5_lead_             .push_back(leadEle->full5x5_e1x5());
+	    eleE2x5Full5x5_lead_             .push_back(leadEle->full5x5_e2x5Max());
+	    eleE5x5Full5x5_lead_             .push_back(leadEle->full5x5_e5x5());
+	    eleR9Full5x5_lead_               .push_back(leadEle->full5x5_r9());
+
+	    ///For HEEP ID
+	    eleEcalDrivenSeed_lead_          .push_back(leadEle->ecalDrivenSeed());
+	    eleDr03EcalRecHitSumEt_lead_     .push_back(leadEle->dr03EcalRecHitSumEt());
+	    eleDr03HcalDepth1TowerSumEt_lead_.push_back(leadEle->dr03HcalDepth1TowerSumEt());
+	    eleDr03HcalDepth2TowerSumEt_lead_.push_back(leadEle->dr03HcalDepth2TowerSumEt());
+	    eleDr03HcalTowerSumEt_lead_      .push_back(leadEle->dr03HcalTowerSumEt());
+	    eleDr03TkSumPt_lead_             .push_back(leadEle->dr03TkSumPt());
+
+	    reco::GsfTrackRef leadgsfTrackRef = leadEle->gsfTrack();
+
+	    if (leadEle->gsfTrack().isNonnull()) {
+	      eleGSFChi2_lead_.push_back(leadgsfTrackRef->normalizedChi2());
+	      if (recVtxs->size() > 0)
+		eleTrkdxy_lead_.push_back(leadgsfTrackRef->dxy(recVtxs->front().position()));
+	      else
+		eleTrkdxy_lead_.push_back(-999);
+	    } else {
+	      eleGSFChi2_lead_.push_back(999.);
+	      eleTrkdxy_lead_.push_back(-999);
+	    }
+	    
+	    reco::TrackRef leadkfTrackRef = leadEle->closestCtfTrackRef();
+
+	    if (leadkfTrackRef.isAvailable() && leadkfTrackRef.isNonnull()) {
+	      eleKFHits_lead_.push_back(leadkfTrackRef->hitPattern().trackerLayersWithMeasurement());
+	      eleKFChi2_lead_.push_back(leadkfTrackRef->normalizedChi2());
+	    } else {
+	      eleKFHits_lead_.push_back(-1.);
+	      eleKFChi2_lead_.push_back(999.);
+	    }
+
+	    //edm::Ptr<reco::GsfElectron> recoEl(leadEle);      
+	    //const auto el = electrons->ptrAt(nEle_);
+	    const auto leadel = electronHandle->ptrAt(leadEle - electronHandle->begin());
+	   
+	    unsigned short leadtmpeleIDbit = 0;
+	   
+	    ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
+
+	    bool isPassVeto  = (*veto_id_decisions)[leadel];
+	    if (isPassVeto) setbit(leadtmpeleIDbit, 0);
+	
+	    bool isPassLoose  = (*loose_id_decisions)[leadel];
+	    if (isPassLoose) setbit(leadtmpeleIDbit, 1);
+
+	    bool isPassMedium = (*medium_id_decisions)[leadel];
+	    if (isPassMedium) setbit(leadtmpeleIDbit, 2);
+
+	    bool isPassTight  = (*tight_id_decisions)[leadel];
+	    if (isPassTight) setbit(leadtmpeleIDbit, 3);
+
+	    bool isPassHEEP = (*heep_id_decisions)[leadel];
+	    if (isPassHEEP) setbit(leadtmpeleIDbit, 4);
+
+	    eleIDMVAIso_lead_  .push_back((*eleMVAIsoValues)[leadel]);
+	    eleIDMVANoIso_lead_.push_back((*eleMVANoIsoValues)[leadel]);
+
+	    elePFClusEcalIso_lead_.push_back(leadEle->ecalPFClusterIso());
+	    elePFClusHcalIso_lead_.push_back(leadEle->hcalPFClusterIso());
+
+	    eleIDbit_lead_.push_back(leadtmpeleIDbit);
+
+
+	    eleCharge_sublead_          .push_back(subleadEle->charge());
+	    eleChargeConsistent_sublead_.push_back((Int_t)subleadEle->isGsfCtfScPixChargeConsistent());
+	    eleEn_sublead_              .push_back(subleadEle->energy());
+	    eleD0_sublead_              .push_back(subleadEle->gsfTrack()->dxy(pv));
+	    eleDz_sublead_              .push_back(subleadEle->gsfTrack()->dz(pv));
+	    eleD0Error_sublead_         .push_back(subleadEle->gsfTrack()->dxyError());
+	    eleDzError_sublead_         .push_back(subleadEle->gsfTrack()->dzError());
+	    eleSIP_sublead_             .push_back(fabs(subleadEle->dB(pat::Electron::PV3D))/subleadEle->edB(pat::Electron::PV3D));
+	    elePt_sublead_              .push_back(subleadEle->pt());
+	    eleEta_sublead_             .push_back(subleadEle->eta());
+	    elePhi_sublead_             .push_back(subleadEle->phi());
+	    eleR9_sublead_              .push_back(subleadEle->r9());
+	    eleSCEn_sublead_            .push_back(subleadEle->superCluster()->energy());
+	    eleEcalEn_sublead_          .push_back(subleadEle->ecalEnergy());
+	    eleESEnP1_sublead_          .push_back(subleadEle->superCluster()->preshowerEnergyPlane1());
+	    eleESEnP2_sublead_          .push_back(subleadEle->superCluster()->preshowerEnergyPlane2());
+	    eleSCEta_sublead_           .push_back(subleadEle->superCluster()->eta());
+	    eleSCPhi_sublead_           .push_back(subleadEle->superCluster()->phi());
+	    eleSCRawEn_sublead_         .push_back(subleadEle->superCluster()->rawEnergy());
+	    eleSCEtaWidth_sublead_      .push_back(subleadEle->superCluster()->etaWidth());
+	    eleSCPhiWidth_sublead_      .push_back(subleadEle->superCluster()->phiWidth());
+	    eleHoverE_sublead_          .push_back(subleadEle->hcalOverEcal());
+
+	    //eleFiredSingleTrgs_sublead_ .push_back(matchSingleElectronTriggerFilters(subleadEle->pt(), subleadEle->eta());
+
+	    //eleFiredDoubleTrgs_sublead_ .push_back(matchDoubleElectronTriggerFilters(subleadEle->pt(), subleadEle->eta());
+	    //eleFiredL1Trgs_sublead_     .push_back(matchL1TriggerFilters(subleadEle->pt(), subleadEle->eta(), subleadEle->phi()));
+
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d8/dac/GsfElectron_8h_source.html
+	    eleEoverP_sublead_          .push_back(subleadEle->eSuperClusterOverP());
+	    eleEoverPout_sublead_       .push_back(subleadEle->eEleClusterOverPout());
+	    eleBrem_sublead_            .push_back(subleadEle->fbrem());
+	    eledEtaAtVtx_sublead_       .push_back(subleadEle->deltaEtaSuperClusterTrackAtVtx());
+	    eledPhiAtVtx_sublead_       .push_back(subleadEle->deltaPhiSuperClusterTrackAtVtx());
+	    eledEtaAtCalo_sublead_      .push_back(subleadEle->deltaEtaSeedClusterTrackAtCalo());
+	    //eleSigmaIEtaIEta_sublead_   .push_back(subleadEle->sigmaIetaIeta()); ///new sigmaietaieta
+	    //eleSigmaIEtaIPhi_sublead_   .push_back(subleadEle->sigmaIetaIphi());
+	    //eleSigmaIPhiIPhi_sublead_   .push_back(subleadEle->sigmaIphiIphi());
+	    eleConvVeto_sublead_        .push_back((Int_t)subleadEle->passConversionVeto()); // ConvVtxFit || missHit == 0
+	    eleMissHits_sublead_        .push_back(subleadEle->gsfTrack()->hitPattern().numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS));
+	    eleESEffSigmaRR_sublead_    .push_back(lazyTool.eseffsirir(*((*subleadEle).superCluster())));
+
+	    // VID calculation of (1/E - 1/p)
+	    double subleadeleEoverPInv = 1e30;
+	    if (subleadEle->ecalEnergy() != 0 && std::isfinite(subleadEle->ecalEnergy()))	subleadeleEoverPInv = (1.0 - subleadEle->eSuperClusterOverP())/subleadEle->ecalEnergy();
+	    eleEoverPInv_sublead_.push_back(subleadeleEoverPInv);
+
+	    //if (subleadEle->ecalEnergy() == 0)   eleEoverPInv_sublead_.push_back(1e30);
+	    //else if (!std::isfinite(subleadEle->ecalEnergy()))  eleEoverPInv_sublead_.push_back(1e30);
+	    //else  eleEoverPInv_sublead_.push_back((1.0 - subleadEle->eSuperClusterOverP())/subleadEle->ecalEnergy());
+
+	    ///HEEP ID
+	    double subleadeledEtaseedAtVtx = subleadEle->superCluster().isNonnull() && subleadEle->superCluster()->seed().isNonnull() ?
+	      subleadEle->deltaEtaSuperClusterTrackAtVtx() - subleadEle->superCluster()->eta() + subleadEle->superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+
+	    eledEtaseedAtVtx_sublead_   .push_back(subleadeledEtaseedAtVtx);
+
+	    eleE1x5_sublead_            .push_back(subleadEle->e1x5());
+	    eleE2x5_sublead_            .push_back(subleadEle->e2x5Max());
+	    eleE5x5_sublead_            .push_back(subleadEle->e5x5());
+
+	    reco::GsfElectron::PflowIsolationVariables subleadpfIso = subleadEle->pfIsolationVariables();
+
+	    elePFChIso_sublead_         .push_back(subleadpfIso.sumChargedHadronPt);
+	    elePFPhoIso_sublead_        .push_back(subleadpfIso.sumPhotonEt);
+	    elePFNeuIso_sublead_        .push_back(subleadpfIso.sumNeutralHadronEt);
+	    elePFPUIso_sublead_         .push_back(subleadpfIso.sumPUPt);
+	    elecaloEnergy_sublead_      .push_back(subleadEle->caloEnergy());
+	    //elePFMiniIso_sublead_       .push_back(getMiniIsolation(pfcands, dynamic_cast<const reco::Candidate *>(&(*subleadEle)), 0.05, 0.2, 10., false));
+
+	    /////quantities which were used for Run1 - these do not
+	    ///calculated through PF (meaning no energy is subtracted
+	    ///using PF)
+	    ///https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_2_2/doc/html/d9/d44/ElectronIDValueMapProducer_8cc_source.html
+	    ///line 120
+
+	    eleSigmaIEtaIEtaFull5x5_sublead_    .push_back(subleadEle->full5x5_sigmaIetaIeta());
+	    eleSigmaIPhiIPhiFull5x5_sublead_    .push_back(subleadEle->full5x5_sigmaIphiIphi());
+	    eleE1x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e1x5());
+	    eleE2x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e2x5Max());
+	    eleE5x5Full5x5_sublead_             .push_back(subleadEle->full5x5_e5x5());
+	    eleR9Full5x5_sublead_               .push_back(subleadEle->full5x5_r9());
+
+	    ///For HEEP ID
+	    eleEcalDrivenSeed_sublead_          .push_back(subleadEle->ecalDrivenSeed());
+	    eleDr03EcalRecHitSumEt_sublead_     .push_back(subleadEle->dr03EcalRecHitSumEt());
+	    eleDr03HcalDepth1TowerSumEt_sublead_.push_back(subleadEle->dr03HcalDepth1TowerSumEt());
+	    eleDr03HcalDepth2TowerSumEt_sublead_.push_back(subleadEle->dr03HcalDepth2TowerSumEt());
+	    eleDr03HcalTowerSumEt_sublead_      .push_back(subleadEle->dr03HcalTowerSumEt());
+	    eleDr03TkSumPt_sublead_             .push_back(subleadEle->dr03TkSumPt());
+
+	    reco::GsfTrackRef subleadgsfTrackRef = subleadEle->gsfTrack();
+
+	    if (subleadEle->gsfTrack().isNonnull()) {
+	      eleGSFChi2_sublead_.push_back(subleadgsfTrackRef->normalizedChi2());
+	      if (recVtxs->size() > 0)
+		eleTrkdxy_sublead_.push_back(subleadgsfTrackRef->dxy(recVtxs->front().position()));
+	      else
+		eleTrkdxy_sublead_.push_back(-999);
+	    } else {
+	      eleGSFChi2_sublead_.push_back(999.);
+	      eleTrkdxy_sublead_.push_back(-999);
+	    }
+	    
+	    reco::TrackRef subleadkfTrackRef = subleadEle->closestCtfTrackRef();
+
+	    if (subleadkfTrackRef.isAvailable() && subleadkfTrackRef.isNonnull()) {
+	      eleKFHits_sublead_.push_back(subleadkfTrackRef->hitPattern().trackerLayersWithMeasurement());
+	      eleKFChi2_sublead_.push_back(subleadkfTrackRef->normalizedChi2());
+	    } else {
+	      eleKFHits_sublead_.push_back(-1.);
+	      eleKFChi2_sublead_.push_back(999.);
+	    }
+
+	    //edm::Ptr<reco::GsfElectron> recoEl(subleadEle);      
+	    //const auto el = electrons->ptrAt(nEle_);
+	    const auto subleadel = electronHandle->ptrAt(subleadEle - electronHandle->begin());
+	   
+	    unsigned short subleadtmpeleIDbit = 0;
+	   
+	    ///el->electronID("cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto") also works
+
+	    isPassVeto  = (*veto_id_decisions)[subleadel];
+	    if (isPassVeto) setbit(subleadtmpeleIDbit, 0);
+	
+	    isPassLoose  = (*loose_id_decisions)[subleadel];
+	    if (isPassLoose) setbit(subleadtmpeleIDbit, 1);
+
+	    isPassMedium = (*medium_id_decisions)[subleadel];
+	    if (isPassMedium) setbit(subleadtmpeleIDbit, 2);
+
+	    isPassTight  = (*tight_id_decisions)[subleadel];
+	    if (isPassTight) setbit(subleadtmpeleIDbit, 3);
+
+	    isPassHEEP = (*heep_id_decisions)[subleadel];
+	    if (isPassHEEP) setbit(subleadtmpeleIDbit, 4);
+
+	    eleIDMVAIso_sublead_  .push_back((*eleMVAIsoValues)[subleadel]);
+	    eleIDMVANoIso_sublead_.push_back((*eleMVANoIsoValues)[subleadel]);
+
+	    elePFClusEcalIso_sublead_.push_back(subleadEle->ecalPFClusterIso());
+	    elePFClusHcalIso_sublead_.push_back(subleadEle->hcalPFClusterIso());
+
+	    eleIDbit_sublead_.push_back(subleadtmpeleIDbit);
+
+
+
+
+	    nEle_++;
+	  }
+	}
+      }
+    }
+
+  }
 
 }
 

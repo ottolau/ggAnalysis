@@ -26,6 +26,8 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              trgFilterDeltaRCut   = cms.double(0.3),
 
                              triggerEvent         = cms.InputTag("slimmedPatTrigger", "", ""),
+                             #triggerEvent         = cms.InputTag("selectedPatTrigger", "", ""),
+                             #triggerEvent         = cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
                              triggerResults       = cms.InputTag("TriggerResults", "", "HLT"),
                              patTriggerResults    = cms.InputTag("TriggerResults", "", "PAT"),
                              #patTriggerResults    = cms.InputTag("TriggerResults", "", "RECO"),
@@ -85,5 +87,7 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              elePFClusEcalIsoProducer = cms.InputTag("electronEcalPFClusterIsolationProducer"),
                              elePFClusHcalIsoProducer = cms.InputTag("electronHcalPFClusterIsolationProducer"),
                              BadChargedCandidateFilter = cms.InputTag("BadChargedCandidateFilter"),
-                             BadPFMuonFilter           = cms.InputTag("BadPFMuonFilter")
+                             BadPFMuonFilter           = cms.InputTag("BadPFMuonFilter"),
+                             lostTracks      = cms.InputTag("lostTracks")
+
 )

@@ -90,5 +90,7 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              elePFClusEcalIsoProducer = cms.InputTag("electronEcalPFClusterIsolationProducer"),
                              elePFClusHcalIsoProducer = cms.InputTag("electronHcalPFClusterIsolationProducer"),
                              BadChargedCandidateFilter = cms.InputTag("BadChargedCandidateFilter"),
-                             BadPFMuonFilter           = cms.InputTag("BadPFMuonFilter")
+                             BadPFMuonFilter           = cms.InputTag("BadPFMuonFilter"),
+                             lostTracks      = cms.InputTag("lostTracks")
+
 )
