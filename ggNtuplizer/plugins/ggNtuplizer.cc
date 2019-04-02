@@ -160,11 +160,27 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
     AK8jetResolutionSF_ = JME::JetResolutionScaleFactor::get(es, "AK8PFchs");
   }
 
+
   edm::Handle<reco::VertexCollection> vtxHandle;
   e.getByToken(vtxLabel_, vtxHandle);
 
-  reco::Vertex vtx;
 
+  initTriggerFilters(e);
+  fillGlobalEvent(e, es);
+
+  edm::Handle<edm::View<pat::Muon> > muonHandle;
+  e.getByToken(muonCollection_, muonHandle);
+  double thetagmu_vz = 0.0;
+
+  for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+    if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) {
+      thetagmu_vz = iMu->vz();
+      break;
+    }
+  }
+
+  reco::Vertex vtx;
+  double thetagmuPvDz = 1.e+10;
   // best-known primary vertex coordinates
   math::XYZPoint pv(0, 0, 0);
   for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v) {
@@ -173,14 +189,13 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
     bool isFake = isAOD_ ? v->isFake() : (v->chi2() == 0 && v->ndof() == 0);
 
     if (!isFake) {
-      pv.SetXYZ(v->x(), v->y(), v->z());
-      vtx = *v;
-      break;
+      if (fabs(v->z() - thetagmu_vz) < thetagmuPvDz) {
+        pv.SetXYZ(v->x(), v->y(), v->z());
+        vtx = *v;
+        thetagmuPvDz = fabs(v->z() - thetagmu_vz);
+      }
     }
   }
-
-  initTriggerFilters(e);
-  fillGlobalEvent(e, es);
 
   if (!e.isRealData()) {
     //fillGenInfo(e);
@@ -191,7 +206,7 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //fillMET(e, es);
   //fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
   //fillPFPhotons(e, es);
-  fillElectrons(e, es, pv);
+  fillElectrons(e, es, pv, vtx);
   if (separateVtxFit_) fillHadrons(e, es, pv);
 
   if (runHFElectrons_ ) fillHFElectrons(e);

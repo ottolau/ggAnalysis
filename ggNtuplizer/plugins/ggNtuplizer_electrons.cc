@@ -200,6 +200,7 @@ vector<UShort_t> eleIDbit_sublead_;
 
 vector<float> eleSvChi2_;
 vector<float> eleSvNDOF_;
+vector<float> eleSvProb_;
 vector<float> eleSvX_;
 vector<float> eleSvY_;
 vector<float> eleSvZ_;
@@ -209,6 +210,8 @@ vector<float> eleSvZError_;
 vector<float> eleSvMass_;
 vector<float> eleSvCtxy_;
 vector<float> eleSvCosAngle_;
+vector<float> eleSvLxy_;
+vector<float> eleSvLxyError_;
 
 vector<int>    kaonEECharge_lead_;
 vector<float>  kaonEED0_lead_;
@@ -402,6 +405,7 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
 
   tree->Branch("eleSvChi2",                    &eleSvChi2_);
   tree->Branch("eleSvNDOF",                    &eleSvNDOF_);
+  tree->Branch("eleSvProb",                    &eleSvProb_);
   tree->Branch("eleSvX",                       &eleSvX_);
   tree->Branch("eleSvY",                       &eleSvY_);
   tree->Branch("eleSvZ",                       &eleSvZ_);
@@ -411,6 +415,8 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   tree->Branch("eleSvMass",                    &eleSvMass_);
   tree->Branch("eleSvCtxy",                    &eleSvCtxy_);
   tree->Branch("eleSvCosAngle",                    &eleSvCosAngle_);
+  tree->Branch("eleSvLxy",                    	   &eleSvLxy_);
+  tree->Branch("eleSvLxyError",                    &eleSvLxyError_);
 
   tree->Branch("kaonEECharge_lead",               &kaonEECharge_lead_);
   tree->Branch("kaonEED0_lead",                   &kaonEED0_lead_);
@@ -455,7 +461,7 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
   
 }
 
-void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, math::XYZPoint &pv) {
+void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, math::XYZPoint &pv, reco::Vertex vtx) {
     
   // cleanup from previous execution
   eleCharge_lead_                  .clear();
@@ -610,6 +616,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
   eleSvChi2_.clear();
   eleSvNDOF_.clear();
+  eleSvProb_.clear();
   eleSvX_.clear();
   eleSvY_.clear();
   eleSvZ_.clear();
@@ -619,6 +626,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   eleSvMass_.clear();
   eleSvCtxy_.clear();
   eleSvCosAngle_.clear();
+  eleSvLxy_.clear();
+  eleSvLxyError_.clear();
 
   kaonEECharge_lead_                  .clear();
   kaonEED0_lead_                      .clear();
@@ -722,15 +731,20 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
     EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
     noZS::EcalClusterLazyTools lazyToolnoZS(e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
 
+    VertexDistanceXY vertTool;
 
     for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
+      if (fabs(iEle->vz() - pv.z()) > 1.0) continue;
+
       for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
-	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	//if (iEle->charge()*jEle->charge() > 0.0) continue;
+	if (fabs(jEle->vz() - pv.z()) > 1.0) continue;
 	float pmass  = 0.0005109989461;
 	TLorentzVector iele_lv, jele_lv;
 	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
 	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
-	if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
+	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
+	if ((iele_lv + jele_lv).M() > 5.0) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	std::vector<RefCountedKinematicParticle> XParticles;
@@ -749,23 +763,28 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	KinematicConstrainedVertexFitter kvFitter;
 	RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
 	//KinVtx->movePointerToTheTop();
 	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
 	//for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
 	for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
+	  if (iHad->pt() < 0.4) continue;
 	  if (fabs(iHad->eta()) > 2.5) continue;
-	  if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+	  //if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+          if (fabs(iHad->vz() - pv.z()) > 1.0) continue;
 	  if (iHad->normalizedChi2() < 0.0) continue;
 	  if (iHad->normalizedChi2() > 20.0) continue;
 
 	  //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-	    if (iHad->charge()*jHad->charge() > 0.0) continue;
-	    if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    if (jHad->pt() <  0.4) continue;
+	    //if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    if (fabs(jHad->vz() - pv.z()) > 1.0) continue;
 	    if (jHad->normalizedChi2() < 0.0) continue;
-	    if (jHad->normalizedChi2() > 20) continue;
+	    if (jHad->normalizedChi2() > 20.0) continue;
 
 	    // Phi mass window
 	    float kpmass = 0.493677;
@@ -774,7 +793,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
 	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
 	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-	    if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.5 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
 	    if (fabs(jHad->eta()) > 2.5) continue;
 
 	    std::vector<RefCountedKinematicParticle> BsParticles;
@@ -795,7 +815,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
 
 	    if (DecayVtx->chiSquared() < 0.0) continue;
-	    if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	    //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
 
 	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
@@ -813,6 +833,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
 	    eleSvChi2_.push_back(DecayVtx->chiSquared());
 	    eleSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+	    eleSvProb_.push_back(TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()));
 	    eleSvX_.push_back(DecayVtx->position().x());
 	    eleSvY_.push_back(DecayVtx->position().y());
 	    eleSvZ_.push_back(DecayVtx->position().z());
@@ -822,6 +843,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
 	    eleSvCtxy_.push_back(ctxy);
 	    eleSvCosAngle_.push_back(cosAngle);
+	    eleSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
+	    eleSvLxyError_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).error());
 
 	    kaonEECharge_lead_            .push_back(leadHad->charge());
 	    kaonEED0_lead_                .push_back(leadHad->dxy(pv));
@@ -1252,15 +1275,20 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
     EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
     noZS::EcalClusterLazyTools lazyToolnoZS(e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
 
+    VertexDistanceXY vertTool;
 
     for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
+      if (fabs(iEle->vz() - pv.z()) > 1.0) continue;
+
       for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
-	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	//if (iEle->charge()*jEle->charge() > 0.0) continue;
+	if (fabs(jEle->vz() - pv.z()) > 1.0) continue;
 	float pmass  = 0.0005109989461;
 	TLorentzVector iele_lv, jele_lv;
 	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
 	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
-	if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
+	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
+	if ((iele_lv + jele_lv).M() > 5.0) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	std::vector<RefCountedKinematicParticle> XParticles;
@@ -1279,29 +1307,32 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	KinematicConstrainedVertexFitter kvFitter;
 	RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 ||  KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
 	//KinVtx->movePointerToTheTop();
 	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
 	for (pat::PackedCandidateCollection::const_iterator iHad = alltracks.begin(); iHad != alltracks.end(); ++iHad) {
 	//for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-	  //if (iHad->pt() <= 0.5) continue;
+	  if (iHad->pt() <= 0.4) continue;
           if (iHad->charge() == 0) continue;
           if (abs(iHad->pdgId()) != 211) continue;
           if (iHad->bestTrack() == nullptr) continue;
 	  if (fabs(iHad->eta()) > 2.5) continue;
-	  if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+	  //if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
+	  if (fabs(iHad->vz() - pv.z()) > 1.0) continue;
 	  //if (iHad->normalizedChi2() < 0.0) continue;
 	  //if (iHad->normalizedChi2() > 20.0) continue;
 
 	  for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != alltracks.end(); ++jHad) {
 	  //for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-	    //if (jHad->pt() <= 0.5) continue;
+	    if (jHad->pt() <= 0.4) continue;
             if (jHad->charge() == 0) continue;
             if (abs(jHad->pdgId()) != 211) continue;
             if (jHad->bestTrack() == nullptr) continue;
-	    if (iHad->charge()*jHad->charge() > 0.0) continue;
-	    if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    //if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    if (fabs(jHad->vz() - pv.z()) > 1.0) continue;
 	    //if (jHad->normalizedChi2() < 0.0) continue;
 	    //if (jHad->normalizedChi2() > 20) continue;
 
@@ -1312,7 +1343,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
 	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
 	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-	    if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
+	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.0 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
 	    if (fabs(jHad->eta()) > 2.5) continue;
 
 	    std::vector<RefCountedKinematicParticle> BsParticles;
@@ -1333,7 +1365,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    RefCountedKinematicVertex DecayVtx = BsKinVtx->currentDecayVertex();
 
 	    if (DecayVtx->chiSquared() < 0.0) continue;
-	    if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	    //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
 
 	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
@@ -1351,6 +1383,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
 	    eleSvChi2_.push_back(DecayVtx->chiSquared());
 	    eleSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
+	    eleSvProb_.push_back(TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()));
 	    eleSvX_.push_back(DecayVtx->position().x());
 	    eleSvY_.push_back(DecayVtx->position().y());
 	    eleSvZ_.push_back(DecayVtx->position().z());
@@ -1360,6 +1393,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
 	    eleSvCtxy_.push_back(ctxy);
 	    eleSvCosAngle_.push_back(cosAngle);
+	    eleSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
+	    eleSvLxyError_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).error());
 
 	    kaonEECharge_lead_            .push_back(leadHad->charge());
 	    kaonEED0_lead_                .push_back(leadHad->dxy(pv));

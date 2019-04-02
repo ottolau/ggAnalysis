@@ -16,8 +16,8 @@ if __name__ == '__main__':
     config.General.workArea     = 'crab_projects_ntuples'
     config.General.transferLogs = False
     config.JobType.pluginName   = 'Analysis' # PrivateMC
-    #config.JobType.psetName     = 'run_data_101X_BsToJPsiPhi_aod.py'
-    config.JobType.psetName     = 'run_data_101X_BsToJPsiPhi_mini.py'
+    config.JobType.psetName     = 'run_data_101X_BsToJPsiPhi_aod.py'
+    #config.JobType.psetName     = 'run_data_101X_BsToJPsiPhi_mini.py'
     config.JobType.inputFiles   = ['Summer16_23Sep2016BCDV4_DATA_L2Relative_AK8PFchs.txt', 'Summer16_23Sep2016BCDV4_DATA_L3Absolute_AK8PFchs.txt', 'Summer16_23Sep2016BCDV4_DATA_L2L3Residual_AK8PFchs.txt', 'Summer16_23Sep2016AllV4_DATA.db']
     config.JobType.sendExternalFolder = True
     config.Data.inputDBS        = 'global'    
@@ -48,7 +48,10 @@ if __name__ == '__main__':
     #config.General.requestName = 'ParkingBPH5_Run2018B-PromptReco-v1_AOD_08Oct18_JPsiPhi_4tracks_trigMu9IP6'
     #config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_MINIAOD_01Nov18_JPsiPhi_4tracks_newTree'
     #config.General.requestName = 'ParkingBPH5_Run2018B-PromptReco-v1_MINIAOD_01Nov18_JPsiPhi_4tracks_newTree'
-    config.General.requestName = 'ParkingBPH5_Run2018D-PromptReco-v2_MINIAOD_01Nov18_JPsiPhi_4tracks_newTree'
+    #config.General.requestName = 'ParkingBPH1_Run2018D-PromptReco-v2_MINIAOD_01Nov18_JPsiPhi_4tracks_newTree'
+    #config.General.requestName = 'ParkingBPH6_Run2018A-14May2018-v1_AOD_18Feb19_BsPhiLL_newTree'
+    #config.General.requestName = 'ParkingBPH5_Run2018B-PromptReco-v1_AOD_02Mar19_BsPhiLL_newTree'
+    config.General.requestName = 'ParkingBPH5_Run2018D-PromptReco-v2_AOD_03Mar19_BsPhiLL_newTree'
 
     config.Data.unitsPerJob    = 5
     #config.Data.inputDataset   = '/DoubleMuon/Run2016B-23Sep2016-v3/MINIAOD'
@@ -60,7 +63,8 @@ if __name__ == '__main__':
     #config.Data.inputDataset   = '/ParkingBPH5/Run2018B-PromptReco-v1/AOD'
     #config.Data.inputDataset   = '/ParkingBPH6/Run2018A-14May2018-v1/MINIAOD'
     #config.Data.inputDataset   = '/ParkingBPH5/Run2018B-PromptReco-v1/MINIAOD'
-    config.Data.inputDataset   = '/ParkingBPH5/Run2018D-PromptReco-v2/MINIAOD'
+    #config.Data.inputDataset   = '/ParkingBPH1/Run2018D-PromptReco-v2/MINIAOD'
+    config.Data.inputDataset   = '/ParkingBPH5/Run2018D-PromptReco-v2/AOD'
 
     config.Data.outLFNDirBase  = '/store/user/klau/'
     p = Process(target=submit, args=(config,))

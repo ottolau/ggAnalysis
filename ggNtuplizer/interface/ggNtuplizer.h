@@ -44,6 +44,7 @@
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 
 using namespace std;
 
@@ -98,7 +99,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillMET        (const edm::Event&, const edm::EventSetup&);
   void fillPhotons    (const edm::Event&, const edm::EventSetup&);
   void fillPFPhotons  (const edm::Event&, const edm::EventSetup&);
-  void fillElectrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&);
+  void fillElectrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
   void fillHadrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&);
   void fillHFElectrons(const edm::Event&);
   void fillMuons      (const edm::Event&, math::XYZPoint&, const reco::Vertex);
