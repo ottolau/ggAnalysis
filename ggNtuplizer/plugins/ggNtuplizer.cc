@@ -96,6 +96,11 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   tok_eleTtk_ = consumes< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> >(edm::InputTag("ttk","eleTtkMap"));
   deDxProducer_ = consumes<reco::DeDxDataValueMap>(edm::InputTag("dedxHarmonic2"));
 
+  lowpTelectronlabel_            = consumes<std::vector<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("lowpTelectrons"));
+  eleBWPToken_               = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleBiasedWP"));
+  eleUnBWPToken_             = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleUnbiasedWP"));
+
+
   // Photon ID in VID framwork 
   phoLooseIdMapToken_             = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoLooseIdMap"));
   phoMediumIdMapToken_            = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoMediumIdMap"));
@@ -128,12 +133,13 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   //branchesMET(tree_);
   //branchesPhotons(tree_);
   if (dumpPhotons_) branchesPFPhotons(tree_);
-  branchesElectrons(tree_);
+  //branchesElectrons(tree_);
   if (separateVtxFit_) branchesHadrons(tree_);
   if (runHFElectrons_) branchesHFElectrons(tree_);
-  branchesMuons(tree_);
+  //branchesMuons(tree_);
   if (dumpTaus_) branchesTaus(tree_);
   if (dumpJets_) branchesJets(tree_);
+  branchesLowPtElectrons(tree_);
 }
 
 ggNtuplizer::~ggNtuplizer() {
@@ -206,13 +212,14 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //fillMET(e, es);
   //fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
   //fillPFPhotons(e, es);
-  fillElectrons(e, es, pv, vtx);
+  //fillElectrons(e, es, pv, vtx);
   if (separateVtxFit_) fillHadrons(e, es, pv);
 
   if (runHFElectrons_ ) fillHFElectrons(e);
-  fillMuons(e, pv, vtx);
+  //fillMuons(e, pv, vtx);
   if (dumpTaus_) fillTaus(e);
   if (dumpJets_) fillJets(e,es);
+  fillLowPtElectrons(e, es, pv, vtx);
 
   hEvents_->Fill(1.5);
   tree_->Fill();
@@ -222,6 +229,12 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
 const reco::TransientTrack ggNtuplizer::getTransientTrack(const reco::Track& track) {   
     //OAEParametrizedMagneticField *paramField = new OAEParametrizedMagneticField("3_8T"); 
     const reco::TransientTrack transientTrack(track, paramField);
+    return transientTrack;
+}
+
+const reco::TransientTrack ggNtuplizer::getTransientTrack(const reco::GsfTrack& track) {    
+    reco::GsfTransientTrack gsfTransientTrack(track, paramField);
+    reco::TransientTrack transientTrack(gsfTransientTrack.track(), paramField);
     return transientTrack;
 }
 

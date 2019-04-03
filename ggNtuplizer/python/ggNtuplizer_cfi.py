@@ -91,6 +91,9 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              elePFClusHcalIsoProducer = cms.InputTag("electronHcalPFClusterIsolationProducer"),
                              BadChargedCandidateFilter = cms.InputTag("BadChargedCandidateFilter"),
                              BadPFMuonFilter           = cms.InputTag("BadPFMuonFilter"),
-                             lostTracks      = cms.InputTag("lostTracks")
+                             lostTracks      = cms.InputTag("lostTracks"),
+                             lowpTelectrons  = cms.InputTag("lowPtGsfElectrons"),
+                             eleBiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","ptbiased","RECO"),
+                             eleUnbiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","unbiased","RECO")
 
 )

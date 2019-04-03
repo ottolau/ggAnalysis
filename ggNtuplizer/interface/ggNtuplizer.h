@@ -87,11 +87,12 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void branchesPhotons    (TTree*);
   void branchesPFPhotons  (TTree*);
   void branchesElectrons  (TTree*);
-  void branchesHadrons  (TTree*);
+  void branchesHadrons    (TTree*);
   void branchesHFElectrons(TTree*);
   void branchesMuons      (TTree*);
   void branchesTaus       (TTree*);
   void branchesJets       (TTree*);
+  void branchesLowPtElectrons(TTree*);
 
   void fillGlobalEvent(const edm::Event&, const edm::EventSetup&);
   void fillGenInfo    (const edm::Event&);
@@ -100,12 +101,14 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillPhotons    (const edm::Event&, const edm::EventSetup&);
   void fillPFPhotons  (const edm::Event&, const edm::EventSetup&);
   void fillElectrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
-  void fillHadrons  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&);
+  void fillHadrons    (const edm::Event&, const edm::EventSetup&, math::XYZPoint&);
   void fillHFElectrons(const edm::Event&);
   void fillMuons      (const edm::Event&, math::XYZPoint&, const reco::Vertex);
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
+  void fillLowPtElectrons(const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
   const reco::TransientTrack getTransientTrack(const reco::Track& track);
+  const reco::TransientTrack getTransientTrack(const reco::GsfTrack& track);
   OAEParametrizedMagneticField *paramField = new OAEParametrizedMagneticField("3_8T"); 
 
   void cleanupPhotons();
@@ -203,6 +206,10 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetToken gsfEle_;
   edm::EDGetTokenT< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> > tok_eleTtk_;
   edm::EDGetTokenT< reco::DeDxDataValueMap > deDxProducer_;  
+  edm::EDGetToken lowpTelectronlabel_;
+  edm::EDGetTokenT<edm::ValueMap<float> > eleBWPToken_;
+  edm::EDGetTokenT<edm::ValueMap<float> > eleUnBWPToken_;
+
 
   string processName_;
   HLTConfigProvider hltConfig_;
