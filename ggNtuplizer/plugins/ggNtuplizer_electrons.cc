@@ -691,9 +691,9 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
   //  const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
 
 
-    edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
-    e.getByToken( tok_eleTtk_, eleTrackMap);
-    std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> eletrks = *(eleTrackMap.product());
+    //edm::Handle< std::vector< std::pair<edm::Ptr<pat::Electron>, reco::Track> > > eleTrackMap;
+    //e.getByToken( tok_eleTtk_, eleTrackMap);
+    //std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> eletrks = *(eleTrackMap.product());
 
     if (!electronHandle.isValid()) {
       edm::LogWarning("ggNtuplizer") << "no pat::Electrons in event";
@@ -734,11 +734,13 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
     VertexDistanceXY vertTool;
 
     for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
-      if (fabs(iEle->vz() - pv.z()) > 1.0) continue;
+      if (iEle->pt() < 0.8) continue;
+      if (fabs(iEle->vz() - pv.z()) > 0.5) continue;
 
       for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
+	if (jEle->pt() < 0.8) continue;
 	//if (iEle->charge()*jEle->charge() > 0.0) continue;
-	if (fabs(jEle->vz() - pv.z()) > 1.0) continue;
+	if (fabs(jEle->vz() - pv.z()) > 0.5) continue;
 	float pmass  = 0.0005109989461;
 	TLorentzVector iele_lv, jele_lv;
 	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
@@ -747,42 +749,42 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	if ((iele_lv + jele_lv).M() > 5.0) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
-	std::vector<RefCountedKinematicParticle> XParticles;
+	//std::vector<RefCountedKinematicParticle> XParticles;
 	float pmasse = 1.e-6 * pmass;
-	reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
-	reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
-	const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
-	const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
+	//reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
+	//reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
+	//const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
+	//const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
 
 	//XParticles.push_back(pFactory.particle(getTransientTrack( ieletrk ), pmass, 0.0, 0, pmasse));
 	//XParticles.push_back(pFactory.particle(getTransientTrack( jeletrk ), pmass, 0.0, 0, pmasse));
 
-	XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
-	XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
+	//XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
+	//XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
 
-	KinematicConstrainedVertexFitter kvFitter;
-	RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+	//KinematicConstrainedVertexFitter kvFitter;
+	//RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
 	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
-	if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
+	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
 	//KinVtx->movePointerToTheTop();
 	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
 
 	//for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
 	for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-	  if (iHad->pt() < 0.4) continue;
+	  if (iHad->pt() < 0.8) continue;
 	  if (fabs(iHad->eta()) > 2.5) continue;
 	  //if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
-          if (fabs(iHad->vz() - pv.z()) > 1.0) continue;
+          if (fabs(iHad->vz() - pv.z()) > 0.5) continue;
 	  if (iHad->normalizedChi2() < 0.0) continue;
 	  if (iHad->normalizedChi2() > 20.0) continue;
 
 	  //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
 	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
-	    if (jHad->pt() <  0.4) continue;
+	    if (jHad->pt() <  0.8) continue;
 	    //if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
-	    if (fabs(jHad->vz() - pv.z()) > 1.0) continue;
+	    if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
 	    if (jHad->normalizedChi2() < 0.0) continue;
 	    if (jHad->normalizedChi2() > 20.0) continue;
 
@@ -803,8 +805,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
 	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
 	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
-	    BsParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
-	    BsParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
+	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 
 	    //BsParticles.push_back(jpsi_part);
 

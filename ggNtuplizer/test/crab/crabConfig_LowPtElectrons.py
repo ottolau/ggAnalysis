@@ -28,7 +28,8 @@ if __name__ == '__main__':
     config.Data.publication     = False
     #config.Data.lumiMask        = 'testjson.txt'
     #config.Data.lumiMask        = 'Cert_314472-317080_13TeV_PromptReco_Collisions18_JSON.txt'
-    config.Data.lumiMask        = 'Cert_314472-323523_13TeV_PromptReco_Collisions18_JSON.txt'
+    #config.Data.lumiMask        = 'Cert_314472-323523_13TeV_PromptReco_Collisions18_JSON.txt'
+    config.Data.lumiMask        = 'Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
 
     config.Site.storageSite     = 'T3_US_FNALLPC'
     config.JobType.maxMemoryMB = 4000
@@ -42,10 +43,11 @@ if __name__ == '__main__':
 
     # dataset dependent configuration
 
-    config.General.requestName = 'ParkingBPH1_Run2018A-22Mar2019-v1_AOD_02Apr19_BsPhiLL_lowPtElectrons'
+    config.General.requestName = 'ParkingBPH1_Run2018A-22Mar2019-v1_AOD_04Apr19_BsPhiLL_lowPtElectrons'
 
     config.Data.unitsPerJob    = 5
     config.Data.inputDataset   = '/ParkingBPH1/Run2018A-22Mar2019-v1/AOD'
+    #config.Data.inputDataset   = '/ParkingBPH5/Run2018D-20Mar2019-v1/AOD'
 
     config.Data.outLFNDirBase  = '/store/user/klau/LowPtElectrons'
     p = Process(target=submit, args=(config,))
