@@ -94,6 +94,7 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              lostTracks      = cms.InputTag("lostTracks"),
                              lowpTelectrons  = cms.InputTag("lowPtGsfElectrons"),
                              eleBiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","ptbiased","RECO"),
-                             eleUnbiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","unbiased","RECO")
+                             eleUnbiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","unbiased","RECO"),
+                             conversions = cms.InputTag("allConversions")
 
 )

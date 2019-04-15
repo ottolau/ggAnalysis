@@ -99,6 +99,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   lowpTelectronlabel_            = consumes<std::vector<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("lowpTelectrons"));
   eleBWPToken_               = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleBiasedWP"));
   eleUnBWPToken_             = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleUnbiasedWP"));
+  conversionsToken_          = consumes<reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
 
 
   // Photon ID in VID framwork 

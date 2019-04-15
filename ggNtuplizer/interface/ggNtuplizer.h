@@ -209,6 +209,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetToken lowpTelectronlabel_;
   edm::EDGetTokenT<edm::ValueMap<float> > eleBWPToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > eleUnBWPToken_;
+  edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
 
 
   string processName_;
