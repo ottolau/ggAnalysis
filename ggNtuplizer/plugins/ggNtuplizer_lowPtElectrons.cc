@@ -3,6 +3,8 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 //#include "EgammaAnalysis/ElectronTools/interface/EnergyScaleCorrection_class.h"
 
@@ -56,6 +58,9 @@ vector<float>  lowPtDzError_lead_;
 vector<float>  lowPtPt_lead_;
 vector<float>  lowPtEta_lead_;
 vector<float>  lowPtPhi_lead_;
+vector<float>  lowPtPtMean_lead_;
+vector<float>  lowPtEtaMean_lead_;
+vector<float>  lowPtPhiMean_lead_;
 vector<float>  lowPtMVABWP_lead_;
 vector<float>  lowPtMVAUnBWP_lead_;
 
@@ -67,6 +72,9 @@ vector<float>  lowPtDzError_sublead_;
 vector<float>  lowPtPt_sublead_;
 vector<float>  lowPtEta_sublead_;
 vector<float>  lowPtPhi_sublead_;
+vector<float>  lowPtPtMean_sublead_;
+vector<float>  lowPtEtaMean_sublead_;
+vector<float>  lowPtPhiMean_sublead_;
 vector<float>  lowPtMVABWP_sublead_;
 vector<float>  lowPtMVAUnBWP_sublead_;
 
@@ -135,6 +143,9 @@ void ggNtuplizer::branchesLowPtElectrons(TTree* tree) {
   tree->Branch("lowPtPt_lead",                   &lowPtPt_lead_);
   tree->Branch("lowPtEta_lead",                  &lowPtEta_lead_);
   tree->Branch("lowPtPhi_lead",                  &lowPtPhi_lead_);
+  tree->Branch("lowPtPtMean_lead",               &lowPtPtMean_lead_);
+  tree->Branch("lowPtEtaMean_lead",              &lowPtEtaMean_lead_);
+  tree->Branch("lowPtPhiMean_lead",              &lowPtPhiMean_lead_);
   tree->Branch("lowPtMVABWP_lead",               &lowPtMVABWP_lead_);
   tree->Branch("lowPtMVAUnBWP_lead",             &lowPtMVAUnBWP_lead_);
 
@@ -146,6 +157,9 @@ void ggNtuplizer::branchesLowPtElectrons(TTree* tree) {
   tree->Branch("lowPtPt_sublead",                   &lowPtPt_sublead_);
   tree->Branch("lowPtEta_sublead",                  &lowPtEta_sublead_);
   tree->Branch("lowPtPhi_sublead",                  &lowPtPhi_sublead_);
+  tree->Branch("lowPtPtMean_sublead",               &lowPtPtMean_sublead_);
+  tree->Branch("lowPtEtaMean_sublead",              &lowPtEtaMean_sublead_);
+  tree->Branch("lowPtPhiMean_sublead",              &lowPtPhiMean_sublead_);
   tree->Branch("lowPtMVABWP_sublead",               &lowPtMVABWP_sublead_);
   tree->Branch("lowPtMVAUnBWP_sublead",             &lowPtMVAUnBWP_sublead_);
 
@@ -214,6 +228,9 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
   lowPtPt_lead_                      .clear();
   lowPtEta_lead_                     .clear();
   lowPtPhi_lead_                     .clear();
+  lowPtPtMean_lead_                  .clear();
+  lowPtEtaMean_lead_                 .clear();
+  lowPtPhiMean_lead_                 .clear();
   lowPtMVABWP_lead_                  .clear();
   lowPtMVAUnBWP_lead_                .clear();
 
@@ -225,6 +242,9 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
   lowPtPt_sublead_                      .clear();
   lowPtEta_sublead_                     .clear();
   lowPtPhi_sublead_                     .clear();
+  lowPtPtMean_sublead_                  .clear();
+  lowPtEtaMean_sublead_                 .clear();
+  lowPtPhiMean_sublead_                 .clear();
   lowPtMVABWP_sublead_                  .clear();
   lowPtMVAUnBWP_sublead_                .clear();
 
@@ -295,6 +315,9 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
     edm::Handle<edm::ValueMap<float> > ele_mva_wp_unbiased;
     e.getByToken( eleUnBWPToken_ ,ele_mva_wp_unbiased);
 
+    edm::Handle<reco::ConversionCollection> conversions;
+    e.getByToken(conversionsToken_, conversions);  
+
     if (!lowpTelectronHandle.isValid()) {
       edm::LogWarning("ggNtuplizer") << "no low pT electrons in event";
       return;
@@ -306,25 +329,32 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
     VertexDistanceXY vertTool;
 
     for (reco::GsfElectronCollection::const_iterator iEle = lowpTelectronHandle->begin(); iEle != lowpTelectronHandle->end(); ++iEle) {
-      if (iEle->pt() < 0.8) continue;
-      if (fabs(iEle->vz() - pv.z()) > 0.5) continue;
+      if (iEle->gsfTrack()->ptMode() < 0.5) continue;
+      if (fabs(iEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
+      if (ConversionTools::hasMatchedConversion(*iEle, conversions, pv)) continue;
 
       for (reco::GsfElectronCollection::const_iterator jEle = iEle+1; jEle != lowpTelectronHandle->end(); ++jEle) {
-	if (jEle->pt() < 0.8) continue;
+	if (jEle->gsfTrack()->ptMode() < 0.5) continue;
 	//if (iEle->charge()*jEle->charge() > 0.0) continue;
-	if (fabs(jEle->vz() - pv.z()) > 0.5) continue;
+	if (fabs(jEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
+	if (ConversionTools::hasMatchedConversion(*jEle, conversions, pv)) continue;
+
 	float pmass  = 0.0005109989461;
 	TLorentzVector iele_lv, jele_lv;
-	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
-	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
+	//iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
+	//jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
+      	iele_lv.SetPtEtaPhiM(iEle->gsfTrack()->ptMode(), iEle->gsfTrack()->etaMode(), iEle->gsfTrack()->phiMode(), pmass);
+	jele_lv.SetPtEtaPhiM(jEle->gsfTrack()->ptMode(), jEle->gsfTrack()->etaMode(), jEle->gsfTrack()->phiMode(), pmass);
+
 	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
 	if ((iele_lv + jele_lv).M() > 5.0) continue;
 
-	auto leadEle = iEle->pt() > jEle->pt() ? iEle : jEle;
-	auto subleadEle = iEle->pt() > jEle->pt() ? jEle : iEle;
+	auto leadEle = iele_lv.Pt() > jele_lv.Pt() ? iEle : jEle;
+	auto subleadEle = iele_lv.Pt() > jele_lv.Pt() ? jEle : iEle;
 
 	//if ((*ele_mva_wp_biased)[leadEle->gsfTrack()] < 4.6) continue;
-	if ((*ele_mva_wp_unbiased)[leadEle->gsfTrack()] < 6.5) continue;
+	if ((*ele_mva_wp_unbiased)[leadEle->gsfTrack()] < 5.0) continue;
+	if ((*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] < 0.19) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	//std::vector<RefCountedKinematicParticle> XParticles;
@@ -446,27 +476,33 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    bsLowPtPhiMass_           .push_back((iHad_lv+jHad_lv).M());
 	    bsLowPtBsMass_            .push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
 
-	    lowPtCharge_lead_          .push_back(leadEle->charge());
+	    lowPtCharge_lead_          .push_back(leadEle->gsfTrack()->charge());
 	    lowPtD0_lead_              .push_back(leadEle->gsfTrack()->dxy(pv));
 	    lowPtDz_lead_              .push_back(leadEle->gsfTrack()->dz(pv));
 	    lowPtD0Error_lead_         .push_back(leadEle->gsfTrack()->dxyError());
 	    lowPtDzError_lead_         .push_back(leadEle->gsfTrack()->dzError());
-	    lowPtPt_lead_              .push_back(leadEle->pt());
-	    lowPtEta_lead_             .push_back(leadEle->eta());
-	    lowPtPhi_lead_             .push_back(leadEle->phi());
+	    lowPtPt_lead_              .push_back(leadEle->gsfTrack()->ptMode());
+	    lowPtEta_lead_             .push_back(leadEle->gsfTrack()->etaMode());
+	    lowPtPhi_lead_             .push_back(leadEle->gsfTrack()->phiMode());
+	    lowPtPtMean_lead_              .push_back(leadEle->gsfTrack()->pt());
+	    lowPtEtaMean_lead_             .push_back(leadEle->gsfTrack()->eta());
+	    lowPtPhiMean_lead_             .push_back(leadEle->gsfTrack()->phi());
 
 	    reco::GsfTrackRef mvaSeed_lead = leadEle->gsfTrack();
 	    lowPtMVABWP_lead_          .push_back((*ele_mva_wp_biased)[mvaSeed_lead]);
 	    lowPtMVAUnBWP_lead_     .push_back((*ele_mva_wp_unbiased)[mvaSeed_lead]);
 
-	    lowPtCharge_sublead_          .push_back(subleadEle->charge());
+	    lowPtCharge_sublead_          .push_back(subleadEle->gsfTrack()->charge());
 	    lowPtD0_sublead_              .push_back(subleadEle->gsfTrack()->dxy(pv));
 	    lowPtDz_sublead_              .push_back(subleadEle->gsfTrack()->dz(pv));
 	    lowPtD0Error_sublead_         .push_back(subleadEle->gsfTrack()->dxyError());
 	    lowPtDzError_sublead_         .push_back(subleadEle->gsfTrack()->dzError());
-	    lowPtPt_sublead_              .push_back(subleadEle->pt());
-	    lowPtEta_sublead_             .push_back(subleadEle->eta());
-	    lowPtPhi_sublead_             .push_back(subleadEle->phi());
+	    lowPtPt_sublead_              .push_back(subleadEle->gsfTrack()->ptMode());
+	    lowPtEta_sublead_             .push_back(subleadEle->gsfTrack()->etaMode());
+	    lowPtPhi_sublead_             .push_back(subleadEle->gsfTrack()->phiMode());
+	    lowPtPtMean_sublead_              .push_back(subleadEle->gsfTrack()->pt());
+	    lowPtEtaMean_sublead_             .push_back(subleadEle->gsfTrack()->eta());
+	    lowPtPhiMean_sublead_             .push_back(subleadEle->gsfTrack()->phi());
 
 	    reco::GsfTrackRef mvaSeed_sublead = subleadEle->gsfTrack();
 	    lowPtMVABWP_sublead_          .push_back((*ele_mva_wp_biased)[mvaSeed_sublead]);

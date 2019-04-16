@@ -734,11 +734,11 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
     VertexDistanceXY vertTool;
 
     for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
-      if (iEle->pt() < 0.8) continue;
+      if (iEle->pt() < 0.5) continue;
       if (fabs(iEle->vz() - pv.z()) > 0.5) continue;
 
       for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
-	if (jEle->pt() < 0.8) continue;
+	if (jEle->pt() < 0.5) continue;
 	//if (iEle->charge()*jEle->charge() > 0.0) continue;
 	if (fabs(jEle->vz() - pv.z()) > 0.5) continue;
 	float pmass  = 0.0005109989461;

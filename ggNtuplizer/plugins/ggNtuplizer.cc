@@ -96,10 +96,10 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   tok_eleTtk_ = consumes< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> >(edm::InputTag("ttk","eleTtkMap"));
   deDxProducer_ = consumes<reco::DeDxDataValueMap>(edm::InputTag("dedxHarmonic2"));
 
-  lowpTelectronlabel_            = consumes<std::vector<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("lowpTelectrons"));
+  lowpTelectronlabel_        = consumes<std::vector<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("lowpTelectrons"));
   eleBWPToken_               = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleBiasedWP"));
   eleUnBWPToken_             = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleUnbiasedWP"));
-
+  conversionsToken_          = consumes<reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
 
   // Photon ID in VID framwork 
   phoLooseIdMapToken_             = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoLooseIdMap"));
