@@ -346,8 +346,8 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
       	iele_lv.SetPtEtaPhiM(iEle->gsfTrack()->ptMode(), iEle->gsfTrack()->etaMode(), iEle->gsfTrack()->phiMode(), pmass);
 	jele_lv.SetPtEtaPhiM(jEle->gsfTrack()->ptMode(), jEle->gsfTrack()->etaMode(), jEle->gsfTrack()->phiMode(), pmass);
 
-	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
-	if ((iele_lv + jele_lv).M() > 5.0) continue;
+	if ((iele_lv + jele_lv).M() < 2.6 || (iele_lv + jele_lv).M() > 3.6) continue;
+	//if ((iele_lv + jele_lv).M() > 5.0) continue;
 
 	auto leadEle = iele_lv.Pt() > jele_lv.Pt() ? iEle : jEle;
 	auto subleadEle = iele_lv.Pt() > jele_lv.Pt() ? jEle : iEle;
@@ -379,6 +379,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
 	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
 	    if (jHad->pt() <  0.8) continue;
+	    if (fabs(jHad->eta()) > 2.5) continue;
 	    if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
 	    if (jHad->normalizedChi2() < 0.0) continue;
 	    if (jHad->normalizedChi2() > 20.0) continue;
@@ -389,9 +390,8 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
 	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
 	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
-	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.5 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
-	    if (fabs(jHad->eta()) > 2.5) continue;
+	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+	    if (bs_lv.M() < 4.5 || bs_lv.M() > 6.0) continue;
 
 	    std::vector<RefCountedKinematicParticle> BsParticles;
 	    float kpmasse = 1.e-6 * pmass;
@@ -433,7 +433,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    lowPtSvXError_.push_back(DecayVtx->error().cxx());
 	    lowPtSvYError_.push_back(DecayVtx->error().cyy());
 	    lowPtSvZError_.push_back(DecayVtx->error().czz());
-	    lowPtSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+	    lowPtSvMass_.push_back(bs_lv.M());
 	    lowPtSvCtxy_.push_back(ctxy);
 	    lowPtSvCosAngle_.push_back(cosAngle);
 	    lowPtSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());

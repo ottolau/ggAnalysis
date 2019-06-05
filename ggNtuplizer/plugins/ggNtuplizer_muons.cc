@@ -529,8 +529,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
         TLorentzVector iMu_lv, jMu_lv;
         iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), pmass);
         jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), pmass);      
-        //if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
-        if ((iMu_lv+jMu_lv).M() > 5.0) continue;
+        if (((iMu_lv+jMu_lv)).M() < 2.6 || (iMu_lv+jMu_lv).M() > 3.6) continue;
+        //if ((iMu_lv+jMu_lv).M() > 5.0) continue;
 
         KinematicParticleFactoryFromTransientTrack pFactory;  
         //std::vector<RefCountedKinematicParticle> XParticles;
@@ -566,10 +566,11 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
           for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
             //if (iHad->charge()*jHad->charge() > 0.0) continue;
             if (jHad->pt() < 0.8) continue;
+            if (fabs(jHad->eta()) > 2.5) continue;
             if (fabs(iMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
             if (fabs(jMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
             //if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
-            if (fabs(jHad->vz() - pv.z()) > 0.8) continue;
+            if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
             if (jHad->normalizedChi2() < 0.0) continue;
             if (jHad->normalizedChi2() > 20.0) continue;
 
@@ -582,9 +583,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);     
             bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
             //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-            if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-            if ((iMu_lv + jMu_lv + iHad_lv + jHad_lv).M() < 4.5 || (iMu_lv + jMu_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
-            if (fabs(jHad->eta()) > 2.5) continue;
+            if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if (bs_lv.M() < 4.5 || bs_lv.M() > 6.0) continue;
 
             std::vector<RefCountedKinematicParticle> BsParticles;
             float kpmasse = 1.e-6 * pmass;
@@ -626,7 +626,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muSvXError_.push_back(DecayVtx->error().cxx());
             muSvYError_.push_back(DecayVtx->error().cyy());
             muSvZError_.push_back(DecayVtx->error().czz());
-            muSvMass_.push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
+            muSvMass_.push_back(bs_lv.M());
             muSvCtxy_.push_back(ctxy);
             muSvCosAngle_.push_back(cosAngle);
             muSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
@@ -928,6 +928,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
           for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != alltracks.end(); ++jHad) {
 
             if (jHad->pt() < 0.8) continue;
+            if (fabs(jHad->eta()) > 2.5) continue;
             if (jHad->charge() == 0) continue;
             if (abs(jHad->pdgId()) != 211) continue;
             if (jHad->bestTrack() == nullptr) continue;
@@ -948,9 +949,8 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);     
             bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
             //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-            if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-            if ((iMu_lv + jMu_lv + iHad_lv + jHad_lv).M() < 4.5 || (iMu_lv + jMu_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
-            if (fabs(jHad->eta()) > 2.5) continue;
+            if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if (bs_lv.M() < 4.5 || bs_lv.M() > 6.0) continue;
 
             std::vector<RefCountedKinematicParticle> BsParticles;
             float kpmasse = 1.e-6 * pmass;
@@ -992,7 +992,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muSvXError_.push_back(DecayVtx->error().cxx());
             muSvYError_.push_back(DecayVtx->error().cyy());
             muSvZError_.push_back(DecayVtx->error().czz());
-            muSvMass_.push_back((iMu_lv+jMu_lv+iHad_lv+jHad_lv).M());
+            muSvMass_.push_back(bs_lv.M());
             muSvCtxy_.push_back(ctxy);
             muSvCosAngle_.push_back(cosAngle);
             muSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());

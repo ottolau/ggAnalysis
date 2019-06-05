@@ -745,8 +745,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	TLorentzVector iele_lv, jele_lv;
 	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
 	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
-	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
-	if ((iele_lv + jele_lv).M() > 5.0) continue;
+	if ((iele_lv + jele_lv).M() < 2.6 || (iele_lv + jele_lv).M() > 3.6) continue;
+	//if ((iele_lv + jele_lv).M() > 5.0) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	//std::vector<RefCountedKinematicParticle> XParticles;
@@ -783,6 +783,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
 	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
 	    if (jHad->pt() <  0.8) continue;
+	    if (fabs(jHad->eta()) > 2.5) continue;
 	    //if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
 	    if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
 	    if (jHad->normalizedChi2() < 0.0) continue;
@@ -795,9 +796,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
 	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
 	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.5 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
-	    if (fabs(jHad->eta()) > 2.5) continue;
+	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+	    if (bs_lv.M() < 4.5 || bs_lv.M() > 6.0) continue;
 
 	    std::vector<RefCountedKinematicParticle> BsParticles;
 	    float kpmasse = 1.e-6 * pmass;
@@ -842,7 +842,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eleSvXError_.push_back(DecayVtx->error().cxx());
 	    eleSvYError_.push_back(DecayVtx->error().cyy());
 	    eleSvZError_.push_back(DecayVtx->error().czz());
-	    eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+	    eleSvMass_.push_back(bs_lv.M());
 	    eleSvCtxy_.push_back(ctxy);
 	    eleSvCosAngle_.push_back(cosAngle);
 	    eleSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
@@ -1329,6 +1329,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	  for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != alltracks.end(); ++jHad) {
 	  //for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
 	    if (jHad->pt() <= 0.8) continue;
+	    if (fabs(jHad->eta()) > 2.5) continue;
             if (jHad->charge() == 0) continue;
             if (abs(jHad->pdgId()) != 211) continue;
             if (jHad->bestTrack() == nullptr) continue;
@@ -1345,9 +1346,8 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
 	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
 	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.5 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
-	    if (fabs(jHad->eta()) > 2.5) continue;
+	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+	    if (bs_lv.M() < 4.5 || bs_lv.M() > 6.0) continue;
 
 	    std::vector<RefCountedKinematicParticle> BsParticles;
 	    float kpmasse = 1.e-6 * pmass;
@@ -1392,7 +1392,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eleSvXError_.push_back(DecayVtx->error().cxx());
 	    eleSvYError_.push_back(DecayVtx->error().cyy());
 	    eleSvZError_.push_back(DecayVtx->error().czz());
-	    eleSvMass_.push_back((iele_lv+jele_lv+iHad_lv+jHad_lv).M());
+	    eleSvMass_.push_back(bs_lv.M());
 	    eleSvCtxy_.push_back(ctxy);
 	    eleSvCosAngle_.push_back(cosAngle);
 	    eleSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
