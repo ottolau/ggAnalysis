@@ -198,6 +198,21 @@ vector<float>  eleGSFChi2_sublead_;
 //vector<unsigned short> eleIDbit_sublead_;
 vector<UShort_t> eleIDbit_sublead_;
 
+vector<float> eleJpsiSvChi2_;
+vector<float> eleJpsiSvNDOF_;
+vector<float> eleJpsiSvProb_;
+vector<float> eleJpsiSvCtxy_;
+vector<float> eleJpsiSvCosAngle_;
+vector<float> eleJpsiSvLxy_;
+vector<float> eleJpsiSvLxyError_;
+vector<float> eleLambdaSvChi2_;
+vector<float> eleLambdaSvNDOF_;
+vector<float> eleLambdaSvProb_;
+vector<float> eleLambdaSvCtxy_;
+vector<float> eleLambdaSvCosAngle_;
+vector<float> eleLambdaSvLxy_;
+vector<float> eleLambdaSvLxyError_;
+
 vector<float> eleSvChi2_;
 vector<float> eleSvNDOF_;
 vector<float> eleSvProb_;
@@ -402,6 +417,21 @@ void ggNtuplizer::branchesElectrons(TTree* tree) {
 //  tree->Branch("eleFiredDoubleTrgs_sublead",          &eleFiredDoubleTrgs_sublead_);
 //  tree->Branch("eleFiredL1Trgs_sublead",              &eleFiredL1Trgs_sublead_);
   tree->Branch("eleIDbit_sublead",                    &eleIDbit_sublead_);
+
+  tree->Branch("eleJpsiSvChi2",                    &eleJpsiSvChi2_);
+  tree->Branch("eleJpsiSvNDOF",                    &eleJpsiSvNDOF_);
+  tree->Branch("eleJpsiSvProb",                    &eleJpsiSvProb_);
+  tree->Branch("eleJpsiSvCtxy",                    &eleJpsiSvCtxy_);
+  tree->Branch("eleJpsiSvCosAngle",                    &eleJpsiSvCosAngle_);
+  tree->Branch("eleJpsiSvLxy",                    	   &eleJpsiSvLxy_);
+  tree->Branch("eleJpsiSvLxyError",                    &eleJpsiSvLxyError_);
+  tree->Branch("eleLambdaSvChi2",                    &eleLambdaSvChi2_);
+  tree->Branch("eleLambdaSvNDOF",                    &eleLambdaSvNDOF_);
+  tree->Branch("eleLambdaSvProb",                    &eleLambdaSvProb_);
+  tree->Branch("eleLambdaSvCtxy",                    &eleLambdaSvCtxy_);
+  tree->Branch("eleLambdaSvCosAngle",                    &eleLambdaSvCosAngle_);
+  tree->Branch("eleLambdaSvLxy",                    	   &eleLambdaSvLxy_);
+  tree->Branch("eleLambdaSvLxyError",                    &eleLambdaSvLxyError_);
 
   tree->Branch("eleSvChi2",                    &eleSvChi2_);
   tree->Branch("eleSvNDOF",                    &eleSvNDOF_);
@@ -614,6 +644,21 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 //  eleIDbit_sublead_                   .clear();
   eleIDbit_sublead_                   .clear();
 
+  eleJpsiSvChi2_.clear();
+  eleJpsiSvNDOF_.clear();
+  eleJpsiSvProb_.clear();
+  eleJpsiSvCtxy_.clear();
+  eleJpsiSvCosAngle_.clear();
+  eleJpsiSvLxy_.clear();
+  eleJpsiSvLxyError_.clear();
+  eleLambdaSvChi2_.clear();
+  eleLambdaSvNDOF_.clear();
+  eleLambdaSvProb_.clear();
+  eleLambdaSvCtxy_.clear();
+  eleLambdaSvCosAngle_.clear();
+  eleLambdaSvLxy_.clear();
+  eleLambdaSvLxyError_.clear();
+
   eleSvChi2_.clear();
   eleSvNDOF_.clear();
   eleSvProb_.clear();
@@ -735,76 +780,123 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
     for (edm::View<pat::Electron>::const_iterator iEle = electronHandle->begin(); iEle != electronHandle->end(); ++iEle) {
       if (iEle->pt() < 0.5) continue;
-      if (fabs(iEle->vz() - pv.z()) > 0.5) continue;
+      if (fabs(iEle->vz() - pv.z()) > 1.0) continue;
 
       for (edm::View<pat::Electron>::const_iterator jEle = iEle+1; jEle != electronHandle->end(); ++jEle) {
 	if (jEle->pt() < 0.5) continue;
-	//if (iEle->charge()*jEle->charge() > 0.0) continue;
-	if (fabs(jEle->vz() - pv.z()) > 0.5) continue;
+	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	if (fabs(jEle->vz() - pv.z()) > 1.0) continue;
 	float pmass  = 0.0005109989461;
 	TLorentzVector iele_lv, jele_lv;
 	iele_lv.SetPtEtaPhiM(iEle->pt(), iEle->eta(), iEle->phi(), pmass);
 	jele_lv.SetPtEtaPhiM(jEle->pt(), jEle->eta(), jEle->phi(), pmass);
-	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
-	if ((iele_lv + jele_lv).M() > 5.0) continue;
+	if ((iele_lv + jele_lv).M() < 2.6 || (iele_lv + jele_lv).M() > 3.6) continue;
+	//if ((iele_lv + jele_lv).M() > 5.0) continue;
+	
+        KinematicParticleFactoryFromTransientTrack pFactory;  
+        std::vector<RefCountedKinematicParticle> XParticles;
+        float pmasse = 1.e-6 * pmass;
 
-	KinematicParticleFactoryFromTransientTrack pFactory;  
-	//std::vector<RefCountedKinematicParticle> XParticles;
-	float pmasse = 1.e-6 * pmass;
-	//reco::Track ieletrk = eletrks[(iEle-electronHandle->begin())].second;
-	//reco::Track jeletrk = eletrks[(jEle-electronHandle->begin())].second;
-	//const reco::TransientTrack ielettk = getTransientTrack( ieletrk );
-	//const reco::TransientTrack jelettk = getTransientTrack( jeletrk );
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(iEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(jEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 
-	//XParticles.push_back(pFactory.particle(getTransientTrack( ieletrk ), pmass, 0.0, 0, pmasse));
-	//XParticles.push_back(pFactory.particle(getTransientTrack( jeletrk ), pmass, 0.0, 0, pmasse));
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-	//XParticles.push_back(pFactory.particle(ielettk, pmass, 0.0, 0, pmasse));
-	//XParticles.push_back(pFactory.particle(jelettk, pmass, 0.0, 0, pmasse));
-
-	//KinematicConstrainedVertexFitter kvFitter;
-	//RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
-
-	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
-	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
-	//KinVtx->movePointerToTheTop();
-	//RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+        if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 20.0) continue;
+        //if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
+        //KinVtx->movePointerToTheTop();
+        //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+        
+        RefCountedKinematicVertex JpsiDecayVtx = KinVtx->currentDecayVertex();
 
 	//for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
 	for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-	  if (iHad->pt() < 0.8) continue;
+	  if (iHad->pt() < 0.4) continue;
 	  if (fabs(iHad->eta()) > 2.5) continue;
 	  //if (fabs(ieletrk.vz() - iHad->vz()) > 1) continue;
-          if (fabs(iHad->vz() - pv.z()) > 0.5) continue;
+          if (fabs(iHad->vz() - pv.z()) > 1.0) continue;
 	  if (iHad->normalizedChi2() < 0.0) continue;
-	  if (iHad->normalizedChi2() > 20.0) continue;
+	  if (iHad->normalizedChi2() > 10.0) continue;
 
 	  //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
-	    if (jHad->pt() <  0.8) continue;
-	    //if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
-	    if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
-	    if (jHad->normalizedChi2() < 0.0) continue;
-	    if (jHad->normalizedChi2() > 20.0) continue;
-
-	    // Phi mass window
-	    float kpmass = 0.493677;
-	    TLorentzVector iHad_lv, jHad_lv, bs_lv;
-	    iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
-	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
-	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
-	    //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.5 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
+	    if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    if (jHad->pt() <  0.4) continue;
 	    if (fabs(jHad->eta()) > 2.5) continue;
+	    //if (fabs(ieletrk.vz() - jHad->vz()) > 1) continue;
+	    if (fabs(jHad->vz() - pv.z()) > 1.0) continue;
+	    if (jHad->normalizedChi2() < 0.0) continue;
+	    if (jHad->normalizedChi2() > 10.0) continue;
 
-	    std::vector<RefCountedKinematicParticle> BsParticles;
-	    float kpmasse = 1.e-6 * pmass;
-	    //float bsM = 5.3663;
+            // Phi mass window
+            //float kpmass = 0.493677;
+            //float bsM = 5.3663;
+            float protonM = 0.9382720813;
+            float pionM = 0.13957018;
+            float protonMe = 1.e-6 * protonM;
+            float pionMe = 1.e-6 * pionM;
 
-	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
-	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
+            //auto leadHad = iHad;
+            //auto subleadHad = jHad;
+            auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+            auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+
+            TLorentzVector iHad_lv, jHad_lv, jpsi_lv, phi_lv, bs_lv;
+            //iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), protonM);
+            //jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), pionM);     
+            iHad_lv.SetPtEtaPhiM(leadHad->pt(), leadHad->eta(), leadHad->phi(), protonM);
+            jHad_lv.SetPtEtaPhiM(subleadHad->pt(), subleadHad->eta(), subleadHad->phi(), pionM);     
+            jpsi_lv = iele_lv + jele_lv;
+            phi_lv = iHad_lv + jHad_lv;
+            bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+            if (phi_lv.M() < 1.095 || phi_lv.M() > 1.135) continue; 
+            if (bs_lv.M() < 4.8 || bs_lv.M() > 6.2) continue; 
+
+	    /*
+            TLorentzVector iHad_lv, jHad_lv, jpsi_lv, phi_lv, bs_lv;
+            iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), protonM);
+            jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), pionM);     
+            bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+            //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if ((iHad_lv+jHad_lv).M() > 1.08 && (iHad_lv+jHad_lv).M() < 1.15 && bs_lv.M() > 4.8 && bs_lv.M() < 6.3) {
+
+            } else {
+              iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), pionM);
+              jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), protonM);     
+              bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+              if ((iHad_lv+jHad_lv).M() > 1.08 && (iHad_lv+jHad_lv).M() < 1.15 && bs_lv.M() > 4.8 && bs_lv.M() < 6.3) {
+                leadHad = jHad;
+                subleadHad = iHad;
+              } else {
+              continue;
+              }
+            }
+            
+            jpsi_lv = iele_lv + jele_lv;
+            phi_lv = iHad_lv + jHad_lv;
+	    */
+
+            //float kpmasse = 1.e-6 * pmass;
+
+            std::vector<RefCountedKinematicParticle> LambdaParticles;
+
+            LambdaParticles.push_back(pFactory.particle(getTransientTrack( *(leadHad) ), protonM, 0.0, 0, protonMe));
+            LambdaParticles.push_back(pFactory.particle(getTransientTrack( *(subleadHad) ), pionM, 0.0, 0, pionMe));
+
+            KinematicConstrainedVertexFitter LambdaKvFitter;
+            RefCountedKinematicTree LambdaKinVtx = LambdaKvFitter.fit(LambdaParticles);
+            if (!(LambdaKinVtx->isValid())) continue;
+
+            RefCountedKinematicVertex LambdaDecayVtx = LambdaKinVtx->currentDecayVertex();
+
+            if (LambdaDecayVtx->chiSquared() < 0.0) continue;
+
+	    /*
+            std::vector<RefCountedKinematicParticle> BsParticles;
+
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(leadHad) ), protonM, 0.0, 0, protonMe));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(subleadHad) ), pionM, 0.0, 0, pionMe));
 	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 
@@ -818,14 +910,32 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 
 	    if (DecayVtx->chiSquared() < 0.0) continue;
 	    //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	    */
 
 	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
 	    auto leadEle = iEle->pt() > jEle->pt() ? iEle : jEle;
 	    auto subleadEle = iEle->pt() > jEle->pt() ? jEle : iEle;
-	    auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
-	    auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
 
+            double Jpsictxy = ((JpsiDecayVtx->position().x() - pv.x())*jpsi_lv.Px() + (JpsiDecayVtx->position().y() - pv.y())*jpsi_lv.Py())/(pow(jpsi_lv.Pt(),2))*jpsi_lv.M();
+            
+            math::XYZVector Jpsiperp(jpsi_lv.Px(), jpsi_lv.Py(), 0.);
+            math::XYZPoint Jpsidxybs(-1*(pv.x() - JpsiDecayVtx->position().x()), -1*(pv.y() - JpsiDecayVtx->position().y()), 0.);
+            math::XYZVector Jpsivperp(Jpsidxybs.x(), Jpsidxybs.y(), 0.);
+            double JpsicosAngle = Jpsivperp.Dot(Jpsiperp)/(Jpsivperp.R()*Jpsiperp.R());
+
+            if (JpsicosAngle < 0.0) continue;
+
+            double Lambdactxy = ((LambdaDecayVtx->position().x() - pv.x())*phi_lv.Px() + (LambdaDecayVtx->position().y() - pv.y())*phi_lv.Py())/(pow(phi_lv.Pt(),2))*phi_lv.M();
+            
+            math::XYZVector Lambdaperp(phi_lv.Px(), phi_lv.Py(), 0.);
+            math::XYZPoint Lambdadxybs(-1*(pv.x() - LambdaDecayVtx->position().x()), -1*(pv.y() - LambdaDecayVtx->position().y()), 0.);
+            math::XYZVector Lambdavperp(Lambdadxybs.x(), Lambdadxybs.y(), 0.);
+            double LambdacosAngle = Lambdavperp.Dot(Lambdaperp)/(Lambdavperp.R()*Lambdaperp.R());
+
+            if (LambdacosAngle < 0.0) continue;
+
+	    /*
 	    double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bs_lv.M();
 	    
 	    math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
@@ -833,6 +943,29 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
 	    double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
 
+            if (cosAngle < 0.0) continue;
+	    */
+
+            if (TMath::Prob(JpsiDecayVtx->chiSquared(), JpsiDecayVtx->degreesOfFreedom()) < 0.01) continue;
+            if (TMath::Prob(LambdaDecayVtx->chiSquared(), LambdaDecayVtx->degreesOfFreedom()) < 0.01) continue;
+
+            eleJpsiSvChi2_.push_back(JpsiDecayVtx->chiSquared());
+            eleJpsiSvNDOF_.push_back(JpsiDecayVtx->degreesOfFreedom());
+            eleJpsiSvProb_.push_back(TMath::Prob(JpsiDecayVtx->chiSquared(), JpsiDecayVtx->degreesOfFreedom()));
+            eleJpsiSvCtxy_.push_back(Jpsictxy);
+            eleJpsiSvCosAngle_.push_back(JpsicosAngle);
+            eleJpsiSvLxy_.push_back(vertTool.distance(vtx, JpsiDecayVtx.get()->vertexState()).value());
+            eleJpsiSvLxyError_.push_back(vertTool.distance(vtx, JpsiDecayVtx.get()->vertexState()).error());
+
+            eleLambdaSvChi2_.push_back(LambdaDecayVtx->chiSquared());
+            eleLambdaSvNDOF_.push_back(LambdaDecayVtx->degreesOfFreedom());
+            eleLambdaSvProb_.push_back(TMath::Prob(LambdaDecayVtx->chiSquared(), LambdaDecayVtx->degreesOfFreedom()));
+            eleLambdaSvCtxy_.push_back(Lambdactxy);
+            eleLambdaSvCosAngle_.push_back(LambdacosAngle);
+            eleLambdaSvLxy_.push_back(vertTool.distance(vtx, LambdaDecayVtx.get()->vertexState()).value());
+            eleLambdaSvLxyError_.push_back(vertTool.distance(vtx, LambdaDecayVtx.get()->vertexState()).error());
+
+	    /*
 	    eleSvChi2_.push_back(DecayVtx->chiSquared());
 	    eleSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
 	    eleSvProb_.push_back(TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()));
@@ -847,6 +980,7 @@ void ggNtuplizer::fillElectrons(const edm::Event &e, const edm::EventSetup &es, 
 	    eleSvCosAngle_.push_back(cosAngle);
 	    eleSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
 	    eleSvLxyError_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).error());
+	    */
 
 	    kaonEECharge_lead_            .push_back(leadHad->charge());
 	    kaonEED0_lead_                .push_back(leadHad->dxy(pv));

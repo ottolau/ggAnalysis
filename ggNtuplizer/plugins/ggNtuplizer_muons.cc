@@ -129,6 +129,21 @@ vector<float>    muIDPatMVA_sublead_;
 vector<float>    muIDPatSoftMVA_sublead_;
 vector<UShort_t> muIDSelectorBit_sublead_;
 
+vector<float> muJpsiSvChi2_;
+vector<float> muJpsiSvNDOF_;
+vector<float> muJpsiSvProb_;
+vector<float> muJpsiSvCtxy_;
+vector<float> muJpsiSvCosAngle_;
+vector<float> muJpsiSvLxy_;
+vector<float> muJpsiSvLxyError_;
+vector<float> muLambdaSvChi2_;
+vector<float> muLambdaSvNDOF_;
+vector<float> muLambdaSvProb_;
+vector<float> muLambdaSvCtxy_;
+vector<float> muLambdaSvCosAngle_;
+vector<float> muLambdaSvLxy_;
+vector<float> muLambdaSvLxyError_;
+
 vector<float> muSvChi2_;
 vector<float> muSvNDOF_;
 vector<float> muSvProb_;
@@ -279,6 +294,21 @@ void ggNtuplizer::branchesMuons(TTree* tree) {
   tree->Branch("muIDPatMVA_sublead",             &muIDPatMVA_sublead_);
   tree->Branch("muIDPatSoftMVA_sublead",         &muIDPatSoftMVA_sublead_);
   tree->Branch("muIDSelectorBit_sublead",             &muIDSelectorBit_sublead_);
+
+  tree->Branch("muJpsiSvChi2",                  &muJpsiSvChi2_);
+  tree->Branch("muJpsiSvNDOF",                  &muJpsiSvNDOF_);
+  tree->Branch("muJpsiSvProb",                  &muJpsiSvProb_);
+  tree->Branch("muJpsiSvCtxy",                  &muJpsiSvCtxy_);
+  tree->Branch("muJpsiSvCosAngle",              &muJpsiSvCosAngle_);
+  tree->Branch("muJpsiSvLxy",                   &muJpsiSvLxy_);
+  tree->Branch("muJpsiSvLxyError",              &muJpsiSvLxyError_);
+  tree->Branch("muLambdaSvChi2",                  &muLambdaSvChi2_);
+  tree->Branch("muLambdaSvNDOF",                  &muLambdaSvNDOF_);
+  tree->Branch("muLambdaSvProb",                  &muLambdaSvProb_);
+  tree->Branch("muLambdaSvCtxy",                  &muLambdaSvCtxy_);
+  tree->Branch("muLambdaSvCosAngle",              &muLambdaSvCosAngle_);
+  tree->Branch("muLambdaSvLxy",                   &muLambdaSvLxy_);
+  tree->Branch("muLambdaSvLxyError",              &muLambdaSvLxyError_);
 
   tree->Branch("muSvChi2",                  &muSvChi2_);
   tree->Branch("muSvNDOF",                  &muSvNDOF_);
@@ -432,6 +462,21 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
   muIDPatSoftMVA_sublead_        .clear();
   muIDSelectorBit_sublead_            .clear();
 
+  muJpsiSvChi2_.clear();
+  muJpsiSvNDOF_.clear();
+  muJpsiSvProb_.clear();
+  muJpsiSvCtxy_.clear();
+  muJpsiSvCosAngle_.clear();
+  muJpsiSvLxy_.clear();
+  muJpsiSvLxyError_.clear();
+  muLambdaSvChi2_.clear();
+  muLambdaSvNDOF_.clear();
+  muLambdaSvProb_.clear();
+  muLambdaSvCtxy_.clear();
+  muLambdaSvCosAngle_.clear();
+  muLambdaSvLxy_.clear();
+  muLambdaSvLxyError_.clear();
+
   muSvChi2_.clear();
   muSvNDOF_.clear();
   muSvProb_.clear();
@@ -512,85 +557,135 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
 
     for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
       if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) matchedTrg_ = true;
-      if (iMu->pt() < 0.8) continue;
+      if (iMu->pt() < 2.0) continue;
       if (! (iMu->isPFMuon() || iMu->isGlobalMuon() || iMu->isTrackerMuon())) continue;
-      if (fabs(iMu->eta()) > 2.5) continue;
-      if (fabs(iMu->vz() - pv.z()) > 0.5) continue;
+      if (fabs(iMu->eta()) > 2.1) continue;
+      if (fabs(iMu->vz() - pv.z()) > 1.0) continue;
 
       for (edm::View<pat::Muon>::const_iterator jMu = iMu+1; jMu != muonHandle->end(); ++jMu) {
         //if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) != 1 || matchMuonTriggerFilters(jMu->pt(), jMu->eta(), jMu->phi()) != 1) continue;
-        if (jMu->pt() < 0.8) continue;
+        if (jMu->pt() < 2.0) continue;
         if (! (jMu->isPFMuon() || jMu->isGlobalMuon() || jMu->isTrackerMuon())) continue;
-        if (fabs(jMu->eta()) > 2.5) continue;
-        //if (iMu->charge() * jMu->charge() > 0.) continue;
-        if (fabs(jMu->vz() - pv.z()) > 0.5) continue;
+        if (fabs(jMu->eta()) > 2.1) continue;
+        if (iMu->charge() * jMu->charge() > 0.0) continue;
+        if (fabs(jMu->vz() - pv.z()) > 1.0) continue;
 
         float pmass  = 0.1056583745;
         TLorentzVector iMu_lv, jMu_lv;
         iMu_lv.SetPtEtaPhiM(iMu->pt(), iMu->eta(), iMu->phi(), pmass);
         jMu_lv.SetPtEtaPhiM(jMu->pt(), jMu->eta(), jMu->phi(), pmass);      
-        //if (((iMu_lv+jMu_lv)).M() < 2.4 || (iMu_lv+jMu_lv).M() > 3.8) continue;
-        if ((iMu_lv+jMu_lv).M() > 5.0) continue;
+        if (((iMu_lv+jMu_lv)).M() < 2.6 || (iMu_lv+jMu_lv).M() > 3.6) continue;
+        //if ((iMu_lv+jMu_lv).M() > 5.0) continue;
 
         KinematicParticleFactoryFromTransientTrack pFactory;  
-        //std::vector<RefCountedKinematicParticle> XParticles;
+        std::vector<RefCountedKinematicParticle> XParticles;
         float pmasse = 1.e-6 * pmass;
         //const reco::TransientTrack imuttk = getTransientTrack( *(iMu->bestTrack()) );
         //const reco::TransientTrack jmuttk = getTransientTrack( *(jMu->bestTrack()) );
 
-        //XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
-        //XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
         //XParticles.push_back(pFactory.particle(imuttk, pmass, 0.0, 0, pmasse));
         //XParticles.push_back(pFactory.particle(jmuttk, pmass, 0.0, 0, pmasse));
 
-        //KinematicConstrainedVertexFitter kvFitter;
-        //RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-        //if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 30.0) continue;
+        if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 20.0) continue;
         //if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
         //KinVtx->movePointerToTheTop();
         //RefCountedKinematicParticle jpsi_part = KinVtx->currentParticle();
+        
+        RefCountedKinematicVertex JpsiDecayVtx = KinVtx->currentDecayVertex();
 
         //for (pat::PackedCandidateCollection::const_iterator iHad = pfcands->begin(); iHad != pfcands->end(); ++iHad) {
         for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-          if (iHad->pt() < 0.8) continue;
+          if (iHad->pt() < 0.4) continue;
           if (fabs(iHad->eta()) > 2.5) continue;
           if (fabs(iMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
           if (fabs(jMu->bestTrack()->eta() - iHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - iHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - iHad->pt()) < 0.001) continue;
           //if (fabs(iMu->bestTrack()->vz() - iHad->vz()) > 1) continue;
-          if (fabs(iHad->vz() - pv.z()) > 0.5) continue;
+          if (fabs(iHad->vz() - pv.z()) > 1.0) continue;
           if (iHad->normalizedChi2() < 0.0) continue;
-          if (iHad->normalizedChi2() > 20.0) continue;
+          if (iHad->normalizedChi2() > 10.0) continue;
 
           //for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != pfcands->end(); ++jHad) {
           for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-            //if (iHad->charge()*jHad->charge() > 0.0) continue;
-            if (jHad->pt() < 0.8) continue;
+            if (iHad->charge()*jHad->charge() > 0.0) continue;
+            if (jHad->pt() < 0.4) continue;
+            if (fabs(jHad->eta()) > 2.5) continue;
             if (fabs(iMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(iMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(iMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
             if (fabs(jMu->bestTrack()->eta() - jHad->eta()) < 0.001 && fabs(jMu->bestTrack()->phi() - jHad->phi()) < 0.001 && fabs(jMu->bestTrack()->pt() - jHad->pt()) < 0.001) continue;
             //if (fabs(iMu->bestTrack()->vz() - jHad->vz()) > 1) continue;
-            if (fabs(jHad->vz() - pv.z()) > 0.8) continue;
+            if (fabs(jHad->vz() - pv.z()) > 1.0) continue;
             if (jHad->normalizedChi2() < 0.0) continue;
-            if (jHad->normalizedChi2() > 20.0) continue;
+            if (jHad->normalizedChi2() > 10.0) continue;
 
             // Phi mass window
-            float kpmass = 0.493677;
+            //float kpmass = 0.493677;
             //float bsM = 5.3663;
+            float protonM = 0.9382720813;
+            float pionM = 0.13957018;
+            float protonMe = 1.e-6 * protonM;
+            float pionMe = 1.e-6 * pionM;
 
-            TLorentzVector iHad_lv, jHad_lv, bs_lv;
-            iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
-            jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);     
+            auto leadMu = iMu->pt() > jMu->pt() ? iMu : jMu;
+            auto subleadMu = iMu->pt() > jMu->pt() ? jMu : iMu;
+
+            //auto leadHad = iHad;
+            //auto subleadHad = jHad;
+            auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+            auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+
+            TLorentzVector iHad_lv, jHad_lv, jpsi_lv, phi_lv, bs_lv;
+            //iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), protonM);
+            //jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), pionM);     
+            iHad_lv.SetPtEtaPhiM(leadHad->pt(), leadHad->eta(), leadHad->phi(), protonM);
+            jHad_lv.SetPtEtaPhiM(subleadHad->pt(), subleadHad->eta(), subleadHad->phi(), pionM);     
+            jpsi_lv = iMu_lv + jMu_lv;
+            phi_lv = iHad_lv + jHad_lv;
             bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
+            if (phi_lv.M() < 1.095 || phi_lv.M() > 1.135) continue; 
+            if (bs_lv.M() < 4.8 || bs_lv.M() > 6.2) continue; 
+
+            /*
             //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
-            if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-            if ((iMu_lv + jMu_lv + iHad_lv + jHad_lv).M() < 4.5 || (iMu_lv + jMu_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
-            if (fabs(jHad->eta()) > 2.5) continue;
+            if ((iHad_lv+jHad_lv).M() > 1.095 && (iHad_lv+jHad_lv).M() < 1.135 && bs_lv.M() > 4.8 && bs_lv.M() < 6.3) {
 
+            } else {
+              iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), pionM);
+              jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), protonM);     
+              bs_lv = iMu_lv + jMu_lv + iHad_lv + jHad_lv;
+              if ((iHad_lv+jHad_lv).M() > 1.08 && (iHad_lv+jHad_lv).M() < 1.15 && bs_lv.M() > 4.8 && bs_lv.M() < 6.3) {
+                leadHad = jHad;
+                subleadHad = iHad;
+              } else {
+              continue;
+              }
+            }
+            */
+
+
+            //float kpmasse = 1.e-6 * pmass;
+
+            std::vector<RefCountedKinematicParticle> LambdaParticles;
+
+            LambdaParticles.push_back(pFactory.particle(getTransientTrack( *(leadHad) ), protonM, 0.0, 0, protonMe));
+            LambdaParticles.push_back(pFactory.particle(getTransientTrack( *(subleadHad) ), pionM, 0.0, 0, pionMe));
+
+            KinematicConstrainedVertexFitter LambdaKvFitter;
+            RefCountedKinematicTree LambdaKinVtx = LambdaKvFitter.fit(LambdaParticles);
+            if (!(LambdaKinVtx->isValid())) continue;
+
+            RefCountedKinematicVertex LambdaDecayVtx = LambdaKinVtx->currentDecayVertex();
+
+            if (LambdaDecayVtx->chiSquared() < 0.0) continue;
+
+            /*
             std::vector<RefCountedKinematicParticle> BsParticles;
-            float kpmasse = 1.e-6 * pmass;
 
-            BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
-            BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(leadHad) ), protonM, 0.0, 0, protonMe));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(subleadHad) ), pionM, 0.0, 0, pionMe));
             BsParticles.push_back(pFactory.particle(getTransientTrack( *(iMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
             BsParticles.push_back(pFactory.particle(getTransientTrack( *(jMu->bestTrack()) ), pmass, 0.0, 0, pmasse));
 
@@ -602,14 +697,32 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
 
             if (DecayVtx->chiSquared() < 0.0) continue;
             //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+            */
 
             // Accept these 4 tracks as a Bs candidate, fill ntuple
 
-            auto leadMu = iMu->pt() > jMu->pt() ? iMu : jMu;
-            auto subleadMu = iMu->pt() > jMu->pt() ? jMu : iMu;
-            auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
-            auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+            //auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+            //auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
 
+            double Jpsictxy = ((JpsiDecayVtx->position().x() - pv.x())*jpsi_lv.Px() + (JpsiDecayVtx->position().y() - pv.y())*jpsi_lv.Py())/(pow(jpsi_lv.Pt(),2))*jpsi_lv.M();
+            
+            math::XYZVector Jpsiperp(jpsi_lv.Px(), jpsi_lv.Py(), 0.);
+            math::XYZPoint Jpsidxybs(-1*(pv.x() - JpsiDecayVtx->position().x()), -1*(pv.y() - JpsiDecayVtx->position().y()), 0.);
+            math::XYZVector Jpsivperp(Jpsidxybs.x(), Jpsidxybs.y(), 0.);
+            double JpsicosAngle = Jpsivperp.Dot(Jpsiperp)/(Jpsivperp.R()*Jpsiperp.R());
+
+            if (JpsicosAngle < 0.0) continue;
+
+            double Lambdactxy = ((LambdaDecayVtx->position().x() - pv.x())*phi_lv.Px() + (LambdaDecayVtx->position().y() - pv.y())*phi_lv.Py())/(pow(phi_lv.Pt(),2))*phi_lv.M();
+            
+            math::XYZVector Lambdaperp(phi_lv.Px(), phi_lv.Py(), 0.);
+            math::XYZPoint Lambdadxybs(-1*(pv.x() - LambdaDecayVtx->position().x()), -1*(pv.y() - LambdaDecayVtx->position().y()), 0.);
+            math::XYZVector Lambdavperp(Lambdadxybs.x(), Lambdadxybs.y(), 0.);
+            double LambdacosAngle = Lambdavperp.Dot(Lambdaperp)/(Lambdavperp.R()*Lambdaperp.R());
+
+            if (LambdacosAngle < 0.0) continue;
+
+            /*
             double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bs_lv.M();
             
             math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
@@ -617,6 +730,29 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
             double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
 
+            if (cosAngle < 0.0) continue;
+            */
+
+            if (TMath::Prob(JpsiDecayVtx->chiSquared(), JpsiDecayVtx->degreesOfFreedom()) < 0.01) continue;
+            if (TMath::Prob(LambdaDecayVtx->chiSquared(), LambdaDecayVtx->degreesOfFreedom()) < 0.01) continue;
+
+            muJpsiSvChi2_.push_back(JpsiDecayVtx->chiSquared());
+            muJpsiSvNDOF_.push_back(JpsiDecayVtx->degreesOfFreedom());
+            muJpsiSvProb_.push_back(TMath::Prob(JpsiDecayVtx->chiSquared(), JpsiDecayVtx->degreesOfFreedom()));
+            muJpsiSvCtxy_.push_back(Jpsictxy);
+            muJpsiSvCosAngle_.push_back(JpsicosAngle);
+            muJpsiSvLxy_.push_back(vertTool.distance(vtx, JpsiDecayVtx.get()->vertexState()).value());
+            muJpsiSvLxyError_.push_back(vertTool.distance(vtx, JpsiDecayVtx.get()->vertexState()).error());
+
+            muLambdaSvChi2_.push_back(LambdaDecayVtx->chiSquared());
+            muLambdaSvNDOF_.push_back(LambdaDecayVtx->degreesOfFreedom());
+            muLambdaSvProb_.push_back(TMath::Prob(LambdaDecayVtx->chiSquared(), LambdaDecayVtx->degreesOfFreedom()));
+            muLambdaSvCtxy_.push_back(Lambdactxy);
+            muLambdaSvCosAngle_.push_back(LambdacosAngle);
+            muLambdaSvLxy_.push_back(vertTool.distance(vtx, LambdaDecayVtx.get()->vertexState()).value());
+            muLambdaSvLxyError_.push_back(vertTool.distance(vtx, LambdaDecayVtx.get()->vertexState()).error());
+
+            /*
             muSvChi2_.push_back(DecayVtx->chiSquared());
             muSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
             muSvProb_.push_back(TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()));
@@ -631,6 +767,7 @@ void ggNtuplizer::fillMuons(const edm::Event& e, math::XYZPoint& pv, reco::Verte
             muSvCosAngle_.push_back(cosAngle);
             muSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
             muSvLxyError_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).error());
+            */
 
             kaonMMCharge_lead_          .push_back(leadHad->charge());
             kaonMMD0_lead_              .push_back(leadHad->dxy(pv));

@@ -19,9 +19,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7')
+process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Sep2018ABC_v2', '')
 
 #process.Tracer = cms.Service("Tracer")
 

@@ -78,6 +78,21 @@ vector<float>  lowPtPhiMean_sublead_;
 vector<float>  lowPtMVABWP_sublead_;
 vector<float>  lowPtMVAUnBWP_sublead_;
 
+vector<float> lowPtJpsiSvChi2_;
+vector<float> lowPtJpsiSvNDOF_;
+vector<float> lowPtJpsiSvProb_;
+vector<float> lowPtJpsiSvCtxy_;
+vector<float> lowPtJpsiSvCosAngle_;
+vector<float> lowPtJpsiSvLxy_;
+vector<float> lowPtJpsiSvLxyError_;
+vector<float> lowPtLambdaSvChi2_;
+vector<float> lowPtLambdaSvNDOF_;
+vector<float> lowPtLambdaSvProb_;
+vector<float> lowPtLambdaSvCtxy_;
+vector<float> lowPtLambdaSvCosAngle_;
+vector<float> lowPtLambdaSvLxy_;
+vector<float> lowPtLambdaSvLxyError_;
+
 vector<float> lowPtSvChi2_;
 vector<float> lowPtSvNDOF_;
 vector<float> lowPtSvProb_;
@@ -162,6 +177,21 @@ void ggNtuplizer::branchesLowPtElectrons(TTree* tree) {
   tree->Branch("lowPtPhiMean_sublead",              &lowPtPhiMean_sublead_);
   tree->Branch("lowPtMVABWP_sublead",               &lowPtMVABWP_sublead_);
   tree->Branch("lowPtMVAUnBWP_sublead",             &lowPtMVAUnBWP_sublead_);
+
+  tree->Branch("lowPtJpsiSvChi2",                    &lowPtJpsiSvChi2_);
+  tree->Branch("lowPtJpsiSvNDOF",                    &lowPtJpsiSvNDOF_);
+  tree->Branch("lowPtJpsiSvProb",                    &lowPtJpsiSvProb_);
+  tree->Branch("lowPtJpsiSvCtxy",                    &lowPtJpsiSvCtxy_);
+  tree->Branch("lowPtJpsiSvCosAngle",                    &lowPtJpsiSvCosAngle_);
+  tree->Branch("lowPtJpsiSvLxy",                    	   &lowPtJpsiSvLxy_);
+  tree->Branch("lowPtJpsiSvLxyError",                    &lowPtJpsiSvLxyError_);
+  tree->Branch("lowPtLambdaSvChi2",                    &lowPtLambdaSvChi2_);
+  tree->Branch("lowPtLambdaSvNDOF",                    &lowPtLambdaSvNDOF_);
+  tree->Branch("lowPtLambdaSvProb",                    &lowPtLambdaSvProb_);
+  tree->Branch("lowPtLambdaSvCtxy",                    &lowPtLambdaSvCtxy_);
+  tree->Branch("lowPtLambdaSvCosAngle",                    &lowPtLambdaSvCosAngle_);
+  tree->Branch("lowPtLambdaSvLxy",                    	   &lowPtLambdaSvLxy_);
+  tree->Branch("lowPtLambdaSvLxyError",                    &lowPtLambdaSvLxyError_);
 
   tree->Branch("lowPtSvChi2",                    &lowPtSvChi2_);
   tree->Branch("lowPtSvNDOF",                    &lowPtSvNDOF_);
@@ -248,6 +278,21 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
   lowPtMVABWP_sublead_                  .clear();
   lowPtMVAUnBWP_sublead_                .clear();
 
+  lowPtJpsiSvChi2_.clear();
+  lowPtJpsiSvNDOF_.clear();
+  lowPtJpsiSvProb_.clear();
+  lowPtJpsiSvCtxy_.clear();
+  lowPtJpsiSvCosAngle_.clear();
+  lowPtJpsiSvLxy_.clear();
+  lowPtJpsiSvLxyError_.clear();
+  lowPtLambdaSvChi2_.clear();
+  lowPtLambdaSvNDOF_.clear();
+  lowPtLambdaSvProb_.clear();
+  lowPtLambdaSvCtxy_.clear();
+  lowPtLambdaSvCosAngle_.clear();
+  lowPtLambdaSvLxy_.clear();
+  lowPtLambdaSvLxyError_.clear();
+
   lowPtSvChi2_.clear();
   lowPtSvNDOF_.clear();
   lowPtSvProb_.clear();
@@ -330,13 +375,13 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 
     for (reco::GsfElectronCollection::const_iterator iEle = lowpTelectronHandle->begin(); iEle != lowpTelectronHandle->end(); ++iEle) {
       if (iEle->gsfTrack()->ptMode() < 0.5) continue;
-      if (fabs(iEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
+      if (fabs(iEle->gsfTrack()->vz() - pv.z()) > 1.0) continue;
       if (ConversionTools::hasMatchedConversion(*iEle, conversions, pv)) continue;
 
       for (reco::GsfElectronCollection::const_iterator jEle = iEle+1; jEle != lowpTelectronHandle->end(); ++jEle) {
 	if (jEle->gsfTrack()->ptMode() < 0.5) continue;
-	//if (iEle->charge()*jEle->charge() > 0.0) continue;
-	if (fabs(jEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
+	if (iEle->charge()*jEle->charge() > 0.0) continue;
+	if (fabs(jEle->gsfTrack()->vz() - pv.z()) > 1.0) continue;
 	if (ConversionTools::hasMatchedConversion(*jEle, conversions, pv)) continue;
 
 	float pmass  = 0.0005109989461;
@@ -346,8 +391,8 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
       	iele_lv.SetPtEtaPhiM(iEle->gsfTrack()->ptMode(), iEle->gsfTrack()->etaMode(), iEle->gsfTrack()->phiMode(), pmass);
 	jele_lv.SetPtEtaPhiM(jEle->gsfTrack()->ptMode(), jEle->gsfTrack()->etaMode(), jEle->gsfTrack()->phiMode(), pmass);
 
-	//if ((iele_lv + jele_lv).M() < 2.4 || (iele_lv + jele_lv).M() > 3.8) continue;
-	if ((iele_lv + jele_lv).M() > 5.0) continue;
+	if ((iele_lv + jele_lv).M() < 2.6 || (iele_lv + jele_lv).M() > 3.6) continue;
+	//if ((iele_lv + jele_lv).M() > 5.0) continue;
 
 	auto leadEle = iele_lv.Pt() > jele_lv.Pt() ? iEle : jEle;
 	auto subleadEle = iele_lv.Pt() > jele_lv.Pt() ? jEle : iEle;
@@ -356,49 +401,103 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	if ((*ele_mva_wp_unbiased)[leadEle->gsfTrack()] < 6.0) continue;
 	if ((*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] < 0.19) continue;
 
-	KinematicParticleFactoryFromTransientTrack pFactory;  
-	//std::vector<RefCountedKinematicParticle> XParticles;
-	float pmasse = 1.e-6 * pmass;
+        KinematicParticleFactoryFromTransientTrack pFactory;  
+        std::vector<RefCountedKinematicParticle> XParticles;
+        float pmasse = 1.e-6 * pmass;
 
-	//XParticles.push_back(pFactory.particle(getTransientTrack( *(iEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
-	//XParticles.push_back(pFactory.particle(getTransientTrack( *(jEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(iEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
+        XParticles.push_back(pFactory.particle(getTransientTrack( *(jEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 
+        KinematicConstrainedVertexFitter kvFitter;
+        RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
 
-	//KinematicConstrainedVertexFitter kvFitter;
-	//RefCountedKinematicTree KinVtx = kvFitter.fit(XParticles);
-
-	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
+        if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0 || KinVtx->currentDecayVertex()->chiSquared() > 20.0) continue;
+        
+        RefCountedKinematicVertex JpsiDecayVtx = KinVtx->currentDecayVertex();
 
 	for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-	  if (iHad->pt() < 0.8) continue;
+	  if (iHad->pt() < 0.4) continue;
 	  if (fabs(iHad->eta()) > 2.5) continue;
-          if (fabs(iHad->vz() - pv.z()) > 0.5) continue;
+          if (fabs(iHad->vz() - pv.z()) > 1.0) continue;
 	  if (iHad->normalizedChi2() < 0.0) continue;
-	  if (iHad->normalizedChi2() > 20.0) continue;
+	  if (iHad->normalizedChi2() > 10.0) continue;
 
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
-	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
-	    if (jHad->pt() <  0.8) continue;
-	    if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
-	    if (jHad->normalizedChi2() < 0.0) continue;
-	    if (jHad->normalizedChi2() > 20.0) continue;
-
-	    // Phi mass window
-	    float kpmass = 0.493677;
-	    TLorentzVector iHad_lv, jHad_lv, bs_lv;
-	    iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), kpmass);
-	    jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), kpmass);      
-	    bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
-	    if ((iHad_lv+jHad_lv).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.10) continue; 
-	    if ((iele_lv + jele_lv + iHad_lv + jHad_lv).M() < 4.5 || (iele_lv + jele_lv + iHad_lv + jHad_lv).M() > 6.0) continue;
+	    if (iHad->charge()*jHad->charge() > 0.0) continue;
+	    if (jHad->pt() <  0.4) continue;
 	    if (fabs(jHad->eta()) > 2.5) continue;
+	    if (fabs(jHad->vz() - pv.z()) > 1.0) continue;
+	    if (jHad->normalizedChi2() < 0.0) continue;
+	    if (jHad->normalizedChi2() > 10.0) continue;
 
-	    std::vector<RefCountedKinematicParticle> BsParticles;
-	    float kpmasse = 1.e-6 * pmass;
-	    //float bsM = 5.3663;
+            // Phi mass window
+            //float kpmass = 0.493677;
+            //float bsM = 5.3663;
+            float protonM = 0.9382720813;
+            float pionM = 0.13957018;
+            float protonMe = 1.e-6 * protonM;
+            float pionMe = 1.e-6 * pionM;
 
-	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iHad) ), kpmass, 0.0, 0, kpmasse));
-	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jHad) ), kpmass, 0.0, 0, kpmasse));
+            //auto leadHad = iHad;
+            //auto subleadHad = jHad;
+            auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
+            auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+
+            TLorentzVector iHad_lv, jHad_lv, jpsi_lv, phi_lv, bs_lv;
+            //iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), protonM);
+            //jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), pionM);     
+            iHad_lv.SetPtEtaPhiM(leadHad->pt(), leadHad->eta(), leadHad->phi(), protonM);
+            jHad_lv.SetPtEtaPhiM(subleadHad->pt(), subleadHad->eta(), subleadHad->phi(), pionM);     
+            jpsi_lv = iele_lv + jele_lv;
+            phi_lv = iHad_lv + jHad_lv;
+            bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+            if (phi_lv.M() < 1.095 || phi_lv.M() > 1.135) continue; 
+            if (bs_lv.M() < 4.8 || bs_lv.M() > 6.2) continue; 
+
+	    /*
+            TLorentzVector iHad_lv, jHad_lv, jpsi_lv, phi_lv, bs_lv;
+            iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), protonM);
+            jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), pionM);     
+            bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+            //if (((iHad_lv+jHad_lv)).M() < 0.95 || (iHad_lv+jHad_lv).M() > 1.06) continue; 
+            if ((iHad_lv+jHad_lv).M() > 1.08 && (iHad_lv+jHad_lv).M() < 1.15 && bs_lv.M() > 4.8 && bs_lv.M() < 6.3) {
+
+            } else {
+              iHad_lv.SetPtEtaPhiM(iHad->pt(), iHad->eta(), iHad->phi(), pionM);
+              jHad_lv.SetPtEtaPhiM(jHad->pt(), jHad->eta(), jHad->phi(), protonM);     
+              bs_lv = iele_lv + jele_lv + iHad_lv + jHad_lv;
+              if ((iHad_lv+jHad_lv).M() > 1.08 && (iHad_lv+jHad_lv).M() < 1.15 && bs_lv.M() > 4.8 && bs_lv.M() < 6.3) {
+                leadHad = jHad;
+                subleadHad = iHad;
+              } else {
+              continue;
+              }
+            }
+            
+            jpsi_lv = iele_lv + jele_lv;
+            phi_lv = iHad_lv + jHad_lv;
+	    */
+
+            //float kpmasse = 1.e-6 * pmass;
+
+            std::vector<RefCountedKinematicParticle> LambdaParticles;
+
+            LambdaParticles.push_back(pFactory.particle(getTransientTrack( *(leadHad) ), protonM, 0.0, 0, protonMe));
+            LambdaParticles.push_back(pFactory.particle(getTransientTrack( *(subleadHad) ), pionM, 0.0, 0, pionMe));
+
+            KinematicConstrainedVertexFitter LambdaKvFitter;
+            RefCountedKinematicTree LambdaKinVtx = LambdaKvFitter.fit(LambdaParticles);
+            if (!(LambdaKinVtx->isValid())) continue;
+
+            RefCountedKinematicVertex LambdaDecayVtx = LambdaKinVtx->currentDecayVertex();
+
+            if (LambdaDecayVtx->chiSquared() < 0.0) continue;
+
+	    /*
+            std::vector<RefCountedKinematicParticle> BsParticles;
+
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(leadHad) ), protonM, 0.0, 0, protonMe));
+            BsParticles.push_back(pFactory.particle(getTransientTrack( *(subleadHad) ), pionM, 0.0, 0, pionMe));
 	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(iEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 	    BsParticles.push_back(pFactory.particle(getTransientTrack( *(jEle->gsfTrack()) ), pmass, 0.0, 0, pmasse));
 
@@ -411,12 +510,29 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 
 	    if (DecayVtx->chiSquared() < 0.0) continue;
 	    //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	    */
 
 	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
-	    auto leadHad = iHad->pt() > jHad->pt() ? iHad : jHad;
-	    auto subleadHad = iHad->pt() > jHad->pt() ? jHad : iHad;
+            double Jpsictxy = ((JpsiDecayVtx->position().x() - pv.x())*jpsi_lv.Px() + (JpsiDecayVtx->position().y() - pv.y())*jpsi_lv.Py())/(pow(jpsi_lv.Pt(),2))*jpsi_lv.M();
+            
+            math::XYZVector Jpsiperp(jpsi_lv.Px(), jpsi_lv.Py(), 0.);
+            math::XYZPoint Jpsidxybs(-1*(pv.x() - JpsiDecayVtx->position().x()), -1*(pv.y() - JpsiDecayVtx->position().y()), 0.);
+            math::XYZVector Jpsivperp(Jpsidxybs.x(), Jpsidxybs.y(), 0.);
+            double JpsicosAngle = Jpsivperp.Dot(Jpsiperp)/(Jpsivperp.R()*Jpsiperp.R());
 
+            if (JpsicosAngle < 0.0) continue;
+
+            double Lambdactxy = ((LambdaDecayVtx->position().x() - pv.x())*phi_lv.Px() + (LambdaDecayVtx->position().y() - pv.y())*phi_lv.Py())/(pow(phi_lv.Pt(),2))*phi_lv.M();
+            
+            math::XYZVector Lambdaperp(phi_lv.Px(), phi_lv.Py(), 0.);
+            math::XYZPoint Lambdadxybs(-1*(pv.x() - LambdaDecayVtx->position().x()), -1*(pv.y() - LambdaDecayVtx->position().y()), 0.);
+            math::XYZVector Lambdavperp(Lambdadxybs.x(), Lambdadxybs.y(), 0.);
+            double LambdacosAngle = Lambdavperp.Dot(Lambdaperp)/(Lambdavperp.R()*Lambdaperp.R());
+
+            if (LambdacosAngle < 0.0) continue;
+
+	    /*
 	    double ctxy = ((DecayVtx->position().x() - pv.x())*bs_lv.Px() + (DecayVtx->position().y() - pv.y())*bs_lv.Py())/(pow(bs_lv.Pt(),2))*bs_lv.M();
 	    
 	    math::XYZVector perp(bs_lv.Px(), bs_lv.Py(), 0.);
@@ -424,6 +540,29 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
 	    double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
 
+            if (cosAngle < 0.0) continue;
+	    */
+
+            if (TMath::Prob(JpsiDecayVtx->chiSquared(), JpsiDecayVtx->degreesOfFreedom()) < 0.01) continue;
+            if (TMath::Prob(LambdaDecayVtx->chiSquared(), LambdaDecayVtx->degreesOfFreedom()) < 0.01) continue;
+
+            lowPtJpsiSvChi2_.push_back(JpsiDecayVtx->chiSquared());
+            lowPtJpsiSvNDOF_.push_back(JpsiDecayVtx->degreesOfFreedom());
+            lowPtJpsiSvProb_.push_back(TMath::Prob(JpsiDecayVtx->chiSquared(), JpsiDecayVtx->degreesOfFreedom()));
+            lowPtJpsiSvCtxy_.push_back(Jpsictxy);
+            lowPtJpsiSvCosAngle_.push_back(JpsicosAngle);
+            lowPtJpsiSvLxy_.push_back(vertTool.distance(vtx, JpsiDecayVtx.get()->vertexState()).value());
+            lowPtJpsiSvLxyError_.push_back(vertTool.distance(vtx, JpsiDecayVtx.get()->vertexState()).error());
+
+            lowPtLambdaSvChi2_.push_back(LambdaDecayVtx->chiSquared());
+            lowPtLambdaSvNDOF_.push_back(LambdaDecayVtx->degreesOfFreedom());
+            lowPtLambdaSvProb_.push_back(TMath::Prob(LambdaDecayVtx->chiSquared(), LambdaDecayVtx->degreesOfFreedom()));
+            lowPtLambdaSvCtxy_.push_back(Lambdactxy);
+            lowPtLambdaSvCosAngle_.push_back(LambdacosAngle);
+            lowPtLambdaSvLxy_.push_back(vertTool.distance(vtx, LambdaDecayVtx.get()->vertexState()).value());
+            lowPtLambdaSvLxyError_.push_back(vertTool.distance(vtx, LambdaDecayVtx.get()->vertexState()).error());
+
+	    /*
 	    lowPtSvChi2_.push_back(DecayVtx->chiSquared());
 	    lowPtSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
 	    lowPtSvProb_.push_back(TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()));
@@ -438,6 +577,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    lowPtSvCosAngle_.push_back(cosAngle);
 	    lowPtSvLxy_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).value());
 	    lowPtSvLxyError_.push_back(vertTool.distance(vtx, DecayVtx.get()->vertexState()).error());
+	    */
 
 	    kaonLowPtCharge_lead_            .push_back(leadHad->charge());
 	    kaonLowPtD0_lead_                .push_back(leadHad->dxy(pv));

@@ -43,13 +43,13 @@ if __name__ == '__main__':
 
     # dataset dependent configuration
 
-    config.General.requestName = 'ParkingBPH5_Run2018D-20Mar2019-v1_AOD_14Apr19_BsPhiLL_lowPtElectrons_UnBWPVeryLoose'
+    config.General.requestName = 'ParkingBPH3_Run2018A-05May2019-v1_AOD_15Jun19_LambdaDecayStudy_muon'
 
-    config.Data.unitsPerJob    = 10
-    #config.Data.inputDataset   = '/ParkingBPH1/Run2018A-22Mar2019-v1/AOD'
-    config.Data.inputDataset   = '/ParkingBPH5/Run2018D-20Mar2019-v1/AOD'
+    config.Data.unitsPerJob    = 15
+    config.Data.inputDataset   = '/ParkingBPH3/Run2018A-05May2019-v1/AOD'
+    #config.Data.inputDataset   = '/ParkingBPH5/Run2018D-20Mar2019-v1/AOD'
 
-    config.Data.outLFNDirBase  = '/store/user/klau/LowPtElectrons'
+    config.Data.outLFNDirBase  = '/store/user/klau/LambdaDecayStudy'
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()
