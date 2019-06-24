@@ -45,6 +45,8 @@
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 using namespace std;
 
@@ -78,11 +80,13 @@ class ggNtuplizer : public edm::EDAnalyzer {
   Double_t deltaR(Double_t eta1, Double_t phi1, Double_t eta2, Double_t phi2);
   Double_t getMiniIsolation(edm::Handle<pat::PackedCandidateCollection> pfcands, const reco::Candidate* ptcl,  
 			    double r_iso_min, double r_iso_max, double kt_scale, bool charged_only);
+  bool isAncestor(const reco::Candidate* ancestor, const reco::Candidate* particle);
 
   void branchesGlobalEvent(TTree*);
   void branchesTriggers   (TTree*);
   void branchesGenInfo    (TTree*, edm::Service<TFileService>&);
   void branchesGenPart    (TTree*);
+  void branchesMatchGenParticles    (TTree*);
   void branchesMET        (TTree*);
   void branchesPhotons    (TTree*);
   void branchesPFPhotons  (TTree*);
@@ -93,10 +97,12 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void branchesTaus       (TTree*);
   void branchesJets       (TTree*);
   void branchesLowPtElectrons(TTree*);
+  void branchesMixElectrons(TTree*);
 
   void fillGlobalEvent(const edm::Event&, const edm::EventSetup&);
   void fillGenInfo    (const edm::Event&);
   void fillGenPart    (const edm::Event&);
+  void fillMatchGenParticles  (const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
   void fillMET        (const edm::Event&, const edm::EventSetup&);
   void fillPhotons    (const edm::Event&, const edm::EventSetup&);
   void fillPFPhotons  (const edm::Event&, const edm::EventSetup&);
@@ -107,6 +113,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   void fillTaus       (const edm::Event&);
   void fillJets       (const edm::Event&, const edm::EventSetup&);
   void fillLowPtElectrons(const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
+  void fillMixElectrons(const edm::Event&, const edm::EventSetup&, math::XYZPoint&, const reco::Vertex);
   const reco::TransientTrack getTransientTrack(const reco::Track& track);
   const reco::TransientTrack getTransientTrack(const reco::GsfTrack& track);
   OAEParametrizedMagneticField *paramField = new OAEParametrizedMagneticField("3_8T"); 
@@ -130,6 +137,9 @@ class ggNtuplizer : public edm::EDAnalyzer {
 
   bool isAOD_;
   bool runHFElectrons_;
+  bool dumpElectrons_;
+  bool dumpMuons_;
+  bool dumpLowPtElectrons_;
 
   vector<int> newparticles_;
 
@@ -171,6 +181,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::JetTagCollection>         boostedDoubleSVLabel_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> pckPFCandidateCollection_;
   edm::EDGetTokenT<pat::PackedCandidateCollection> lostTracksLabel_;
+  edm::EDGetTokenT<edm::View<pat::PackedGenParticle> >packedGenParticlesCollection_;
 
   // for MET filters
   edm::EDGetTokenT<bool> BadChCandFilterToken_;

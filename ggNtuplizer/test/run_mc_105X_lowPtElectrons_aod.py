@@ -23,7 +23,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_v15', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7')
-process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Sep2018ABC_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_v15', '')
 
 #process.Tracer = cms.Service("Tracer")
 
@@ -50,14 +50,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-        #'/store/data/Run2018A/ParkingBPH3/AOD/14May2018-v1/70000/3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
-        #'/store/data/Run2018A/ParkingBPH3/AOD/14May2018-v1/70000/D82B8CFE-D15A-E811-96DA-0CC47AF9B2FE.root'
-        #'/store/data/Run2018A/DoubleMuon/AOD/22May2018-v1/80000/C694B48F-595E-E811-9634-7CD30AD0A684.root'
-        #'file:3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
-        #'/store/data/Run2018A/ParkingBPH1/AOD/14May2018-v1/30000/609C9387-0D5A-E811-AD09-FA163EDE5C6B.root'
-        #'/store/data/Run2018D/ParkingBPH2/AOD/PromptReco-v2/000/321/712/00000/F6E1D0C4-C7A8-E811-9367-FA163E986694.root'
-        #'/store/data/Run2018A/ParkingBPH1/AOD/22Mar2019-v1/260005/A032FCE0-D492-D94E-9404-EF96EB3A84BB.root'
-        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/00AED519-FA7B-E44A-87DD-D7FAA0F2244E.root'
+        '/store/mc/RunIIAutumn18DR/BsToPhiJpsi_Toee_MuFilter_SoftQCDnonD_TuneCP5_13TeV-pythia8-evtgen/AODSIM/PUPoissonAve20_102X_upgrade2018_realistic_v15-v3/10000/90738B70-0856-1E4E-8902-86B3C339FF4F.root'
         )
                             )
 
@@ -76,10 +69,11 @@ patAlgosToolsTask.add(process.cleanPatCandidatesTask)
 from PhysicsTools.PatAlgos.tools.trigTools import *
 switchOnTrigger( process, None, None, None, None, '' )
 
-from PhysicsTools.PatAlgos.tools.coreTools import *
-runOnData( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outputModules = [] )
+#from PhysicsTools.PatAlgos.tools.coreTools import *
+#runOnMC( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outputModules = [] )
+#runOnData( process,  names=['Photons', 'Electrons','Muons','Taus','Jets'], outputModules = [] )
 #runOnData( process, outputModules = [] )
-removeMCMatching(process, names=['All'], outputModules=[])
+#removeMCMatching(process, names=['All'], outputModules=[])
 
 # this loads all available b-taggers
 #process.load("RecoBTag.Configuration.RecoBTag_cff")
@@ -145,10 +139,12 @@ else :
 #process.ggNtuplizer.jecAK8PayloadNames=cms.vstring(jecLevels)
 process.ggNtuplizer.runHFElectrons=cms.bool(False)
 process.ggNtuplizer.isAOD=cms.bool(useAOD)
-process.ggNtuplizer.doGenParticles=cms.bool(False)
+process.ggNtuplizer.doGenParticles=cms.bool(True)
 process.ggNtuplizer.dumpSubJets=cms.bool(False)
 process.ggNtuplizer.dumpJets=cms.bool(False)
 process.ggNtuplizer.dumpTaus=cms.bool(False)
+process.ggNtuplizer.dumpMuons=cms.bool(False)
+process.ggNtuplizer.dumpLowPtElectrons=cms.bool(False)
 #process.ggNtuplizer.pfMETLabel=cms.InputTag("slimmedMETsMuEGClean", "", "ggKit")
 process.ggNtuplizer.electronSrc=cms.InputTag("selectedPatElectrons")
 

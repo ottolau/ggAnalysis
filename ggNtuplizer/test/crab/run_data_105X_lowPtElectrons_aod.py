@@ -19,9 +19,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_v15', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '80X_dataRun2_2016SeptRepro_v7')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7')
+process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Sep2018ABC_v2', '')
 
 #process.Tracer = cms.Service("Tracer")
 
@@ -54,7 +56,8 @@ process.source = cms.Source("PoolSource",
         #'file:3AAB8D5C-BF59-E811-9475-002590E7DFE4.root'
         #'/store/data/Run2018A/ParkingBPH1/AOD/14May2018-v1/30000/609C9387-0D5A-E811-AD09-FA163EDE5C6B.root'
         #'/store/data/Run2018D/ParkingBPH2/AOD/PromptReco-v2/000/321/712/00000/F6E1D0C4-C7A8-E811-9367-FA163E986694.root'
-        '/store/data/Run2018A/ParkingBPH1/AOD/22Mar2019-v1/260005/A032FCE0-D492-D94E-9404-EF96EB3A84BB.root'
+        #'/store/data/Run2018A/ParkingBPH1/AOD/22Mar2019-v1/260005/A032FCE0-D492-D94E-9404-EF96EB3A84BB.root'
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/00AED519-FA7B-E44A-87DD-D7FAA0F2244E.root'
         )
                             )
 

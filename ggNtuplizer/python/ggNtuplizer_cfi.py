@@ -20,6 +20,9 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              addFilterInfoMINIAOD = cms.bool(False),
                              doNoHFMET            = cms.bool(False),
                              separateVtxFit       = cms.bool(False),
+                             dumpElectrons        = cms.bool(True),
+                             dumpMuons            = cms.bool(True),
+                             dumpLowPtElectrons   = cms.bool(True),
 
                              trgFilterDeltaPtCut  = cms.double(0.4),
                              trgFilterDeltaRCut   = cms.double(0.03),
@@ -95,6 +98,7 @@ ggNtuplizer = cms.EDAnalyzer("ggNtuplizer",
                              lowpTelectrons  = cms.InputTag("lowPtGsfElectrons"),
                              eleBiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","ptbiased","RECO"),
                              eleUnbiasedWP = cms.InputTag("lowPtGsfElectronSeedValueMaps","unbiased","RECO"),
-                             conversions = cms.InputTag("allConversions")
+                             conversions = cms.InputTag("allConversions"),
+                             PackedGenParticleSrc       = cms.InputTag("packedGenParticles")
                              
 )

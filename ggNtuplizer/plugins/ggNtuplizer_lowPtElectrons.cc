@@ -304,6 +304,9 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 
   if (isAOD_) {
 
+    edm::Handle<edm::View<pat::Electron> > electronHandle;
+    e.getByToken(electronCollection_, electronHandle);
+
     edm::Handle<std::vector<reco::GsfElectron> > lowpTelectronHandle;
     e.getByToken(lowpTelectronlabel_, lowpTelectronHandle);
 
@@ -333,6 +336,17 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
       if (fabs(iEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
       if (ConversionTools::hasMatchedConversion(*iEle, conversions, pv)) continue;
 
+      // remove duplicated electrons
+      bool duplicatedEle = false;
+      for (edm::View<pat::Electron>::const_iterator pfEle = electronHandle->begin(); pfEle != electronHandle->end(); ++pfEle) {
+	if (deltaR(iEle->eta(), iEle->phi(), pfEle->eta(), pfEle->phi()) < 0.001) {
+	  duplicatedEle = true;
+	  break;
+	}
+      }
+
+      if (duplicatedEle) continue;
+
       for (reco::GsfElectronCollection::const_iterator jEle = iEle+1; jEle != lowpTelectronHandle->end(); ++jEle) {
 	if (jEle->gsfTrack()->ptMode() < 0.5) continue;
 	//if (iEle->charge()*jEle->charge() > 0.0) continue;
@@ -352,9 +366,21 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	auto leadEle = iele_lv.Pt() > jele_lv.Pt() ? iEle : jEle;
 	auto subleadEle = iele_lv.Pt() > jele_lv.Pt() ? jEle : iEle;
 
-	//if ((*ele_mva_wp_biased)[leadEle->gsfTrack()] < 4.6) continue;
-	if ((*ele_mva_wp_unbiased)[leadEle->gsfTrack()] < 6.0) continue;
-	if ((*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] < 0.19) continue;
+	float leadUnBDT = (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] > (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] ? (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] : (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()];
+	float subleadUnBDT = (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] > (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] ? (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] : (*ele_mva_wp_unbiased)[leadEle->gsfTrack()];
+
+	if (leadUnBDT < 6.0) continue;
+	if (subleadUnBDT < 0.19) continue;
+
+	// remove duplicated electrons
+	for (edm::View<pat::Electron>::const_iterator pfEle = electronHandle->begin(); pfEle != electronHandle->end(); ++pfEle) {
+	  if (deltaR(jEle->eta(), jEle->phi(), pfEle->eta(), pfEle->phi()) < 0.001) {
+	    duplicatedEle = true;
+	    break;
+	  }
+	}
+
+	if (duplicatedEle) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	//std::vector<RefCountedKinematicParticle> XParticles;
@@ -370,7 +396,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
 
 	for (reco::TrackCollection::const_iterator iHad = tracksHandle->begin(); iHad != tracksHandle->end(); ++iHad) {
-	  if (iHad->pt() < 0.8) continue;
+	  if (iHad->pt() < 0.4) continue;
 	  if (fabs(iHad->eta()) > 2.5) continue;
           if (fabs(iHad->vz() - pv.z()) > 0.5) continue;
 	  if (iHad->normalizedChi2() < 0.0) continue;
@@ -378,7 +404,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 
 	  for (reco::TrackCollection::const_iterator jHad = iHad+1; jHad != tracksHandle->end(); ++jHad) {
 	    //if (iHad->charge()*jHad->charge() > 0.0) continue;
-	    if (jHad->pt() <  0.8) continue;
+	    if (jHad->pt() <  0.4) continue;
 	    if (fabs(jHad->eta()) > 2.5) continue;
 	    if (fabs(jHad->vz() - pv.z()) > 0.5) continue;
 	    if (jHad->normalizedChi2() < 0.0) continue;
@@ -411,6 +437,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 
 	    if (DecayVtx->chiSquared() < 0.0) continue;
 	    //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	    if (TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()) < 0.001) continue;
 
 	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
@@ -423,6 +450,8 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
 	    math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
 	    double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+
+	    if (cosAngle < 0.0) continue;
 
 	    lowPtSvChi2_.push_back(DecayVtx->chiSquared());
 	    lowPtSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
@@ -515,6 +544,8 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
     }
   } else {
 
+    edm::Handle<edm::View<pat::Electron> > electronHandle;
+    e.getByToken(electronCollection_, electronHandle);
 
     edm::Handle<std::vector<reco::GsfElectron> > lowpTelectronHandle;
     e.getByToken(lowpTelectronlabel_, lowpTelectronHandle);
@@ -553,6 +584,17 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
       if (fabs(iEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
       if (ConversionTools::hasMatchedConversion(*iEle, conversions, pv)) continue;
 
+      // remove duplicated electrons
+      bool duplicatedEle = false;
+      for (edm::View<pat::Electron>::const_iterator pfEle = electronHandle->begin(); pfEle != electronHandle->end(); ++pfEle) {
+	if (deltaR(iEle->eta(), iEle->phi(), pfEle->eta(), pfEle->phi()) < 0.001) {
+	  duplicatedEle = true;
+	  break;
+	}
+      }
+
+      if (duplicatedEle) continue;
+
       for (reco::GsfElectronCollection::const_iterator jEle = iEle+1; jEle != lowpTelectronHandle->end(); ++jEle) {
 	//if (iEle->charge()*jEle->charge() > 0.0) continue;
 	if (jEle->gsfTrack()->ptMode() < 0.5) continue;
@@ -569,8 +611,21 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	auto leadEle = iEle->pt() > jEle->pt() ? iEle : jEle;
 	auto subleadEle = iEle->pt() > jEle->pt() ? jEle : iEle;
 
-	if ((*ele_mva_wp_unbiased)[leadEle->gsfTrack()] < 6.0) continue;
-	if ((*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] < 0.19) continue;
+	float leadUnBDT = (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] > (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] ? (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] : (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()];
+	float subleadUnBDT = (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] > (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] ? (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] : (*ele_mva_wp_unbiased)[leadEle->gsfTrack()];
+
+	if (leadUnBDT < 6.0) continue;
+	if (subleadUnBDT < 0.19) continue;
+
+	// remove duplicated electrons
+	for (edm::View<pat::Electron>::const_iterator pfEle = electronHandle->begin(); pfEle != electronHandle->end(); ++pfEle) {
+	  if (deltaR(jEle->eta(), jEle->phi(), pfEle->eta(), pfEle->phi()) < 0.001) {
+	    duplicatedEle = true;
+	    break;
+	  }
+	}
+
+	if (duplicatedEle) continue;
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	//std::vector<RefCountedKinematicParticle> XParticles;
@@ -585,7 +640,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	//if (!(KinVtx->isValid()) || KinVtx->currentDecayVertex()->chiSquared() < 0.0) continue;
 
 	for (pat::PackedCandidateCollection::const_iterator iHad = alltracks.begin(); iHad != alltracks.end(); ++iHad) {
-	  if (iHad->pt() <= 0.8) continue;
+	  if (iHad->pt() <= 0.4) continue;
           if (iHad->charge() == 0) continue;
           if (abs(iHad->pdgId()) != 211) continue;
           if (iHad->bestTrack() == nullptr) continue;
@@ -595,7 +650,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	  //if (iHad->normalizedChi2() > 20.0) continue;
 
 	  for (pat::PackedCandidateCollection::const_iterator jHad = iHad+1; jHad != alltracks.end(); ++jHad) {
-	    if (jHad->pt() <= 0.8) continue;
+	    if (jHad->pt() <= 0.4) continue;
             if (jHad->charge() == 0) continue;
             if (abs(jHad->pdgId()) != 211) continue;
             if (jHad->bestTrack() == nullptr) continue;
@@ -631,6 +686,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 
 	    if (DecayVtx->chiSquared() < 0.0) continue;
 	    //if (DecayVtx->chiSquared()/DecayVtx->degreesOfFreedom() > 20.0) continue;
+	    if (TMath::Prob(DecayVtx->chiSquared(), DecayVtx->degreesOfFreedom()) < 0.001) continue;
 
 	    // Accept these 4 tracks as a Bs candidate, fill ntuple
 
@@ -643,6 +699,8 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	    math::XYZPoint dxybs(-1*(pv.x() - DecayVtx->position().x()), -1*(pv.y() - DecayVtx->position().y()), 0.);
 	    math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
 	    double cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+
+	    if (cosAngle < 0.0) continue;
 
 	    lowPtSvChi2_.push_back(DecayVtx->chiSquared());
 	    lowPtSvNDOF_.push_back(DecayVtx->degreesOfFreedom());
