@@ -43,10 +43,10 @@ if __name__ == '__main__':
 
     # dataset dependent configuration
 
-    config.General.requestName = 'ParkingBPH3_Run2018A-05May2019-v1_AOD_15Jun19_LambdaDecayStudy_muon'
+    config.General.requestName = 'ParkingBPH5_Run2018A-05May2019-v1_AOD_15Jun19_LambdaDecayStudy_V0'
 
     config.Data.unitsPerJob    = 15
-    config.Data.inputDataset   = '/ParkingBPH3/Run2018A-05May2019-v1/AOD'
+    config.Data.inputDataset   = '/ParkingBPH5/Run2018A-05May2019-v1/AOD'
     #config.Data.inputDataset   = '/ParkingBPH5/Run2018D-20Mar2019-v1/AOD'
 
     config.Data.outLFNDirBase  = '/store/user/klau/LambdaDecayStudy'

@@ -201,6 +201,7 @@ class ggNtuplizer : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::ValueMap<float> > elePFClusEcalIsoToken_;
   edm::EDGetTokenT<edm::ValueMap<float> > elePFClusHcalIsoToken_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateCollection_;
+  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> lambdaLabel_;
 
   //check
   edm::EDGetToken gsfEle_;

@@ -70,6 +70,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   pckPFCdsLabel_             = consumes<vector<pat::PackedCandidate>>  (ps.getParameter<InputTag>("packedPFCands"));
   recoCdsLabel_              = consumes<View<reco::Candidate>>         (ps.getParameter<InputTag>("packedPFCands"));
   lostTracksLabel_           = consumes<pat::PackedCandidateCollection>(ps.getParameter<InputTag>("lostTracks"));
+  lambdaLabel_               = consumes<reco::VertexCompositeCandidateCollection>(ps.getParameter<InputTag>("lambdaSrc"));
 
   jetsAK4Label_              = consumes<View<pat::Jet> >               (ps.getParameter<InputTag>("ak4JetSrc"));
   jetsAK8Label_              = consumes<View<pat::Jet> >               (ps.getParameter<InputTag>("ak8JetSrc"));
@@ -169,7 +170,6 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   edm::Handle<reco::VertexCollection> vtxHandle;
   e.getByToken(vtxLabel_, vtxHandle);
-
 
   initTriggerFilters(e);
   fillGlobalEvent(e, es);
