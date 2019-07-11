@@ -30,9 +30,10 @@ if __name__ == '__main__':
     #config.Data.lumiMask        = 'Cert_314472-317080_13TeV_PromptReco_Collisions18_JSON.txt'
     #config.Data.lumiMask        = 'Cert_314472-323523_13TeV_PromptReco_Collisions18_JSON.txt'
     config.Data.lumiMask        = 'Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
+    #config.Data.lumiMask        = 'ParkingRun2018A1partial_JSON.txt'
 
     config.Site.storageSite     = 'T3_US_FNALLPC'
-    config.JobType.maxMemoryMB = 4000
+    #config.JobType.maxMemoryMB = 4000
     config.Data.allowNonValidInputDataset = True
 
     def submit(config):
@@ -43,13 +44,14 @@ if __name__ == '__main__':
 
     # dataset dependent configuration
 
-    config.General.requestName = 'ParkingBPH5_Run2018A-05May2019-v1_AOD_15Jun19_BsPhiLL_MixElectron'
+    #config.General.requestName = 'ParkingBPH6_Run2018A-05May2019-v1_AOD_15Jun19_BsPhiLL_MixElectron'
+    config.General.requestName = 'ParkingBPH1_Run2018A-05May2019-v1_AOD_11Jul19_BsPhiLL_LowPtElectron_SculptingStudy'
 
-    config.Data.unitsPerJob    = 20
-    config.Data.inputDataset   = '/ParkingBPH5/Run2018A-05May2019-v1/AOD'
+    config.Data.unitsPerJob    = 3
+    config.Data.inputDataset   = '/ParkingBPH1/Run2018A-05May2019-v1/AOD'
     #config.Data.inputDataset   = '/ParkingBPH5/Run2018D-20Mar2019-v1/AOD'
 
-    config.Data.outLFNDirBase  = '/store/user/klau/MixElectron'
+    config.Data.outLFNDirBase  = '/store/user/klau/LowPtElectron_SculptingStudy'
     p = Process(target=submit, args=(config,))
     p.start()
     p.join()

@@ -146,7 +146,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   if (dumpJets_) branchesJets(tree_);
   if (dumpLowPtElectrons_) {
     branchesLowPtElectrons(tree_);
-    branchesMixElectrons(tree_);
+    //branchesMixElectrons(tree_);
   }
 }
 
@@ -254,7 +254,7 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   if (dumpJets_) fillJets(e,es);
   if (dumpLowPtElectrons_) {
     fillLowPtElectrons(e, es, pv, vtx);
-    fillMixElectrons(e, es, pv, vtx);
+    //fillMixElectrons(e, es, pv, vtx);
   }
 
   hEvents_->Fill(1.5);

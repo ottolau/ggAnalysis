@@ -41,6 +41,10 @@
 #include "TrackingTools/TransientTrack/interface/GsfTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/KinematicFit/interface/MultiTrackPointingKinematicConstraint.h"
+
 #include "ggAnalysis/ggNtuplizer/interface/GenParticleParentage.h"
 #include "ggAnalysis/ggNtuplizer/interface/ggNtuplizer.h"
 
@@ -129,6 +133,16 @@ float          reco_sv_ctxy_;
 float          reco_sv_cosangle_;
 float          reco_sv_lxy_;
 float          reco_sv_lxyerror_;
+
+bool           found_kalmansv_reco_;
+float          reco_kalmansv_chi2_;
+float          reco_kalmansv_ndof_;
+float          reco_kalmansv_prob_;
+float          reco_kalmansv_ctxy_;
+float          reco_kalmansv_cosangle_;
+float          reco_kalmansv_lxy_;
+float          reco_kalmansv_lxyerror_;
+
 float          reco_ee_m_;
 float          reco_phi_m_;
 float          reco_bs_m_;
@@ -217,6 +231,16 @@ void ggNtuplizer::branchesMatchGenParticles(TTree* tree) {
   tree->Branch("reco_sv_cosangle",          &reco_sv_cosangle_);
   tree->Branch("reco_sv_lxy",               &reco_sv_lxy_);
   tree->Branch("reco_sv_lxyerror",          &reco_sv_lxyerror_);
+
+  tree->Branch("found_kalmansv_reco",       &found_kalmansv_reco_);
+  tree->Branch("reco_kalmansv_chi2",        &reco_kalmansv_chi2_);
+  tree->Branch("reco_kalmansv_ndof",        &reco_kalmansv_ndof_);
+  tree->Branch("reco_kalmansv_prob",        &reco_kalmansv_prob_);
+  tree->Branch("reco_kalmansv_ctxy",        &reco_kalmansv_ctxy_);
+  tree->Branch("reco_kalmansv_cosangle",    &reco_kalmansv_cosangle_);
+  tree->Branch("reco_kalmansv_lxy",         &reco_kalmansv_lxy_);
+  tree->Branch("reco_kalmansv_lxyerror",    &reco_kalmansv_lxyerror_);
+
   tree->Branch("reco_ee_m",                 &reco_ee_m_);
   tree->Branch("reco_phi_m",                &reco_phi_m_);
   tree->Branch("reco_bs_m",                 &reco_bs_m_);
@@ -307,6 +331,16 @@ void ggNtuplizer::fillMatchGenParticles(const edm::Event &e, const edm::EventSet
   reco_sv_cosangle_     = -99;
   reco_sv_lxy_          = -99;
   reco_sv_lxyerror_     = -99;
+
+  found_kalmansv_reco_        = false;
+  reco_kalmansv_chi2_         = -99;
+  reco_kalmansv_ndof_         = -99;
+  reco_kalmansv_prob_         = -99;
+  reco_kalmansv_ctxy_         = -99;
+  reco_kalmansv_cosangle_     = -99;
+  reco_kalmansv_lxy_          = -99;
+  reco_kalmansv_lxyerror_     = -99;
+
   reco_ee_m_            = -99;
   reco_phi_m_           = -99;
   reco_bs_m_            = -99;
@@ -429,6 +463,7 @@ void ggNtuplizer::fillMatchGenParticles(const edm::Event &e, const edm::EventSet
 
   if (found_elep_reco && found_elem_reco && found_kp_reco && found_km_reco) {
 
+    // kinematic vertex fit
     KinematicParticleFactoryFromTransientTrack pFactory;  
     std::vector<RefCountedKinematicParticle> BsParticles;
 
@@ -468,6 +503,47 @@ void ggNtuplizer::fillMatchGenParticles(const edm::Event &e, const edm::EventSet
       reco_phi_m_ = phi_reco_lv.M();
       reco_bs_m_ = bs_reco_lv.M();
     }
+
+    // kalman vertex fit
+    KalmanVertexFitter theKalmanFitter(false);
+    TransientVertex BsKalmanVertex;
+    std::vector<reco::TransientTrack> tempTracks;
+    tempTracks.push_back(getTransientTrack( tracksHandle->at(kp_reco_id) ));
+    tempTracks.push_back(getTransientTrack( tracksHandle->at(km_reco_id) ));
+    tempTracks.push_back(getTransientTrack( *(electronHandle->at(elep_reco_id).gsfTrack()) ));
+    tempTracks.push_back(getTransientTrack( *(electronHandle->at(elem_reco_id).gsfTrack()) ));
+
+    BsKalmanVertex = theKalmanFitter.vertex(tempTracks);
+    if (BsKalmanVertex.isValid() && BsKalmanVertex.totalChiSquared() > 0.0) {
+      elep_reco_lv.SetPtEtaPhiM(electronHandle->at(elep_reco_id).pt(), electronHandle->at(elep_reco_id).eta(), electronHandle->at(elep_reco_id).phi(), eleM);
+      elem_reco_lv.SetPtEtaPhiM(electronHandle->at(elem_reco_id).pt(), electronHandle->at(elem_reco_id).eta(), electronHandle->at(elem_reco_id).phi(), eleM);
+      kp_reco_lv.SetPtEtaPhiM(tracksHandle->at(kp_reco_id).pt(), tracksHandle->at(kp_reco_id).eta(), tracksHandle->at(kp_reco_id).phi(), kaonM);
+      km_reco_lv.SetPtEtaPhiM(tracksHandle->at(km_reco_id).pt(), tracksHandle->at(km_reco_id).eta(), tracksHandle->at(km_reco_id).phi(), kaonM);
+      ee_reco_lv = elep_reco_lv + elem_reco_lv;
+      phi_reco_lv = kp_reco_lv + km_reco_lv;
+      bs_reco_lv = ee_reco_lv + phi_reco_lv; 
+   
+      float ctxy = ((BsKalmanVertex.position().x() - pv.x())*bs_reco_lv.Px() + (BsKalmanVertex.position().y() - pv.y())*bs_reco_lv.Py())/(pow(bs_reco_lv.Pt(),2))*bs_reco_lv.M();
+      
+      math::XYZVector perp(bs_reco_lv.Px(), bs_reco_lv.Py(), 0.);
+      math::XYZPoint dxybs(-1*(pv.x() - BsKalmanVertex.position().x()), -1*(pv.y() - BsKalmanVertex.position().y()), 0.);
+      math::XYZVector vperp(dxybs.x(), dxybs.y(), 0.);
+      float cosAngle = vperp.Dot(perp)/(vperp.R()*perp.R());
+
+      found_kalmansv_reco_ = true;
+      reco_kalmansv_chi2_ = BsKalmanVertex.totalChiSquared();
+      reco_kalmansv_ndof_ = BsKalmanVertex.degreesOfFreedom();
+      reco_kalmansv_prob_ = TMath::Prob(BsKalmanVertex.totalChiSquared(), BsKalmanVertex.degreesOfFreedom());
+      reco_kalmansv_ctxy_ = ctxy;
+      reco_kalmansv_cosangle_ = cosAngle;
+      reco_kalmansv_lxy_ = vertTool.distance(vtx, BsKalmanVertex).value();
+      reco_kalmansv_lxyerror_ = vertTool.distance(vtx, BsKalmanVertex).error();
+      reco_ee_m_ = ee_reco_lv.M();
+      reco_phi_m_ = phi_reco_lv.M();
+      reco_bs_m_ = bs_reco_lv.M();
+
+    }
+
   }
 
   // fill tree for gen particles

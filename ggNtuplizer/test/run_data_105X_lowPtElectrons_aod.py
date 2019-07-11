@@ -27,7 +27,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Sep2018ABC_v2', 
 
 #process.Tracer = cms.Service("Tracer")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 #jec from sqlite
@@ -57,7 +57,27 @@ process.source = cms.Source("PoolSource",
         #'/store/data/Run2018A/ParkingBPH1/AOD/14May2018-v1/30000/609C9387-0D5A-E811-AD09-FA163EDE5C6B.root'
         #'/store/data/Run2018D/ParkingBPH2/AOD/PromptReco-v2/000/321/712/00000/F6E1D0C4-C7A8-E811-9367-FA163E986694.root'
         #'/store/data/Run2018A/ParkingBPH1/AOD/22Mar2019-v1/260005/A032FCE0-D492-D94E-9404-EF96EB3A84BB.root'
-        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/00AED519-FA7B-E44A-87DD-D7FAA0F2244E.root'
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/00AED519-FA7B-E44A-87DD-D7FAA0F2244E.root'
+
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/16EC270D-C475-9647-A013-96EBD7115C4F.root',
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/0EE57B57-5597-3044-A521-5064CB268C76.root',
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/F6CC7A32-BEEC-3C45-9066-9A8D6F228DD1.root',
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/E0FBEA3F-7D14-3C48-AD25-49698B54C9EA.root',
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/930DA84E-76CC-A349-AC08-8CF72EF4C87D.root',
+        #'/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/DC6F7251-9323-374F-ACEF-168BCC743683.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/04879D85-8B10-E747-9EAA-A2324D784F44.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/74748455-B71D-5049-8808-927AA00C97A7.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/86DBBDD8-77E2-024D-8A89-00CAEBA63808.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/20CC92E9-1EED-9845-8018-6981C8F92D65.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/46FD4859-40E4-0345-86CF-8E18C9D3CD48.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/2796ADDB-41F0-494C-B712-ED88CAC6B411.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/BAE91599-C5E4-7A45-A06B-34D12BE6CFD4.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/50B6DE94-7AFC-8544-B52F-2D651033E09A.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/F3A196A3-478E-B74B-AC7D-7BC94596A0C5.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/28871137-5777-2E48-B9BE-6FC4FC697335.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/548F6CA5-B727-BA4B-808E-23054EB101E9.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/A65DD5F6-A1FA-8142-9016-39863A46293D.root',
+        '/store/data/Run2018A/ParkingBPH1/AOD/05May2019-v1/00000/E5FF5BB6-7E91-484C-9211-78174A004B41.root',
         )
                             )
 
@@ -149,6 +169,8 @@ process.ggNtuplizer.doGenParticles=cms.bool(False)
 process.ggNtuplizer.dumpSubJets=cms.bool(False)
 process.ggNtuplizer.dumpJets=cms.bool(False)
 process.ggNtuplizer.dumpTaus=cms.bool(False)
+process.ggNtuplizer.dumpMuons=cms.bool(False)
+process.ggNtuplizer.dumpElectrons=cms.bool(False)
 #process.ggNtuplizer.pfMETLabel=cms.InputTag("slimmedMETsMuEGClean", "", "ggKit")
 process.ggNtuplizer.electronSrc=cms.InputTag("selectedPatElectrons")
 

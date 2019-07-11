@@ -336,6 +336,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
       if (fabs(iEle->gsfTrack()->vz() - pv.z()) > 0.5) continue;
       if (ConversionTools::hasMatchedConversion(*iEle, conversions, pv)) continue;
 
+      /*
       // remove duplicated electrons
       bool duplicatedEle = false;
       for (edm::View<pat::Electron>::const_iterator pfEle = electronHandle->begin(); pfEle != electronHandle->end(); ++pfEle) {
@@ -346,6 +347,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
       }
 
       if (duplicatedEle) continue;
+      */
 
       for (reco::GsfElectronCollection::const_iterator jEle = iEle+1; jEle != lowpTelectronHandle->end(); ++jEle) {
 	if (jEle->gsfTrack()->ptMode() < 0.5) continue;
@@ -369,9 +371,10 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	float leadUnBDT = (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] > (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] ? (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] : (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()];
 	float subleadUnBDT = (*ele_mva_wp_unbiased)[leadEle->gsfTrack()] > (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] ? (*ele_mva_wp_unbiased)[subleadEle->gsfTrack()] : (*ele_mva_wp_unbiased)[leadEle->gsfTrack()];
 
-	if (leadUnBDT < 6.0) continue;
+	if (leadUnBDT < 0.19) continue;
 	if (subleadUnBDT < 0.19) continue;
 
+	/*
 	// remove duplicated electrons
 	for (edm::View<pat::Electron>::const_iterator pfEle = electronHandle->begin(); pfEle != electronHandle->end(); ++pfEle) {
 	  if (deltaR(jEle->eta(), jEle->phi(), pfEle->eta(), pfEle->phi()) < 0.001) {
@@ -381,6 +384,7 @@ void ggNtuplizer::fillLowPtElectrons(const edm::Event &e, const edm::EventSetup 
 	}
 
 	if (duplicatedEle) continue;
+	*/
 
 	KinematicParticleFactoryFromTransientTrack pFactory;  
 	//std::vector<RefCountedKinematicParticle> XParticles;
