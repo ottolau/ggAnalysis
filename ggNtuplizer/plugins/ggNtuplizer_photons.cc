@@ -418,17 +418,14 @@ void ggNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(rhoLabel_, rhoHandle);
   double rho    = *(rhoHandle.product());
 
-  if (isAOD_) {
-    edm::Handle<reco::PFCandidateCollection> pfAllCandidates;
-    e.getByToken(pfAllParticles_, pfAllCandidates);
+  edm::Handle<pat::PackedCandidateCollection> pfAllCandidates;
+  e.getByToken(pfAllParticles_, pfAllCandidates);
 
     //cicPhotonId_->configure(recVtxsBS, tracksHandle, gsfElectronHandle, pfAllCandidates, rho);
-    cicPhotonId_->configure(recVtxs, tracksHandle, gsfElectronHandle, pfAllCandidates, rho);
-  }
+  //cicPhotonId_->configure(recVtxs, tracksHandle, gsfElectronHandle, pfAllCandidates, rho);
 
   for (edm::View<pat::Photon>::const_iterator iPho = photonHandle->begin(); iPho != photonHandle->end(); ++iPho) {
-
-    Float_t corrPt = -1;
+     Float_t corrPt = -1;
     Float_t corrEn = -1;
     for (edm::View<pat::Photon>::const_iterator iCPho = calibphotonHandle->begin(); iCPho != calibphotonHandle->end(); ++iCPho) {
       if (fabs(iPho->eta() - iCPho->eta()) < 0.001 && fabs(iPho->phi() - iCPho->phi()) < 0.001) {

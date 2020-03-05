@@ -23,6 +23,7 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   runOnParticleGun_          = ps.getParameter<bool>("runOnParticleGun");
   runOnSherpa_               = ps.getParameter<bool>("runOnSherpa");
   dumpPhotons_               = ps.getParameter<bool>("dumpPhotons");
+  dumpGenPhotons_            = ps.getParameter<bool>("dumpGenPhotons"); 
   dumpJets_                  = ps.getParameter<bool>("dumpJets");
   dumpSubJets_               = ps.getParameter<bool>("dumpSubJets");
   dumpSoftDrop_              = ps.getParameter<bool>("dumpSoftDrop");
@@ -30,9 +31,6 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   dumpPDFSystWeight_         = ps.getParameter<bool>("dumpPDFSystWeight");
   isAOD_                     = ps.getParameter<bool>("isAOD");
   runHFElectrons_            = ps.getParameter<bool>("runHFElectrons");
-  dumpElectrons_             = ps.getParameter<bool>("dumpElectrons");
-  dumpMuons_                 = ps.getParameter<bool>("dumpMuons");
-  dumpLowPtElectrons_        = ps.getParameter<bool>("dumpLowPtElectrons");
 
   trgFilterDeltaPtCut_       = ps.getParameter<double>("trgFilterDeltaPtCut");
   trgFilterDeltaRCut_        = ps.getParameter<double>("trgFilterDeltaRCut");
@@ -73,7 +71,6 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   pckPFCdsLabel_             = consumes<vector<pat::PackedCandidate>>  (ps.getParameter<InputTag>("packedPFCands"));
   recoCdsLabel_              = consumes<View<reco::Candidate>>         (ps.getParameter<InputTag>("packedPFCands"));
   lostTracksLabel_           = consumes<pat::PackedCandidateCollection>(ps.getParameter<InputTag>("lostTracks"));
-  packedGenParticlesCollection_    = consumes<edm::View<pat::PackedGenParticle> >    (ps.getParameter<InputTag>("PackedGenParticleSrc"));
 
   jetsAK4Label_              = consumes<View<pat::Jet> >               (ps.getParameter<InputTag>("ak4JetSrc"));
   jetsAK8Label_              = consumes<View<pat::Jet> >               (ps.getParameter<InputTag>("ak8JetSrc"));
@@ -100,10 +97,11 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   tok_eleTtk_ = consumes< std::vector<std::pair<edm::Ptr<pat::Electron>, reco::Track>> >(edm::InputTag("ttk","eleTtkMap"));
   deDxProducer_ = consumes<reco::DeDxDataValueMap>(edm::InputTag("dedxHarmonic2"));
 
-  lowpTelectronlabel_        = consumes<std::vector<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("lowpTelectrons"));
+  lowpTelectronlabel_            = consumes<std::vector<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("lowpTelectrons"));
   eleBWPToken_               = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleBiasedWP"));
   eleUnBWPToken_             = consumes<edm::ValueMap<float> >(ps.getParameter<edm::InputTag>("eleUnbiasedWP"));
   conversionsToken_          = consumes<reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
+
 
   // Photon ID in VID framwork 
   phoLooseIdMapToken_             = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("phoLooseIdMap"));
@@ -130,24 +128,25 @@ ggNtuplizer::ggNtuplizer(const edm::ParameterSet& ps) :
   branchesTriggers(tree_);
 
   if (doGenParticles_) {
-    //branchesGenInfo(tree_, fs);
-    //branchesGenPart(tree_);
-    branchesMatchGenParticles(tree_);
+    branchesGenInfo(tree_, fs);
+    branchesGenPart(tree_);
   }
 
   //branchesMET(tree_);
   //branchesPhotons(tree_);
   if (dumpPhotons_) branchesPFPhotons(tree_);
-  if (dumpElectrons_) branchesElectrons(tree_);
+  if (dumpGenPhotons_) branchesGenPFPhotons(tree_);
+  //branchesElectrons(tree_);
+  branchesV1Tracks(tree_);
+  //branchesV2Tracks(tree_);
+  //branchesV3Tracks(tree_);
+
   if (separateVtxFit_) branchesHadrons(tree_);
   if (runHFElectrons_) branchesHFElectrons(tree_);
-  if (dumpMuons_) branchesMuons(tree_);
+  //branchesMuons(tree_);
   if (dumpTaus_) branchesTaus(tree_);
   if (dumpJets_) branchesJets(tree_);
-  if (dumpLowPtElectrons_) {
-    branchesLowPtElectrons(tree_);
-    branchesMixElectrons(tree_);
-  }
+  //branchesLowPtElectrons(tree_);
 }
 
 ggNtuplizer::~ggNtuplizer() {
@@ -186,34 +185,10 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   e.getByToken(muonCollection_, muonHandle);
   double thetagmu_vz = 0.0;
 
-  if (! doGenParticles_) {
-    for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
-      if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) {
-        thetagmu_vz = iMu->vz();
-        break;
-      }
-    }
-  } else {
-    edm::Handle<vector<reco::GenParticle> > genParticlesHandle;
-    e.getByToken(genParticlesCollection_, genParticlesHandle);
-    float thetagmuPt = -99.0;
-    int thetagmu_gen_id = -1;
-    for (vector<reco::GenParticle>::const_iterator ip = genParticlesHandle->begin(); ip != genParticlesHandle->end(); ++ip) {
-      if (abs(ip->pdgId()) != 13 || ip->status() != 1) continue;
-      if (ip->pt() > thetagmuPt) {
-        thetagmuPt = ip->pt();
-        thetagmu_gen_id = ip - genParticlesHandle->begin();
-      }
-    }
-    if (thetagmu_gen_id != -1) {
-      double temp_dR = 9999999999.0, bestdR_thetagmu = 999999999.0;
-      for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
-        temp_dR = deltaR(iMu->eta(), iMu->phi(), genParticlesHandle->at(thetagmu_gen_id).eta(), genParticlesHandle->at(thetagmu_gen_id).phi());
-        if (temp_dR < bestdR_thetagmu) {
-              bestdR_thetagmu = temp_dR;
-              thetagmu_vz =  iMu->vz();
-        }
-      }
+  for (edm::View<pat::Muon>::const_iterator iMu = muonHandle->begin(); iMu != muonHandle->end(); ++iMu) {
+    if (matchMuonTriggerFilters(iMu->pt(), iMu->eta(), iMu->phi()) == 1) {
+      thetagmu_vz = iMu->vz();
+      break;
     }
   }
 
@@ -238,24 +213,25 @@ void ggNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es) {
   if (!e.isRealData()) {
     //fillGenInfo(e);
     if (doGenParticles_)
-      //fillGenPart(e);
-      fillMatchGenParticles(e, es, pv, vtx);
+      fillGenPart(e);
   }
 
   //fillMET(e, es);
-  //fillPhotons(e, es); // FIXME: photons have different vertex (not pv)
+  if (dumpPhotons_) fillPFPhotons(e, es); // FIXME: photons have different vertex (not pv)
+  if (dumpGenPhotons_) fillGenPFPhotons(e, es);
   //fillPFPhotons(e, es);
-  if (dumpElectrons_) fillElectrons(e, es, pv, vtx);
+  //fillElectrons(e, es, pv, vtx);
+  fillV1Tracks(e, pv, vtx);
+  //fillV2Tracks(e, pv, vtx);
+  //fillV3Tracks(e, pv, vtx);
+
   if (separateVtxFit_) fillHadrons(e, es, pv);
 
   if (runHFElectrons_ ) fillHFElectrons(e);
-  if (dumpMuons_) fillMuons(e, pv, vtx);
+  //fillMuons(e, pv, vtx);
   if (dumpTaus_) fillTaus(e);
   if (dumpJets_) fillJets(e,es);
-  if (dumpLowPtElectrons_) {
-    fillLowPtElectrons(e, es, pv, vtx);
-    fillMixElectrons(e, es, pv, vtx);
-  }
+  //fillLowPtElectrons(e, es, pv, vtx);
 
   hEvents_->Fill(1.5);
   tree_->Fill();
